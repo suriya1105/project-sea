@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "https://your-render-backend-url.onrender.com/api/$1"
+    },
+    {
+      "src": "/socket.io/(.*)",
+      "dest": "https://your-render-backend-url.onrender.com/socket.io/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ],
+  "env": {
+    "REACT_APP_API_BASE_URL": "https://your-render-backend-url.onrender.com",
+    "REACT_APP_SOCKET_URL": "https://your-render-backend-url.onrender.com"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "admin@seatrace.com": {
+    "id": 1,
+    "name": "Admin User",
+    "email": "admin@seatrace.com",
+    "password": "admin123",
+    "role": "admin",
+    "company": "SeaTrace Admin",
+    "created_at": "2025-01-01T00:00:00Z",
+    "last_login": null,
+    "active": true
+  },
+  "operator@seatrace.com": {
+    "id": 2,
+    "name": "Operator User",
+    "email": "operator@seatrace.com",
+    "password": "operator123",
+    "role": "operator",
+    "company": "SeaTrace Ops",
+    "created_at": "2025-01-01T00:00:00Z",
+    "last_login": null,
+    "active": true
+  },
+  "viewer@seatrace.com": {
+    "id": 3,
+    "name": "Viewer User",
+    "email": "viewer@seatrace.com",
+    "password": "viewer123",
+    "role": "viewer",
+    "company": "SeaTrace Monitor",
+    "created_at": "2025-01-01T00:00:00Z",
+    "last_login": null,
+    "active": true
+  },
+  "test@seatrace.com": {
+    "id": 4,
+    "name": "Test User",
+    "email": "test@seatrace.com",
+    "password": "password123",
+    "role": "operator",
+    "company": "Test Company",
+    "created_at": "2025-01-01T00:00:00Z",
+    "last_login": null,
+    "active": true
+  }
+}</content>
+<parameter name="filePath">c:\Users\suriy\project sea\backend\data\users.json

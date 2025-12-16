@@ -1,0 +1,666 @@
+"""
+SeaTrace - Advanced Marine Intelligence & Real-Time Monitoring System
+Copyright © 2025 by Suriya. All rights reserved.
+
+This application provides real-time vessel tracking, oil spill detection,
+and environmental monitoring for maritime operations.
+"""
+
+from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS
+from flask_socketio import SocketIO, emit, join_room, leave_room
+import jwt
+import json
+from datetime import datetime, timedelta
+from functools import wraps
+import os
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from io import BytesIO
+import random
+import requests
+from data_manager import data_manager
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-prod')
+CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+def log_access(user_email, action, resource, details=None):
+    """Log user access for audit trail"""
+    log_entry = {
+        'timestamp': datetime.utcnow().isoformat(),
+        'user_email': user_email,
+        'action': action,
+        'resource': resource,
+        'details': details or {}
+    }
+    data_manager.add_audit_log(log_entry)
+
+# Token verification decorator
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        auth_header = request.headers.get('Authorization', '')
+        
+        if auth_header:
+            try:
+                token = auth_header.replace('Bearer ', '')
+            except:
+                return jsonify({'error': 'Invalid token format'}), 401
+        
+        if not token:
+            return jsonify({'error': 'Token missing'}), 401
+        
+        try:
+            payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+            user_email = payload['email']
+            user = data_manager.get_user(user_email)
+            if not user:
+                return jsonify({'error': 'User not found'}), 401
+            request.user = user
+        except jwt.ExpiredSignatureError:
+            return jsonify({'error': 'Token expired'}), 401
+        except:
+            return jsonify({'error': 'Invalid token'}), 401
+        
+        return f(*args, **kwargs)
+    return decorated
+
+# Role verification decorator
+def role_required(required_role):
+    def decorator(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            if not hasattr(request, 'user'):
+                return jsonify({'error': 'Unauthorized'}), 401
+            
+            user_role = request.user.get('role', 'viewer')
+            
+            # Role hierarchy: admin > operator > viewer
+            role_hierarchy = {'admin': 3, 'operator': 2, 'viewer': 1}
+            
+            if role_hierarchy.get(user_role, 0) < role_hierarchy.get(required_role, 0):
+                return jsonify({'error': 'Insufficient permissions'}), 403
+            
+            return f(*args, **kwargs)
+        return decorated
+    return decorator
+
+@app.route('/api/auth/login', methods=['POST'])
+def login():
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+    
+    if not email or not password:
+        return jsonify({'error': 'Email and password required'}), 400
+    
+    user = data_manager.get_user(email)
+    if user and user['password'] == password:
+        # Log successful login
+        log_access(email, 'LOGIN', 'authentication', {'success': True})
+        
+        token = jwt.encode(
+            {
+                'email': email,
+                'exp': datetime.utcnow() + timedelta(hours=24)
+            },
+            app.config['SECRET_KEY'],
+            algorithm='HS256'
+        )
+        
+        return jsonify({
+            'token': token,
+            'user': {
+                'id': user['id'],
+                'name': user['name'],
+                'email': user['email'],
+                'role': user['role'],
+                'company': user.get('company', 'Unknown Company')
+            }
+        }), 200
+    
+    # Log failed login attempt
+    log_access(email or 'unknown', 'LOGIN_FAILED', 'authentication', {'success': False})
+    return jsonify({'error': 'Invalid email or password'}), 401
+
+@app.route('/api/auth/logout', methods=['POST'])
+@token_required
+def logout():
+    return jsonify({'message': 'Logged out'}), 200
+
+@app.route('/api/user/profile', methods=['GET'])
+@token_required
+def get_profile():
+    user = request.user
+    return jsonify({
+        'id': user['id'],
+        'name': user['name'],
+        'email': user['email'],
+        'role': user['role'],
+        'company': user.get('company', 'Unknown Company')
+    }), 200
+
+# Company User Management Endpoints
+@app.route('/api/admin/users/register', methods=['POST'])
+@token_required
+def register_company_user():
+    """Admin only: Register a new company user"""
+    if request.user.get('role') != 'admin':
+        log_access(request.user['email'], 'UNAUTHORIZED_REGISTER', 'user_management', {'target_email': ''})
+        return jsonify({'error': 'Admin access required'}), 403
+    
+    data = request.json
+    email = data.get('email')
+    name = data.get('name')
+    password = data.get('password')
+    company = data.get('company')
+    role = data.get('role', 'operator')
+    
+    if not all([email, name, password, company]):
+        return jsonify({'error': 'Missing required fields: email, name, password, company'}), 400
+    
+    if data_manager.get_user(email):
+        return jsonify({'error': 'User already exists'}), 409
+    
+    # Create new user
+    new_user = {
+        'id': data_manager.get_next_user_id(),
+        'name': name,
+        'email': email,
+        'password': password,
+        'role': role,
+        'company': company,
+        'created_at': datetime.utcnow().isoformat(),
+        'last_login': None,
+        'active': True
+    }
+    
+    data_manager.add_user(email, new_user)
+    
+    log_access(request.user['email'], 'CREATE_USER', 'user_management', {'new_user': email, 'company': company})
+    
+    return jsonify({
+        'message': f'User {email} created successfully',
+        'user': {
+            'id': new_user['id'],
+            'email': email,
+            'name': name,
+            'company': company,
+            'role': role
+        }
+    }), 201
+
+@app.route('/api/admin/users', methods=['GET'])
+@token_required
+def get_all_users():
+    """Admin only: Get all users"""
+    if request.user.get('role') != 'admin':
+        log_access(request.user['email'], 'UNAUTHORIZED_LIST_USERS', 'user_management')
+        return jsonify({'error': 'Admin access required'}), 403
+    
+    log_access(request.user['email'], 'LIST_USERS', 'user_management')
+    
+    users_data = data_manager.get_users()
+    user_list = []
+    for email, user in users_data.items():
+        user_list.append({
+            'id': user['id'],
+            'email': email,
+            'name': user['name'],
+            'role': user['role'],
+            'company': user.get('company', 'Unknown Company')
+        })
+    
+    return jsonify(user_list), 200
+
+@app.route('/api/admin/users/<email>', methods=['DELETE'])
+@token_required
+def delete_user(email):
+    """Admin only: Delete a user"""
+    if request.user.get('role') != 'admin':
+        log_access(request.user['email'], 'UNAUTHORIZED_DELETE_USER', 'user_management', {'target': email})
+        return jsonify({'error': 'Admin access required'}), 403
+    
+    if email == request.user['email']:
+        return jsonify({'error': 'Cannot delete yourself'}), 400
+    
+    if not data_manager.get_user(email):
+        return jsonify({'error': 'User not found'}), 404
+    
+    data_manager.delete_user(email)
+    log_access(request.user['email'], 'DELETE_USER', 'user_management', {'deleted_email': email})
+    
+    return jsonify({'message': f'User {email} deleted successfully'}), 200
+
+# Audit Logging Endpoints
+@app.route('/api/admin/audit-logs', methods=['GET'])
+@token_required
+def get_audit_logs():
+    """Admin only: Get all audit logs"""
+    if request.user.get('role') != 'admin':
+        log_access(request.user['email'], 'UNAUTHORIZED_AUDIT_LOGS', 'audit')
+        return jsonify({'error': 'Admin access required'}), 403
+    
+    limit = request.args.get('limit', 100, type=int)
+    offset = request.args.get('offset', 0, type=int)
+    
+    # Get all audit logs from data manager
+    all_logs = data_manager.get_audit_logs()
+    # Return logs in reverse chronological order
+    logs = sorted(all_logs, key=lambda x: x['timestamp'], reverse=True)[offset:offset+limit]
+    
+    return jsonify({
+        'total': len(all_logs),
+        'count': len(logs),
+        'logs': logs
+    }), 200
+
+@app.route('/api/admin/audit-logs/user/<email>', methods=['GET'])
+@token_required
+def get_user_audit_logs(email):
+    """Admin only: Get audit logs for specific user"""
+    if request.user.get('role') != 'admin':
+        log_access(request.user['email'], 'UNAUTHORIZED_USER_AUDIT', 'audit', {'target_user': email})
+        return jsonify({'error': 'Admin access required'}), 403
+    
+    limit = request.args.get('limit', 50, type=int)
+    all_logs = data_manager.get_audit_logs()
+    user_logs = [log for log in all_logs if log['user_email'] == email]
+    user_logs = sorted(user_logs, key=lambda x: x['timestamp'], reverse=True)[:limit]
+    
+    return jsonify({
+        'user_email': email,
+        'count': len(user_logs),
+        'logs': user_logs
+    }), 200
+
+@app.route('/api/vessels', methods=['GET'])
+@token_required
+def get_vessels():
+    """Get all vessels - viewable by all roles"""
+    log_access(request.user['email'], 'VIEW', 'vessels_list')
+    return jsonify(data_manager.get_vessels()), 200
+
+@app.route('/api/vessels/<imo>', methods=['GET'])
+@token_required
+def get_vessel(imo):
+    """Get specific vessel details - operator/admin only"""
+    user_role = request.user.get('role', 'viewer')
+    if user_role == 'viewer':
+        log_access(request.user['email'], 'UNAUTHORIZED_ACCESS', 'vessel', {'imo': imo})
+        return jsonify({'error': 'Access denied for viewers'}), 403
+    
+    vessel = vessels.get(imo)
+    if not vessel:
+        return jsonify({'error': 'Vessel not found'}), 404
+    
+    log_access(request.user['email'], 'VIEW', 'vessel_details', {'imo': imo})
+    return jsonify(vessel), 200
+
+@app.route('/api/vessels/<imo>', methods=['PUT'])
+@token_required
+@role_required('operator')
+def update_vessel(imo):
+    """Update vessel - requires operator or admin (admin only)"""
+    if request.user.get('role') != 'admin':
+        log_access(request.user['email'], 'UNAUTHORIZED_UPDATE_VESSEL', 'vessel', {'imo': imo})
+        return jsonify({'error': 'Only admin can modify vessel data'}), 403
+    vessel = data_manager.get_vessel(imo)
+    if not vessel:
+        return jsonify({'error': 'Vessel not found'}), 404
+    
+    data = request.json
+    updated_vessel = data_manager.update_vessel(imo, data)
+    if not updated_vessel:
+        return jsonify({'error': 'Vessel not found'}), 404
+    
+    return jsonify(updated_vessel), 200
+
+@app.route('/api/oil-spills', methods=['GET'])
+@token_required
+def get_oil_spills():
+    """Get all oil spill incidents - viewable by all roles"""
+    log_access(request.user['email'], 'VIEW', 'oil_spills_list')
+    return jsonify(data_manager.get_oil_spills()), 200
+
+@app.route('/api/oil-spills/<spill_id>', methods=['GET'])
+@token_required
+@role_required('operator')
+def get_oil_spill(spill_id):
+    """Get specific oil spill details"""
+    spill = data_manager.get_oil_spill(spill_id)
+    if not spill:
+        return jsonify({'error': 'Oil spill not found'}), 404
+    
+    log_access(request.user['email'], 'VIEW', 'oil_spill_details', {'spill_id': spill_id})
+    return jsonify(spill), 200
+
+@app.route('/api/reports/generate', methods=['POST'])
+@token_required
+@role_required('operator')
+def generate_report():
+    """Generate simplified PDF analysis report for real-time monitoring"""
+    data = request.json or {}
+    report_type = data.get('type', 'realtime')  # realtime, vessels, spills, comprehensive
+    
+    try:
+        # Create PDF
+        pdf_buffer = BytesIO()
+        doc = SimpleDocTemplate(pdf_buffer, pagesize=letter,
+                              rightMargin=50, leftMargin=50,
+                              topMargin=50, bottomMargin=30)
+        
+        elements = []
+        styles = getSampleStyleSheet()
+        
+        # Custom styles
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=26,
+            textColor=colors.HexColor('#2563eb'),
+            spaceAfter=12,
+            alignment=1,
+            fontName='Helvetica-Bold'
+        )
+        
+        heading_style = ParagraphStyle(
+            'CustomHeading',
+            parent=styles['Heading2'],
+            fontSize=14,
+            textColor=colors.HexColor('#1e40af'),
+            spaceAfter=12,
+            spaceBefore=12,
+            fontName='Helvetica-Bold'
+        )
+        
+        # Title and Header
+        elements.append(Paragraph("⛵ SeaTrace - Real-Time Marine Analysis", title_style))
+        elements.append(Paragraph(f"Report Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", styles['Normal']))
+        elements.append(Paragraph(f"Region: Indian Ocean | Analysis Type: {report_type.upper()}", styles['Normal']))
+        elements.append(Spacer(1, 0.3*inch))
+        
+        # Real-time Vessel Tracking Analysis
+        if report_type in ['realtime', 'vessels', 'comprehensive']:
+            elements.append(Paragraph("📍 Real-Time Vessel Locations & Movement", heading_style))
+            
+            vessel_data = [['Vessel Name', 'Location', 'Speed', 'Destination', 'Risk Level', 'Status']]
+            for vessel in vessels_data:
+                vessel_data.append([
+                    vessel['name'][:20],
+                    f"{vessel['lat']:.2f}°N, {vessel['lon']:.2f}°E",
+                    f"{vessel['speed']} kts",
+                    vessel['destination'][:15],
+                    vessel['risk_level'],
+                    vessel['status']
+                ])
+            
+            table = Table(vessel_data, colWidths=[1.2*inch, 1.3*inch, 0.8*inch, 1.0*inch, 0.8*inch, 0.7*inch])
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2563eb')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 9),
+                ('FONTSIZE', (0, 1), (-1, -1), 8),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#f0f9ff')),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#cbd5e1')),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f8fafc')])
+            ]))
+            elements.append(table)
+            elements.append(Spacer(1, 0.3*inch))
+        
+        # Oil Spill Monitoring Analysis
+        if report_type in ['realtime', 'spills', 'comprehensive']:
+            elements.append(Paragraph("🛢️ Oil Spill Detection & Status", heading_style))
+            
+            spill_data = [['Incident ID', 'Location', 'Severity', 'Size', 'Status', 'Confidence']]
+            for spill in oil_spills_data:
+                spill_data.append([
+                    spill['spill_id'],
+                    f"{spill['lat']:.2f}°N, {spill['lon']:.2f}°E",
+                    spill['severity'],
+                    f"{spill['size_tons']} tons",
+                    spill['status'],
+                    f"{spill['confidence']}%"
+                ])
+            
+            table = Table(spill_data, colWidths=[1.0*inch, 1.3*inch, 0.9*inch, 1.0*inch, 1.0*inch, 0.8*inch])
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#ef4444')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 9),
+                ('FONTSIZE', (0, 1), (-1, -1), 8),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#fef2f2')),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#fecaca')),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#fef5f5')])
+            ]))
+            elements.append(table)
+            elements.append(Spacer(1, 0.3*inch))
+        
+        # Summary Statistics
+        if report_type in ['realtime', 'comprehensive']:
+            elements.append(Paragraph("📊 Summary Statistics", heading_style))
+            
+            vessels_data = data_manager.get_vessels()
+            oil_spills_data = data_manager.get_oil_spills()
+            
+            summary_data = [
+                ['Total Vessels Monitored', str(len(vessels_data))],
+                ['Active Oil Spill Incidents', str(len(oil_spills_data))],
+                ['High Risk Vessels', str(sum(1 for v in vessels_data if v['risk_level'] == 'High'))],
+                ['Average Compliance Rating', f"{sum(v['compliance_rating'] for v in vessels_data) / len(vessels_data):.1f}/10" if vessels_data else "0/10"],
+                ['High Severity Spills', str(sum(1 for s in oil_spills_data if s['severity'] == 'High'))]
+            ]
+            
+            summary_table = Table(summary_data, colWidths=[3.0*inch, 1.5*inch])
+            summary_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0f766e')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, -1), 9),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#f0fdfa')),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#a7f3d0'))
+            ]))
+            elements.append(summary_table)
+        
+        # Build PDF
+        doc.build(elements)
+        pdf_buffer.seek(0)
+        
+        return send_file(
+            pdf_buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f'seatrace_report_{report_type}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf'
+        )
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/dashboard-data', methods=['GET'])
+@token_required
+def get_dashboard_data():
+    """Get aggregated dashboard data"""
+    user_role = request.user.get('role', 'viewer')
+    
+    vessels_data = data_manager.get_vessels()
+    
+    # All roles can see basic dashboard
+    data = {
+        'total_vessels': len(vessels_data),
+        'active_vessels': len([v for v in vessels_data if v['status'] == 'Active']),
+        'high_risk_vessels': len([v for v in vessels_data if v['risk_level'] in ['High', 'Critical']]),
+        'avg_compliance': round(sum(v['compliance_rating'] for v in vessels_data) / len(vessels_data), 1) if vessels_data else 0
+    }
+    
+    # Operators and admins see additional data
+    if user_role != 'viewer':
+        data['oil_spills'] = {
+            'total': len(oil_spills_data),
+            'by_severity': {
+                'High': len([s for s in oil_spills_data if s['severity'] == 'High']),
+                'Medium': len([s for s in oil_spills_data if s['severity'] == 'Medium']),
+                'Low': len([s for s in oil_spills_data if s['severity'] == 'Low'])
+            },
+            'incidents': oil_spills_data
+        }
+    
+    return jsonify(data), 200
+
+@app.route('/api/weather/<float:lat>/<float:lon>', methods=['GET'])
+@token_required
+def get_weather(lat, lon):
+    """Get weather data for a specific location"""
+    weather = get_weather_for_location(lat, lon)
+    return jsonify(weather), 200
+
+@app.route('/api/health', methods=['GET'])
+def health():
+    return jsonify({'status': 'ok', 'service': 'SeaTrace Backend'}), 200
+
+# WebSocket events for real-time monitoring
+@socketio.on('connect')
+def handle_connect():
+    print(f'Client connected: {request.sid}')
+    emit('connection_response', {'data': 'Connected to SeaTrace server', 'timestamp': datetime.utcnow().isoformat()})
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print(f'Client disconnected: {request.sid}')
+
+@socketio.on('subscribe_vessels')
+def handle_subscribe_vessels():
+    """Subscribe to real-time vessel position updates"""
+    join_room('vessels')
+    emit('status', {'data': 'Subscribed to vessel updates'})
+    # Send current vessel positions immediately
+    vessel_list = [{
+        'imo': v['imo'],
+        'name': v['name'],
+        'lat': v['lat'],
+        'lon': v['lon'],
+        'speed': v['speed'],
+        'course': v['course'],
+        'destination': v['destination'],
+        'risk_level': v['risk_level']
+    } for v in vessels.values()]
+    emit('vessel_batch_update', {'vessels': vessel_list, 'timestamp': datetime.utcnow().isoformat()})
+
+@socketio.on('subscribe_alerts')
+def handle_subscribe_alerts():
+    """Subscribe to real-time alerts"""
+    join_room('alerts')
+    emit('status', {'data': 'Subscribed to alerts'})
+
+@socketio.on('subscribe_spills')
+def handle_subscribe_spills():
+    """Subscribe to real-time spill alerts"""
+    join_room('spills')
+    emit('status', {'data': 'Subscribed to spill updates'})
+    # Send current spill positions immediately
+    oil_spills_data = data_manager.get_oil_spills()
+    spill_list = [{
+        'spill_id': s['spill_id'],
+        'vessel_name': s['vessel_name'],
+        'lat': s['lat'],
+        'lon': s['lon'],
+        'severity': s['severity'],
+        'size_tons': s['size_tons'],
+        'status': s['status'],
+        'confidence': s['confidence']
+    } for s in oil_spills_data]
+    emit('spill_batch_update', {'spills': spill_list, 'timestamp': datetime.utcnow().isoformat()})
+
+@socketio.on('subscribe_realtime_analysis')
+def handle_subscribe_realtime():
+    """Subscribe to real-time analysis for all users"""
+    join_room('realtime_analysis')
+    emit('status', {'data': 'Subscribed to real-time analysis'})
+    # Send initial analysis snapshot
+    vessels_data = data_manager.get_vessels()
+    oil_spills_data = data_manager.get_oil_spills()
+    analysis_data = {
+        'vessels': [{
+            'imo': v['imo'],
+            'name': v['name'],
+            'lat': v['lat'],
+            'lon': v['lon'],
+            'speed': v['speed'],
+            'course': v['course'],
+            'destination': v['destination'],
+            'compliance_rating': v['compliance_rating'],
+            'risk_level': v['risk_level'],
+            'last_inspection': v['last_inspection']
+        } for v in vessels_data],
+        'oil_spills': [{
+            'spill_id': s['spill_id'],
+            'vessel_name': s['vessel_name'],
+            'lat': s['lat'],
+            'lon': s['lon'],
+            'severity': s['severity'],
+            'size_tons': s['size_tons'],
+            'estimated_area_km2': s['estimated_area_km2'],
+            'status': s['status'],
+            'confidence': s['confidence']
+        } for s in oil_spills_data],
+        'timestamp': datetime.utcnow().isoformat()
+    }
+    emit('realtime_analysis_update', analysis_data)
+
+def broadcast_vessel_update(imo):
+    """Broadcast vessel position/status update to all subscribers"""
+    vessel = data_manager.get_vessel(imo)
+    if vessel:
+        socketio.emit('vessel_update', {
+            'imo': imo,
+            'data': vessel,
+            'timestamp': datetime.utcnow().isoformat()
+        }, room='vessels')
+
+def broadcast_realtime_analysis():
+    """Broadcast real-time analysis update to all analysis subscribers"""
+    vessels_data = data_manager.get_vessels()
+    oil_spills_data = data_manager.get_oil_spills()
+    analysis_data = {
+        'vessels': [{
+            'imo': v['imo'],
+            'name': v['name'],
+            'lat': v['lat'],
+            'lon': v['lon'],
+            'speed': v['speed'],
+            'course': v['course'],
+            'destination': v['destination'],
+            'compliance_rating': v['compliance_rating'],
+            'risk_level': v['risk_level'],
+            'last_inspection': v['last_inspection']
+        } for v in vessels_data],
+        'oil_spills': [{
+            'spill_id': s['spill_id'],
+            'vessel_name': s['vessel_name'],
+            'lat': s['lat'],
+            'lon': s['lon'],
+            'severity': s['severity'],
+            'size_tons': s['size_tons'],
+            'estimated_area_km2': s['estimated_area_km2'],
+            'status': s['status'],
+            'confidence': s['confidence']
+        } for s in oil_spills_data],
+        'timestamp': datetime.utcnow().isoformat()
+    }
+    socketio.emit('realtime_analysis_update', analysis_data, room='realtime_analysis')
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    socketio.run(app, debug=False, port=port, host='0.0.0.0')

@@ -1,0 +1,12 @@
+{
+  "SeaTrace Admin": ["admin@seatrace.com"],
+  "SeaTrace Ops": ["operator@seatrace.com"],
+  "SeaTrace Monitor": ["viewer@seatrace.com"],
+  "Test Company": ["test@seatrace.com"],
+  "Korea Merchant Marine Co.": [],
+  "MSC Cruises": [],
+  "Evergreen Marine": [],
+  "Ocean Tankers Ltd": [],
+  "Indian Navy": []
+}</content>
+<parameter name="filePath">c:\Users\suriy\project sea\backend\data\company_users.json
