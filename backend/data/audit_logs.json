@@ -28,6 +28,144 @@
     "user_agent": "SeaTrace Frontend",
     "timestamp": "2025-12-15T00:15:00Z",
     "success": true
+  },
+  {
+    "timestamp": "2025-12-18T03:25:40.796024",
+    "user_email": "admin@seatrace.com",
+    "action": "LOGIN",
+    "resource": "authentication",
+    "details": {
+      "success": true
+    }
+  },
+  {
+    "timestamp": "2025-12-18T03:25:41.353621",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-18T03:25:41.456117",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "oil_spills_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-18T03:28:14.446900",
+    "user_email": "admin@seatrace.com",
+    "action": "LOGIN",
+    "resource": "authentication",
+    "details": {
+      "success": true
+    }
+  },
+  {
+    "timestamp": "2025-12-18T03:33:20.247798",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "oil_spills_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-18T03:33:20.277632",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-18T03:33:20.587108",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "oil_spills_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-18T03:33:20.618985",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-18T05:15:49.019667",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-18T05:15:49.049081",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "oil_spills_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-18T05:15:49.385464",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-18T05:15:49.397505",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "oil_spills_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-18T05:18:38.147495",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-18T05:18:38.172386",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "oil_spills_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-18T05:18:38.488707",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-18T05:18:38.517273",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "oil_spills_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-18T05:24:24.643604",
+    "user_email": "admin@seatrace.com",
+    "action": "LOGIN",
+    "resource": "authentication",
+    "details": {
+      "success": true
+    }
+  },
+  {
+    "timestamp": "2025-12-18T05:24:25.151141",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-18T05:24:25.446523",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "oil_spills_list",
+    "details": {}
   }
-]</content>
-<parameter name="filePath">c:\Users\suriy\project sea\backend\data\audit_logs.json
+]

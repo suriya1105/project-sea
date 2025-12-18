@@ -1,29 +1,40 @@
-# Dependencies
-node_modules/
+# Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+*.so
 .Python
 env/
 venv/
-.venv/
-pip-log.txt
-pip-delete-this-directory.txt
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Flask
+instance/
+.webassets-cache
 
 # Environment variables
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.production
+.secret_key.txt
+.secret_key_generated
 
-# Build outputs
-build/
-dist/
-*.egg-info/
-
-# IDE
+# IDEs
 .vscode/
 .idea/
 *.swp
@@ -38,28 +49,37 @@ Thumbs.db
 *.log
 logs/
 
-# Temporary files
-*.tmp
-*.temp
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+seatrace-frontend/build/
+seatrace-frontend/.pnp
+seatrace-frontend/.pnp.js
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+
+# Kaggle data (large files)
+kaggle_data/
+*.csv
+*.parquet
 
 # Database
 *.db
 *.sqlite
 *.sqlite3
 
-# Instance folder (Flask)
-instance/
+# Temporary files
+*.tmp
+*.temp
+.cache/
 
-# Testing
-.coverage
-.pytest_cache/
-.tox/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# Vercel
-.vercel
-
-# Render
-render.yaml.backup
+# Deployment
+.vercel/
+.render/

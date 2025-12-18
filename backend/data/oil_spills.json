@@ -59,5 +59,4 @@
     "company_name": "Evergreen Marine",
     "image": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop"
   }
-}</content>
-<parameter name="filePath">c:\Users\suriy\project sea\backend\data\oil_spills.json
+}

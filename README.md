@@ -141,12 +141,27 @@ Developed by **Suriya** for marine conservation and environmental protection.
 - Python 3.8+ with pip
 - Modern web browser (Chrome, Firefox, Safari, Edge)
 
-### Installation
+### Quick Start (Easiest Way)
 
-1. **Navigate to project directory**
+1. **Double-click the easy start script:**
    ```bash
-   cd "c:\Users\suriy\project sea"
+   start-easy.bat
    ```
+   This will automatically start both backend and frontend servers.
+
+2. **Open your browser:**
+   - Go to http://localhost:3000
+   - Click any demo account button for instant access!
+
+### Demo Accounts (No Password Required)
+
+| Account Type | Email | Access Level |
+|-------------|-------|--------------|
+| 👑 **Admin** | `admin@seatrace.com` | Full system access, theme customization |
+| ⚙️ **Operator** | `operator@seatrace.com` | Vessel tracking, incident reporting |
+| 👁️ **Viewer** | `viewer@seatrace.com` | Read-only dashboard access |
+
+### Manual Installation (Alternative)
 
 2. **Install backend dependencies**
    ```bash

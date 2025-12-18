@@ -22,8 +22,8 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
-const API_BASE_URL = 'http://localhost:5000/api';
-const SOCKET_URL = 'http://localhost:5000';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api';
+const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:5000';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -259,10 +259,15 @@ function App() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
-        email,
-        password
-      });
+      const testEmails = ['admin@seatrace.com', 'operator@seatrace.com', 'viewer@seatrace.com'];
+      const loginData = { email };
+      
+      // Only send password if it's not a test email or if password is provided
+      if (!testEmails.includes(email) && password) {
+        loginData.password = password;
+      }
+      
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, loginData);
       
       const { token: newToken, user } = response.data;
       localStorage.setItem('token', newToken);
@@ -555,8 +560,23 @@ function App() {
           <div className="login-card">
             <div className="login-header">
               <h1 style={{ fontSize: '48px', marginBottom: '8px' }}>⚓ SeaTrace</h1>
-              <p className="subtitle" style={{ fontSize: '18px', color: '#667eea', marginBottom: '20px', fontWeight: '600', letterSpacing: '2px' }}>MARITIME INTELLIGENCE</p>
-              <p className="tagline" style={{ fontSize: '14px', color: '#666' }}>Advanced Ocean Monitoring & Environmental Protection</p>
+              <p className="subtitle" style={{ fontSize: '18px', color: '#667eea', marginBottom: '10px', fontWeight: '600', letterSpacing: '2px' }}>MARITIME INTELLIGENCE</p>
+              <p className="tagline" style={{ fontSize: '14px', color: '#666', marginBottom: '20px' }}>Advanced Ocean Monitoring & Environmental Protection</p>
+              
+              <div style={{ 
+                background: 'rgba(16, 185, 129, 0.1)', 
+                border: '1px solid rgba(16, 185, 129, 0.3)', 
+                borderRadius: '8px', 
+                padding: '15px', 
+                marginBottom: '20px',
+                textAlign: 'center'
+              }}>
+                <h3 style={{ color: '#10b981', margin: '0 0 8px 0', fontSize: '16px' }}>🎉 Welcome to SeaTrace!</h3>
+                <p style={{ color: '#666', margin: '0', fontSize: '13px', lineHeight: '1.4' }}>
+                  Real-time vessel tracking, oil spill monitoring, and maritime analytics.<br/>
+                  <strong>Click any demo account below for instant access!</strong>
+                </p>
+              </div>
             </div>
             
             <form onSubmit={handleLogin}>
@@ -574,19 +594,21 @@ function App() {
                 />
               </div>
 
-              <div className="form-group">
-                <label style={{ fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '12px' }}>
-                  🔐 Password
-                </label>
-                <input
-                  type="password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  style={{ fontSize: '15px' }}
-                />
-              </div>
+              {(!email || !['admin@seatrace.com', 'operator@seatrace.com', 'viewer@seatrace.com'].includes(email)) && (
+                <div className="form-group">
+                  <label style={{ fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '12px' }}>
+                    🔐 Password
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required={!['admin@seatrace.com', 'operator@seatrace.com', 'viewer@seatrace.com'].includes(email)}
+                    style={{ fontSize: '15px' }}
+                  />
+                </div>
+              )}
               
               <button type="submit" className="login-btn" style={{ 
                 fontSize: '16px', 
@@ -599,6 +621,79 @@ function App() {
                 ⛵ Access System
               </button>
             </form>
+
+            <div className="demo-accounts" style={{ marginTop: '30px', textAlign: 'center' }}>
+              <h3 style={{ color: '#fff', fontSize: '18px', marginBottom: '20px', fontWeight: '600' }}>🚀 Quick Access Demo Accounts</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '20px' }}>
+                <button 
+                  onClick={() => setEmail('admin@seatrace.com')} 
+                  type="button"
+                  style={{ 
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+                    border: 'none', 
+                    color: '#fff', 
+                    padding: '12px 16px', 
+                    borderRadius: '8px', 
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                    boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
+                  }}
+                  onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
+                  onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+                >
+                  👑 Admin Access<br/>
+                  <small style={{ fontSize: '12px', opacity: '0.9' }}>Full System Control</small>
+                </button>
+                <button 
+                  onClick={() => setEmail('operator@seatrace.com')} 
+                  type="button"
+                  style={{ 
+                    background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', 
+                    border: 'none', 
+                    color: '#fff', 
+                    padding: '12px 16px', 
+                    borderRadius: '8px', 
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                    boxShadow: '0 4px 15px rgba(245, 87, 108, 0.3)'
+                  }}
+                  onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
+                  onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+                >
+                  ⚙️ Operator Access<br/>
+                  <small style={{ fontSize: '12px', opacity: '0.9' }}>Reporting & Monitoring</small>
+                </button>
+                <button 
+                  onClick={() => setEmail('viewer@seatrace.com')} 
+                  type="button"
+                  style={{ 
+                    background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', 
+                    border: 'none', 
+                    color: '#fff', 
+                    padding: '12px 16px', 
+                    borderRadius: '8px', 
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                    boxShadow: '0 4px 15px rgba(79, 172, 254, 0.3)'
+                  }}
+                  onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
+                  onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+                >
+                  👁️ Viewer Access<br/>
+                  <small style={{ fontSize: '12px', opacity: '0.9' }}>Read-Only Dashboard</small>
+                </button>
+              </div>
+              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', marginTop: '15px', lineHeight: '1.4' }}>
+                <strong>No passwords required!</strong> Just click any account above to explore SeaTrace's features.<br/>
+                Experience real-time maritime intelligence and environmental monitoring.
+              </p>
+            </div>
 
           </div>
           <div className="login-footer">

@@ -22,12 +22,32 @@ from reportlab.lib.units import inch
 from io import BytesIO
 import random
 import requests
+import threading
 from data_manager import data_manager
+try:
+    from kaggle_ais_processor import KaggleAISProcessor
+    from kaggle_config import KAGGLE_DATASETS, REGION_FILTER
+    KAGGLE_ENABLED = True
+except Exception as e:
+    KAGGLE_ENABLED = False
+    print(f"Warning: Kaggle integration not available: {e}")
+    KaggleAISProcessor = None
+    KAGGLE_DATASETS = []
+    REGION_FILTER = {}
+import threading
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-prod')
-CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
+
+# Configure CORS from environment variable
+cors_origins = os.environ.get('CORS_ORIGINS', '*')
+if cors_origins != '*':
+    cors_origins = [origin.strip() for origin in cors_origins.split(',')]
+else:
+    cors_origins = '*'
+
+CORS(app, origins=cors_origins)
+socketio = SocketIO(app, cors_allowed_origins=cors_origins, async_mode='threading')
 
 def log_access(user_email, action, resource, details=None):
     """Log user access for audit trail"""
@@ -97,33 +117,36 @@ def login():
     email = data.get('email')
     password = data.get('password')
     
-    if not email or not password:
-        return jsonify({'error': 'Email and password required'}), 400
+    if not email:
+        return jsonify({'error': 'Email required'}), 400
     
     user = data_manager.get_user(email)
-    if user and user['password'] == password:
-        # Log successful login
-        log_access(email, 'LOGIN', 'authentication', {'success': True})
-        
-        token = jwt.encode(
-            {
-                'email': email,
-                'exp': datetime.utcnow() + timedelta(hours=24)
-            },
-            app.config['SECRET_KEY'],
-            algorithm='HS256'
-        )
-        
-        return jsonify({
-            'token': token,
-            'user': {
-                'id': user['id'],
-                'name': user['name'],
-                'email': user['email'],
-                'role': user['role'],
-                'company': user.get('company', 'Unknown Company')
-            }
-        }), 200
+    if user:
+        # Allow email-only login for test users (no password required)
+        test_emails = ['admin@seatrace.com', 'operator@seatrace.com', 'viewer@seatrace.com']
+        if email in test_emails or (password and user['password'] == password):
+            # Log successful login
+            log_access(email, 'LOGIN', 'authentication', {'success': True})
+            
+            token = jwt.encode(
+                {
+                    'email': email,
+                    'exp': datetime.utcnow() + timedelta(hours=24)
+                },
+                app.config['SECRET_KEY'],
+                algorithm='HS256'
+            )
+            
+            return jsonify({
+                'token': token,
+                'user': {
+                    'id': user['id'],
+                    'name': user['name'],
+                    'email': user['email'],
+                    'role': user['role'],
+                    'company': user.get('company', 'Unknown Company')
+                }
+            }), 200
     
     # Log failed login attempt
     log_access(email or 'unknown', 'LOGIN_FAILED', 'authentication', {'success': False})
@@ -296,7 +319,7 @@ def get_vessel(imo):
         log_access(request.user['email'], 'UNAUTHORIZED_ACCESS', 'vessel', {'imo': imo})
         return jsonify({'error': 'Access denied for viewers'}), 403
     
-    vessel = vessels.get(imo)
+    vessel = data_manager.get_vessel(imo)
     if not vessel:
         return jsonify({'error': 'Vessel not found'}), 404
     
@@ -390,6 +413,7 @@ def generate_report():
         if report_type in ['realtime', 'vessels', 'comprehensive']:
             elements.append(Paragraph("📍 Real-Time Vessel Locations & Movement", heading_style))
             
+            vessels_data = list(data_manager.get_vessels().values())
             vessel_data = [['Vessel Name', 'Location', 'Speed', 'Destination', 'Risk Level', 'Status']]
             for vessel in vessels_data:
                 vessel_data.append([
@@ -421,6 +445,7 @@ def generate_report():
         if report_type in ['realtime', 'spills', 'comprehensive']:
             elements.append(Paragraph("🛢️ Oil Spill Detection & Status", heading_style))
             
+            oil_spills_data = list(data_manager.get_oil_spills().values())
             spill_data = [['Incident ID', 'Location', 'Severity', 'Size', 'Status', 'Confidence']]
             for spill in oil_spills_data:
                 spill_data.append([
@@ -495,18 +520,21 @@ def get_dashboard_data():
     """Get aggregated dashboard data"""
     user_role = request.user.get('role', 'viewer')
     
-    vessels_data = data_manager.get_vessels()
+    vessels_dict = data_manager.get_vessels()
+    vessels_data = list(vessels_dict.values())
     
     # All roles can see basic dashboard
     data = {
         'total_vessels': len(vessels_data),
-        'active_vessels': len([v for v in vessels_data if v['status'] == 'Active']),
-        'high_risk_vessels': len([v for v in vessels_data if v['risk_level'] in ['High', 'Critical']]),
-        'avg_compliance': round(sum(v['compliance_rating'] for v in vessels_data) / len(vessels_data), 1) if vessels_data else 0
+        'active_vessels': len([v for v in vessels_data if v.get('status') == 'Active']),
+        'high_risk_vessels': len([v for v in vessels_data if v.get('risk_level') in ['High', 'Critical']]),
+        'avg_compliance': round(sum(v.get('compliance_rating', 0) for v in vessels_data) / len(vessels_data), 1) if vessels_data else 0
     }
     
     # Operators and admins see additional data
     if user_role != 'viewer':
+        oil_spills_dict = data_manager.get_oil_spills()
+        oil_spills_data = list(oil_spills_dict.values())
         data['oil_spills'] = {
             'total': len(oil_spills_data),
             'by_severity': {
@@ -518,6 +546,24 @@ def get_dashboard_data():
         }
     
     return jsonify(data), 200
+
+def get_weather_for_location(lat, lon):
+    """Get weather data for a specific location (simulated)"""
+    # In production, integrate with a real weather API like OpenWeatherMap
+    return {
+        'temperature': round(random.uniform(25, 35), 1),
+        'feels_like': round(random.uniform(27, 37), 1),
+        'wind_speed': round(random.uniform(5, 15), 1),
+        'wind_gust': round(random.uniform(8, 20), 1),
+        'humidity': random.randint(60, 90),
+        'pressure': random.randint(1000, 1020),
+        'visibility': round(random.uniform(5, 15), 1),
+        'sea_state': random.choice(['Calm', 'Slight', 'Moderate', 'Rough']),
+        'wave_height': round(random.uniform(0.5, 3.0), 1),
+        'conditions': random.choice(['Clear', 'Partly Cloudy', 'Cloudy', 'Rain']),
+        'precipitation': round(random.uniform(0, 5), 1),
+        'uv_index': random.randint(5, 10)
+    }
 
 @app.route('/api/weather/<float:lat>/<float:lon>', methods=['GET'])
 @token_required
@@ -546,6 +592,7 @@ def handle_subscribe_vessels():
     join_room('vessels')
     emit('status', {'data': 'Subscribed to vessel updates'})
     # Send current vessel positions immediately
+    vessels_dict = data_manager.get_vessels()
     vessel_list = [{
         'imo': v['imo'],
         'name': v['name'],
@@ -553,9 +600,9 @@ def handle_subscribe_vessels():
         'lon': v['lon'],
         'speed': v['speed'],
         'course': v['course'],
-        'destination': v['destination'],
+        'destination': v.get('destination', 'Unknown'),
         'risk_level': v['risk_level']
-    } for v in vessels.values()]
+    } for v in vessels_dict.values()]
     emit('vessel_batch_update', {'vessels': vessel_list, 'timestamp': datetime.utcnow().isoformat()})
 
 @socketio.on('subscribe_alerts')
@@ -580,7 +627,7 @@ def handle_subscribe_spills():
         'size_tons': s['size_tons'],
         'status': s['status'],
         'confidence': s['confidence']
-    } for s in oil_spills_data]
+    } for s in oil_spills_data.values()]
     emit('spill_batch_update', {'spills': spill_list, 'timestamp': datetime.utcnow().isoformat()})
 
 @socketio.on('subscribe_realtime_analysis')
@@ -589,8 +636,8 @@ def handle_subscribe_realtime():
     join_room('realtime_analysis')
     emit('status', {'data': 'Subscribed to real-time analysis'})
     # Send initial analysis snapshot
-    vessels_data = data_manager.get_vessels()
-    oil_spills_data = data_manager.get_oil_spills()
+    vessels_dict = data_manager.get_vessels()
+    oil_spills_dict = data_manager.get_oil_spills()
     analysis_data = {
         'vessels': [{
             'imo': v['imo'],
@@ -599,11 +646,11 @@ def handle_subscribe_realtime():
             'lon': v['lon'],
             'speed': v['speed'],
             'course': v['course'],
-            'destination': v['destination'],
+            'destination': v.get('destination', 'Unknown'),
             'compliance_rating': v['compliance_rating'],
             'risk_level': v['risk_level'],
             'last_inspection': v['last_inspection']
-        } for v in vessels_data],
+        } for v in vessels_dict.values()],
         'oil_spills': [{
             'spill_id': s['spill_id'],
             'vessel_name': s['vessel_name'],
@@ -614,7 +661,7 @@ def handle_subscribe_realtime():
             'estimated_area_km2': s['estimated_area_km2'],
             'status': s['status'],
             'confidence': s['confidence']
-        } for s in oil_spills_data],
+        } for s in oil_spills_dict.values()],
         'timestamp': datetime.utcnow().isoformat()
     }
     emit('realtime_analysis_update', analysis_data)
@@ -631,8 +678,8 @@ def broadcast_vessel_update(imo):
 
 def broadcast_realtime_analysis():
     """Broadcast real-time analysis update to all analysis subscribers"""
-    vessels_data = data_manager.get_vessels()
-    oil_spills_data = data_manager.get_oil_spills()
+    vessels_dict = data_manager.get_vessels()
+    oil_spills_dict = data_manager.get_oil_spills()
     analysis_data = {
         'vessels': [{
             'imo': v['imo'],
@@ -641,11 +688,11 @@ def broadcast_realtime_analysis():
             'lon': v['lon'],
             'speed': v['speed'],
             'course': v['course'],
-            'destination': v['destination'],
+            'destination': v.get('destination', 'Unknown'),
             'compliance_rating': v['compliance_rating'],
             'risk_level': v['risk_level'],
             'last_inspection': v['last_inspection']
-        } for v in vessels_data],
+        } for v in vessels_dict.values()],
         'oil_spills': [{
             'spill_id': s['spill_id'],
             'vessel_name': s['vessel_name'],
@@ -656,7 +703,7 @@ def broadcast_realtime_analysis():
             'estimated_area_km2': s['estimated_area_km2'],
             'status': s['status'],
             'confidence': s['confidence']
-        } for s in oil_spills_data],
+        } for s in oil_spills_dict.values()],
         'timestamp': datetime.utcnow().isoformat()
     }
     socketio.emit('realtime_analysis_update', analysis_data, room='realtime_analysis')

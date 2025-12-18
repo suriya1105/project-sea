@@ -2,6 +2,7 @@ services:
   - type: web
     name: seatrace-backend
     runtime: python3
+    plan: starter  # Free tier, upgrade to standard for better performance
     buildCommand: pip install -r requirements.txt
     startCommand: python start.py
     envVars:
@@ -11,5 +12,7 @@ services:
         generateValue: true
       - key: PORT
         fromSecret: PORT
+      - key: PYTHON_VERSION
+        value: 3.9.18
     healthCheckPath: /api/health
     autoDeploy: true
