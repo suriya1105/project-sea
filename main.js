@@ -36,10 +36,10 @@ const SeaTraceApp = () => {
 
   // AIS Vessel Data Simulation
   const aisVessels = [
-    { mmsi: '367123456', name: 'OCEAN PRIDE', lat: 25.2048, lon: 55.2708, type: 'Tanker', speed: 12.5, course: 045 },
+    { mmsi: '367123456', name: 'OCEAN PRIDE', lat: 25.2048, lon: 55.2708, type: 'Tanker', speed: 12.5, course: 45 },
     { mmsi: '235987654', name: 'SEA NAVIGATOR', lat: 1.3521, lon: 103.8198, type: 'Cargo', speed: 8.3, course: 180 },
     { mmsi: '477456789', name: 'MARINE STAR', lat: 51.5074, lon: -0.1278, type: 'Tanker', speed: 15.2, course: 270 },
-    { mmsi: '412789456', name: 'ATLANTIC WAVE', lat: 40.7128, lon: -74.0060, type: 'Container', speed: 18.5, course: 090 },
+    { mmsi: '412789456', name: 'ATLANTIC WAVE', lat: 40.7128, lon: -74.0060, type: 'Container', speed: 18.5, course: 90 },
     { mmsi: '563214789', name: 'PACIFIC GLORY', lat: 35.6762, lon: 139.6503, type: 'Tanker', speed: 10.8, course: 135 }
   ];
 
@@ -54,7 +54,7 @@ const SeaTraceApp = () => {
             lon: vessel.lon + (Math.random() - 0.5) * 0.01
           }));
         });
-        
+
         // Simulate new spill detection
         if (Math.random() > 0.8) {
           const randomVessel = aisVessels[Math.floor(Math.random() * aisVessels.length)];
@@ -92,17 +92,17 @@ const SeaTraceApp = () => {
     if (isAuthenticated) {
       setVesselPositions(aisVessels);
       setSpillData([
-        { 
-          id: 1, 
-          location: '25.2048°N, 55.2708°E', 
-          lat: 25.2048, 
+        {
+          id: 1,
+          location: '25.2048°N, 55.2708°E',
+          lat: 25.2048,
           lon: 55.2708,
-          severity: 'High', 
-          size: '45.3 km²', 
+          severity: 'High',
+          size: '45.3 km²',
           vessel: 'OCEAN PRIDE',
           mmsi: '367123456',
           vesselType: 'Tanker',
-          confidence: '89.5%', 
+          confidence: '89.5%',
           timestamp: '10:45:23',
           weather: 'Clear',
           windSpeed: '12.3 knots',
@@ -148,7 +148,7 @@ const SeaTraceApp = () => {
 
           // Store user data
           await window.storage.set(`user_${loginData.email}`, JSON.stringify(newUser));
-          
+
           // Create auth token
           const authToken = {
             id: newUser.id,
@@ -157,19 +157,19 @@ const SeaTraceApp = () => {
             role: newUser.role,
             loginTime: new Date().toISOString()
           };
-          
+
           await window.storage.set('auth_token', JSON.stringify(authToken));
-          
+
           setUserName(newUser.name);
           setUserRole(newUser.role);
           setUserId(newUser.id);
           setIsAuthenticated(true);
-          
+
         } else {
           // Login Flow
           try {
             const userResult = await window.storage.get(`user_${loginData.email}`);
-            
+
             if (!userResult) {
               setAuthError('User not found. Please sign up first.');
               setAuthLoading(false);
@@ -177,7 +177,7 @@ const SeaTraceApp = () => {
             }
 
             const user = JSON.parse(userResult.value);
-            
+
             // Verify password
             if (user.password !== loginData.password) {
               setAuthError('Invalid password. Please try again.');
@@ -193,14 +193,14 @@ const SeaTraceApp = () => {
               role: user.role,
               loginTime: new Date().toISOString()
             };
-            
+
             await window.storage.set('auth_token', JSON.stringify(authToken));
-            
+
             setUserName(user.name);
             setUserRole(user.role);
             setUserId(user.id);
             setIsAuthenticated(true);
-            
+
           } catch (error) {
             setAuthError('User not found. Please sign up first.');
             setAuthLoading(false);
@@ -211,7 +211,7 @@ const SeaTraceApp = () => {
         console.error('Authentication error:', error);
         setAuthError('Authentication failed. Please try again.');
       }
-      
+
       setAuthLoading(false);
     };
 
@@ -234,14 +234,14 @@ const SeaTraceApp = () => {
             <h2 className="text-2xl font-bold text-gray-800 mb-6">
               {isSignup ? 'Create Account' : 'Welcome Back'}
             </h2>
-            
+
             {authError && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-2">
                 <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
                 <p className="text-sm text-red-700">{authError}</p>
               </div>
             )}
-            
+
             <form onSubmit={handleLogin} className="space-y-4">
               {isSignup && (
                 <div>
@@ -249,32 +249,32 @@ const SeaTraceApp = () => {
                   <input
                     type="text"
                     value={loginData.name}
-                    onChange={(e) => setLoginData({...loginData, name: e.target.value})}
+                    onChange={(e) => setLoginData({ ...loginData, name: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                     placeholder="John Doe"
                     required={isSignup}
                   />
                 </div>
               )}
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                 <input
                   type="email"
                   value={loginData.email}
-                  onChange={(e) => setLoginData({...loginData, email: e.target.value})}
+                  onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                   placeholder="user@seatrace.com"
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
                 <input
                   type="password"
                   value={loginData.password}
-                  onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+                  onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                   placeholder="••••••••"
                   required
@@ -403,7 +403,7 @@ const SeaTraceApp = () => {
             <span className="text-sm text-gray-600">{isMonitoring ? 'Live AIS Data' : 'Paused'}</span>
           </div>
         </div>
-        
+
         <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 rounded-lg h-96 relative overflow-hidden">
           {/* Grid lines for map effect */}
           <div className="absolute inset-0 opacity-10">
@@ -445,18 +445,16 @@ const SeaTraceApp = () => {
                 top: `${((90 - spill.lat) / 180) * 100}%`
               }}
             >
-              <div className={`w-8 h-8 rounded-full animate-ping absolute ${
-                spill.severity === 'Critical' ? 'bg-red-600' :
-                spill.severity === 'High' ? 'bg-orange-500' :
-                spill.severity === 'Medium' ? 'bg-yellow-500' :
-                'bg-green-500'
-              } opacity-75`}></div>
-              <Droplet className={`w-6 h-6 relative z-10 ${
-                spill.severity === 'Critical' ? 'text-red-500' :
-                spill.severity === 'High' ? 'text-orange-500' :
-                spill.severity === 'Medium' ? 'text-yellow-500' :
-                'text-green-500'
-              }`} />
+              <div className={`w-8 h-8 rounded-full animate-ping absolute ${spill.severity === 'Critical' ? 'bg-red-600' :
+                  spill.severity === 'High' ? 'bg-orange-500' :
+                    spill.severity === 'Medium' ? 'bg-yellow-500' :
+                      'bg-green-500'
+                } opacity-75`}></div>
+              <Droplet className={`w-6 h-6 relative z-10 ${spill.severity === 'Critical' ? 'text-red-500' :
+                  spill.severity === 'High' ? 'text-orange-500' :
+                    spill.severity === 'Medium' ? 'text-yellow-500' :
+                      'text-green-500'
+                }`} />
               <div className="absolute bottom-full mb-2 hidden group-hover:block bg-gray-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-20">
                 <div className="font-semibold">{spill.severity} Severity</div>
                 <div>Vessel: {spill.vessel}</div>
@@ -490,16 +488,14 @@ const SeaTraceApp = () => {
           </h3>
           <div className="space-y-3 max-h-80 overflow-y-auto">
             {alerts.slice(0, 8).map(alert => (
-              <div key={alert.id} className={`flex items-start space-x-3 p-3 rounded-lg border ${
-                alert.severity === 'Critical' ? 'bg-red-50 border-red-200' :
-                alert.severity === 'High' ? 'bg-orange-50 border-orange-200' :
-                'bg-yellow-50 border-yellow-200'
-              }`}>
-                <AlertCircle className={`w-5 h-5 mt-0.5 ${
-                  alert.severity === 'Critical' ? 'text-red-600' :
-                  alert.severity === 'High' ? 'text-orange-600' :
-                  'text-yellow-600'
-                }`} />
+              <div key={alert.id} className={`flex items-start space-x-3 p-3 rounded-lg border ${alert.severity === 'Critical' ? 'bg-red-50 border-red-200' :
+                  alert.severity === 'High' ? 'bg-orange-50 border-orange-200' :
+                    'bg-yellow-50 border-yellow-200'
+                }`}>
+                <AlertCircle className={`w-5 h-5 mt-0.5 ${alert.severity === 'Critical' ? 'text-red-600' :
+                    alert.severity === 'High' ? 'text-orange-600' :
+                      'text-yellow-600'
+                  }`} />
                 <div className="flex-1">
                   <p className="text-sm text-gray-800">{alert.message}</p>
                   <p className="text-xs text-gray-500 mt-1">{alert.time}</p>
@@ -545,9 +541,9 @@ const SeaTraceApp = () => {
 
     const generateReport = async () => {
       setReportGenerating(true);
-      
+
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       const reportContent = {
         title: `SeaTrace ${reportType.replace('-', ' ').toUpperCase()} Report`,
         generatedAt: new Date().toLocaleString(),
@@ -631,7 +627,7 @@ AI-Powered Marine Oil Spill Detection
           <div className="grid md:grid-cols-2 gap-6 mb-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Report Type</label>
-              <select 
+              <select
                 value={reportType}
                 onChange={(e) => setReportType(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -651,13 +647,13 @@ AI-Powered Marine Oil Spill Detection
                 <input
                   type="date"
                   value={dateRange.start}
-                  onChange={(e) => setDateRange({...dateRange, start: e.target.value})}
+                  onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <input
                   type="date"
                   value={dateRange.end}
-                  onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
+                  onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -735,11 +731,10 @@ AI-Powered Marine Oil Spill Detection
               <Filter className="w-4 h-4" />
               <span>Filter</span>
             </button>
-            <button 
+            <button
               onClick={() => setIsMonitoring(!isMonitoring)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition ${
-                isMonitoring ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'
-              } text-white`}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition ${isMonitoring ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'
+                } text-white`}
             >
               <span>{isMonitoring ? 'Pause' : 'Resume'}</span>
             </button>
@@ -770,12 +765,11 @@ AI-Powered Marine Oil Spill Detection
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-800">{spill.location}</td>
                   <td className="px-4 py-3">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      spill.severity === 'Critical' ? 'bg-red-100 text-red-700' :
-                      spill.severity === 'High' ? 'bg-orange-100 text-orange-700' :
-                      spill.severity === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-green-100 text-green-700'
-                    }`}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${spill.severity === 'Critical' ? 'bg-red-100 text-red-700' :
+                        spill.severity === 'High' ? 'bg-orange-100 text-orange-700' :
+                          spill.severity === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+                            'bg-green-100 text-green-700'
+                      }`}>
                       {spill.severity}
                     </span>
                   </td>
@@ -833,7 +827,7 @@ AI-Powered Marine Oil Spill Detection
                   <div className="text-xs text-blue-200">{userRole}</div>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={handleLogout}
                 className="flex items-center space-x-1 hover:text-blue-200 transition"
               >
@@ -857,11 +851,10 @@ AI-Powered Marine Oil Spill Detection
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-2 py-4 border-b-2 transition ${
-                  activeTab === tab.id
+                className={`flex items-center space-x-2 py-4 border-b-2 transition ${activeTab === tab.id
                     ? 'border-blue-600 text-blue-600'
                     : 'border-transparent text-gray-600 hover:text-blue-600'
-                }`}
+                  }`}
               >
                 <tab.icon className="w-5 h-5" />
                 <span className="font-medium">{tab.label}</span>

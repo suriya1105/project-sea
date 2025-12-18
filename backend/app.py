@@ -122,9 +122,17 @@ def login():
     
     user = data_manager.get_user(email)
     if user:
+        # Check if verified (unless test user)
         # Allow email-only login for test users (no password required)
         test_emails = ['admin@seatrace.com', 'operator@seatrace.com', 'viewer@seatrace.com']
-        if email in test_emails or (password and user['password'] == password):
+        
+        is_test_user = email in test_emails
+        
+        if is_test_user or (password and user['password'] == password):
+            # Check verification for non-test users
+            if not is_test_user and not user.get('email_verified', False) and not user.get('phone_verified', False):
+                 return jsonify({'error': 'Account not verified. Please verify your email or phone.'}), 403
+
             # Log successful login
             log_access(email, 'LOGIN', 'authentication', {'success': True})
             
@@ -168,6 +176,102 @@ def get_profile():
         'role': user['role'],
         'company': user.get('company', 'Unknown Company')
     }), 200
+
+# Public Authentication Endpoints
+verification_codes = {}  # In-memory storage for simple verification codes: {email_or_phone: code}
+
+@app.route('/api/auth/register-public', methods=['POST'])
+def register_public():
+    """Public registration endpoint"""
+    data = request.json
+    email = data.get('email')
+    name = data.get('name')
+    password = data.get('password')
+    phone = data.get('phone')
+    
+    if not all([email, name, password]):
+        return jsonify({'error': 'Missing required fields: email, name, password'}), 400
+    
+    if data_manager.get_user(email):
+        return jsonify({'error': 'User already exists'}), 409
+    
+    # Create new user (viewer role by default for public)
+    new_user = {
+        'id': data_manager.get_next_user_id(),
+        'name': name,
+        'email': email,
+        'phone': phone,
+        'password': password,
+        'role': 'viewer',
+        'company': 'Public User',
+        'created_at': datetime.utcnow().isoformat(),
+        'email_verified': False,
+        'phone_verified': False,
+        'active': True
+    }
+    
+    data_manager.add_user(email, new_user)
+    log_access(email, 'REGISTER', 'authentication', {'name': name})
+    
+    return jsonify({
+        'message': 'Registration successful. Please verify your account.',
+        'userId': new_user['id']
+    }), 201
+
+@app.route('/api/auth/send-verification', methods=['POST'])
+def send_verification():
+    """Simulate sending verification code (Email or SMS)"""
+    data = request.json
+    target = data.get('target')  # Email or Phone
+    method = data.get('method')  # 'email' or 'sms'
+    
+    if not target or not method:
+        return jsonify({'error': 'Target and method required'}), 400
+        
+    # Generate 6-digit code
+    code = f"{random.randint(100000, 999999)}"
+    verification_codes[target] = code
+    
+    # Simulate sending
+    print(f"============================================")
+    print(f"SIMULATED {method.upper()} TO {target}: {code}")
+    print(f"============================================")
+    
+    return jsonify({
+        'message': f'Verification code sent to {target}',
+        'simulated_code': code  # Return code for easier testing/demo
+    }), 200
+
+@app.route('/api/auth/verify', methods=['POST'])
+def verify_code():
+    """Verify the code and activate user"""
+    data = request.json
+    target = data.get('target') # Email or phone
+    code = data.get('code')
+    email = data.get('email') # The user's primary email key
+    
+    if not all([target, code, email]):
+        return jsonify({'error': 'Target, email, and code required'}), 400
+        
+    stored_code = verification_codes.get(target)
+    
+    if stored_code and stored_code == code:
+        # Verify user
+        user = data_manager.get_user(email)
+        if user:
+            updates = {}
+            if '@' in target:
+                updates['email_verified'] = True
+            else:
+                updates['phone_verified'] = True
+            
+            data_manager.update_user(email, updates)
+            del verification_codes[target] # Clear code
+            return jsonify({'message': 'Verification successful', 'verified': True}), 200
+        else:
+             return jsonify({'error': 'User not found'}), 404
+             
+    return jsonify({'error': 'Invalid verification code'}), 400
 
 # Company User Management Endpoints
 @app.route('/api/admin/users/register', methods=['POST'])
@@ -363,6 +467,56 @@ def get_oil_spill(spill_id):
     
     log_access(request.user['email'], 'VIEW', 'oil_spill_details', {'spill_id': spill_id})
     return jsonify(spill), 200
+
+# New endpoint to simulate oil spill detection and trigger secure alert
+@app.route('/api/simulate-oil-spill', methods=['POST'])
+@token_required
+@role_required('operator') # Only operators or admins can simulate spills
+def simulate_oil_spill():
+    """Simulate an oil spill detection and trigger a secure alert."""
+    data = request.json
+    imo = data.get('imo')
+    lat = data.get('lat')
+    lon = data.get('lon')
+    
+    if not all([imo, lat, lon]):
+        return jsonify({'error': 'Missing required fields: imo, lat, lon'}), 400
+    
+    vessel = data_manager.get_vessel(imo)
+    if not vessel:
+        return jsonify({'error': 'Vessel not found'}), 404
+
+    # Simulate spill data
+    spill_id = f"OS-{len(data_manager.get_oil_spills()) + 1:05d}"
+    spill_data = {
+        'spill_id': spill_id,
+        'vessel_imo': imo,
+        'vessel_name': vessel['name'],
+        'lat': lat,
+        'lon': lon,
+        'severity': 'High',
+        'size_tons': random.randint(5, 50),
+        'estimated_area_km2': round(random.uniform(0.1, 2.0), 2),
+        'confidence': random.randint(80, 99),
+        'status': 'Active',
+        'reported_at': datetime.utcnow().isoformat(),
+        'radius': random.randint(100, 500) # in meters
+    }
+    data_manager.add_oil_spill(spill_data)
+    
+    # Trigger Secure Alert
+    send_secure_alert(
+        subject=f"CRITICAL: Oil Spill Detected at {lat:.4f}, {lon:.4f}",
+        body=f"High severity spill detected near vessel {vessel['name']} ({vessel['imo']}).\nLocation: {lat}, {lon}\nRadius: {spill_data['radius']}m\nImmediate containment required."
+    )
+    
+    socketio.emit('new_spill', spill_data, room='spills')
+    socketio.emit('alert', {'type': 'oil_spill', 'message': f"New high severity oil spill detected near {vessel['name']}!"}, room='alerts')
+    broadcast_realtime_analysis() # Update analysis dashboard
+    
+    log_access(request.user['email'], 'SIMULATE_OIL_SPILL', 'oil_spills', {'spill_id': spill_id, 'imo': imo})
+    return jsonify({'message': 'Oil spill simulated and alert sent', 'spill_id': spill_id}), 200
+
 
 @app.route('/api/reports/generate', methods=['POST'])
 @token_required
@@ -572,6 +726,43 @@ def get_weather(lat, lon):
     weather = get_weather_for_location(lat, lon)
     return jsonify(weather), 200
 
+# Secure Email Alert System
+secure_alerts = []
+
+def send_secure_alert(subject, body, recipient="confidential@seatrace.gov"):
+    """Simulate sending a secure/confidential email alert"""
+    timestamp = datetime.utcnow().isoformat()
+    alert_id = f"ALERT-{len(secure_alerts) + 1:04d}"
+    
+    alert = {
+        "id": alert_id,
+        "timestamp": timestamp,
+        "subject": f"[CONFIDENTIAL] {subject}",
+        "body": body,
+        "recipient": recipient,
+        "status": "SENT (ENCRYPTED)"
+    }
+    
+    secure_alerts.append(alert)
+    
+    # Simulate sending to secure relay
+    print(f"\n[SECURE TRANSMISSION] >>> Sending Alert {alert_id} to {recipient}")
+    print(f"Subject: {alert['subject']}")
+    print(f"Body: {body}")
+    print("Encryption: AES-256... COMPLETED\n")
+    
+    return alert
+
+@app.route('/api/alerts/secure-history', methods=['GET'])
+@token_required
+def get_secure_history():
+    """View sent confidential alerts (Admin/Operator only)"""
+    current_user = request.user
+    if current_user['role'] == 'viewer':
+         return jsonify({'error': 'Unauthorized access to confidential logs'}), 403
+    return jsonify(secure_alerts), 200
+
+# Existing Routes
 @app.route('/api/health', methods=['GET'])
 def health():
     return jsonify({'status': 'ok', 'service': 'SeaTrace Backend'}), 200

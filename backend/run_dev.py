@@ -26,7 +26,7 @@ if __name__ == '__main__':
     print("=" * 60)
     print("SeaTrace Backend - Development Server")
     print("=" * 60)
-    print(f"Starting on: http://localhost:{port}")
+    print(f"Starting on: http://0.0.0.0:{port}")
     print(f"API Health: http://localhost:{port}/api/health")
     print(f"Debug Mode: {debug}")
     print(f"Eventlet: {USE_EVENTLET}")
@@ -39,7 +39,7 @@ if __name__ == '__main__':
                 app,
                 debug=debug,
                 port=port,
-                host='127.0.0.1',
+                host='0.0.0.0',
                 use_reloader=debug,
                 log_output=True
             )
@@ -49,7 +49,7 @@ if __name__ == '__main__':
                 app,
                 debug=debug,
                 port=port,
-                host='127.0.0.1',
+                host='0.0.0.0',
                 allow_unsafe_werkzeug=True
             )
     except KeyboardInterrupt:
@@ -58,4 +58,3 @@ if __name__ == '__main__':
         print(f"\n\nError starting server: {e}")
         import traceback
         traceback.print_exc()
-

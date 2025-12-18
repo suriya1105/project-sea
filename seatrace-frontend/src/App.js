@@ -7,12 +7,14 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline, GeoJSON } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline, GeoJSON, LayersControl } from 'react-leaflet';
 import L from 'leaflet';
 import io from 'socket.io-client';
 import axios from 'axios';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import './App.css';
+import SignUpForm from './components/auth/SignUpForm';
+import LoginForm from './components/auth/LoginForm';
 
 // Fix leaflet icon issue
 delete L.Icon.Default.prototype._getIconUrl;
@@ -22,7 +24,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:5000/api';
 const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:5000';
 
 function App() {
@@ -47,7 +49,7 @@ function App() {
     danger: '#dc2626'
   });
   const [showThemeEditor, setShowThemeEditor] = useState(false);
-  
+
   // Admin panel state
   const [allUsers, setAllUsers] = useState([]);
   const [auditLogs, setAuditLogs] = useState([]);
@@ -59,8 +61,12 @@ function App() {
     role: 'operator'
   });
   const [adminPanelLoading, setAdminPanelLoading] = useState(false);
+
   const [adminPanelMessage, setAdminPanelMessage] = useState('');
-  
+
+  // Auth UI state
+  const [showSignUp, setShowSignUp] = useState(false);
+
   // Real-time movement tracking state
   const [vesselMovementData, setVesselMovementData] = useState({});
   const [oilSpillProgression, setOilSpillProgression] = useState({});
@@ -85,7 +91,7 @@ function App() {
       }
     },
     "Sri Lanka": {
-      "type": "Feature", 
+      "type": "Feature",
       "properties": { "name": "Sri Lanka" },
       "geometry": {
         "type": "Polygon",
@@ -126,13 +132,13 @@ function App() {
     const savedToken = localStorage.getItem('token');
     const savedUser = localStorage.getItem('user');
     const savedTheme = localStorage.getItem('themeColors');
-    
+
     if (savedTheme) {
       const colors = JSON.parse(savedTheme);
       setThemeColors(colors);
       applyThemeColors(colors);
     }
-    
+
     if (savedToken && savedUser) {
       const user = JSON.parse(savedUser);
       setToken(savedToken);
@@ -235,7 +241,7 @@ function App() {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
       setDashboardData(response.data);
-      
+
       // Fetch weather for first vessel if available
       if (vessels.length > 0) {
         fetchWeather(vessels[0].lat, vessels[0].lon, authToken);
@@ -254,6 +260,24 @@ function App() {
     } catch (error) {
       console.error('Error fetching weather data:', error);
     }
+  }
+
+  const handleAuthSuccess = (data) => {
+    const { token: newToken, user } = data;
+    localStorage.setItem('token', newToken);
+    localStorage.setItem('user', JSON.stringify(user));
+
+    setToken(newToken);
+    setUserName(user.name);
+    setUserRole(user.role);
+    setIsLoggedIn(true);
+
+    fetchVessels(newToken);
+    fetchDashboardData(newToken);
+    if (user.role !== 'viewer') {
+      fetchOilSpills(newToken);
+    }
+    initializeSocket(newToken);
   };
 
   const handleLogin = async (e) => {
@@ -261,29 +285,15 @@ function App() {
     try {
       const testEmails = ['admin@seatrace.com', 'operator@seatrace.com', 'viewer@seatrace.com'];
       const loginData = { email };
-      
+
       // Only send password if it's not a test email or if password is provided
       if (!testEmails.includes(email) && password) {
         loginData.password = password;
       }
-      
+
       const response = await axios.post(`${API_BASE_URL}/auth/login`, loginData);
-      
-      const { token: newToken, user } = response.data;
-      localStorage.setItem('token', newToken);
-      localStorage.setItem('user', JSON.stringify(user));
-      
-      setToken(newToken);
-      setUserName(user.name);
-      setUserRole(user.role);
-      setIsLoggedIn(true);
-      
-      fetchVessels(newToken);
-      fetchDashboardData(newToken);
-      if (user.role !== 'viewer') {
-        fetchOilSpills(newToken);
-      }
-      initializeSocket(newToken);
+
+      handleAuthSuccess(response.data);
     } catch (error) {
       alert('Login failed: ' + (error.response?.data?.error || error.message));
     }
@@ -295,13 +305,13 @@ function App() {
     const baseLat = vessel.lat;
     const baseLon = vessel.lon;
     const now = new Date();
-    
+
     // Generate 24 hours of movement data (every 2 hours)
     for (let i = 23; i >= 0; i--) {
       const timestamp = new Date(now.getTime() - (i * 2 * 60 * 60 * 1000));
       const latOffset = (Math.random() - 0.5) * 0.1; // Small random movement
       const lonOffset = (Math.random() - 0.5) * 0.1;
-      
+
       movementData.push({
         time: timestamp.toLocaleTimeString(),
         lat: baseLat + latOffset,
@@ -310,7 +320,7 @@ function App() {
         course: vessel.course + (Math.random() - 0.5) * 10
       });
     }
-    
+
     return movementData;
   };
 
@@ -318,18 +328,18 @@ function App() {
   const generateOilSpillProgression = (spill) => {
     const progressionData = [];
     const now = new Date();
-    
+
     // Generate progression over time
     for (let i = 23; i >= 0; i--) {
       const timestamp = new Date(now.getTime() - (i * 60 * 60 * 1000)); // Every hour
       const baseSize = spill.size_tons;
       const baseArea = spill.estimated_area_km2;
-      
+
       // Oil spreads over time
       const timeFactor = (24 - i) / 24; // 0 to 1 over 24 hours
       const sizeIncrease = baseSize * timeFactor * 0.1; // 10% increase over time
       const areaIncrease = baseArea * timeFactor * 0.2; // 20% area increase
-      
+
       progressionData.push({
         time: timestamp.toLocaleTimeString(),
         size_tons: baseSize + sizeIncrease,
@@ -337,7 +347,7 @@ function App() {
         confidence: Math.min(95, spill.confidence + timeFactor * 5)
       });
     }
-    
+
     return progressionData;
   };
 
@@ -354,7 +364,7 @@ function App() {
       newSpillProgression[spill.spill_id] = generateOilSpillProgression(spill);
     });
     setOilSpillProgression(newSpillProgression);
-    
+
     // Check for movement alerts
     checkMovementAlerts(newMovementData);
   };
@@ -362,14 +372,14 @@ function App() {
   // Check for vessel movement alerts
   const checkMovementAlerts = (newMovementData) => {
     const alerts = [];
-    
+
     Object.entries(newMovementData).forEach(([imo, movementData]) => {
       const vessel = vessels.find(v => v.imo === imo);
       if (!vessel || movementData.length < 2) return;
-      
+
       const currentPos = movementData[movementData.length - 1];
       const previousPos = movementData[movementData.length - 2];
-      
+
       // Check for high speed
       if (currentPos.speed > 25) {
         alerts.push({
@@ -381,7 +391,7 @@ function App() {
           timestamp: new Date().toISOString()
         });
       }
-      
+
       // Check for course changes (potential maneuvering)
       const courseChange = Math.abs(currentPos.course - previousPos.course);
       if (courseChange > 45) {
@@ -394,7 +404,7 @@ function App() {
           timestamp: new Date().toISOString()
         });
       }
-      
+
       // Check if vessel is near restricted areas (simplified check)
       if (currentPos.lat > 20 && currentPos.lat < 25 && currentPos.lon > 85 && currentPos.lon < 95) {
         alerts.push({
@@ -407,7 +417,7 @@ function App() {
         });
       }
     });
-    
+
     if (alerts.length > 0) {
       setNotifications(prev => [...alerts, ...prev].slice(0, 10)); // Keep last 10 notifications
     }
@@ -487,7 +497,7 @@ function App() {
 
   const handleDeleteUser = async (userEmail) => {
     if (!window.confirm(`Are you sure you want to delete ${userEmail}?`)) return;
-    
+
     setAdminPanelLoading(true);
     try {
       await axios.delete(`${API_BASE_URL}/admin/users/${userEmail}`, {
@@ -514,7 +524,7 @@ function App() {
           responseType: 'blob'
         }
       );
-      
+
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -562,138 +572,67 @@ function App() {
               <h1 style={{ fontSize: '48px', marginBottom: '8px' }}>⚓ SeaTrace</h1>
               <p className="subtitle" style={{ fontSize: '18px', color: '#667eea', marginBottom: '10px', fontWeight: '600', letterSpacing: '2px' }}>MARITIME INTELLIGENCE</p>
               <p className="tagline" style={{ fontSize: '14px', color: '#666', marginBottom: '20px' }}>Advanced Ocean Monitoring & Environmental Protection</p>
-              
-              <div style={{ 
-                background: 'rgba(16, 185, 129, 0.1)', 
-                border: '1px solid rgba(16, 185, 129, 0.3)', 
-                borderRadius: '8px', 
-                padding: '15px', 
+
+              <div style={{
+                background: 'rgba(16, 185, 129, 0.1)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                borderRadius: '8px',
+                padding: '15px',
                 marginBottom: '20px',
                 textAlign: 'center'
               }}>
                 <h3 style={{ color: '#10b981', margin: '0 0 8px 0', fontSize: '16px' }}>🎉 Welcome to SeaTrace!</h3>
                 <p style={{ color: '#666', margin: '0', fontSize: '13px', lineHeight: '1.4' }}>
-                  Real-time vessel tracking, oil spill monitoring, and maritime analytics.<br/>
+                  Real-time vessel tracking, oil spill monitoring, and maritime analytics.<br />
                   <strong>Click any demo account below for instant access!</strong>
                 </p>
               </div>
             </div>
-            
-            <form onSubmit={handleLogin}>
-              <div className="form-group">
-                <label style={{ fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '12px' }}>
-                  📧 Email Address
-                </label>
-                <input
-                  type="email"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  style={{ fontSize: '15px' }}
+
+            {showSignUp ? (
+              <>
+                <SignUpForm
+                  onAuthSuccess={handleAuthSuccess}
+                  onSwitchToLogin={() => setShowSignUp(false)}
                 />
-              </div>
-
-              {(!email || !['admin@seatrace.com', 'operator@seatrace.com', 'viewer@seatrace.com'].includes(email)) && (
-                <div className="form-group">
-                  <label style={{ fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '12px' }}>
-                    🔐 Password
-                  </label>
-                  <input
-                    type="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required={!['admin@seatrace.com', 'operator@seatrace.com', 'viewer@seatrace.com'].includes(email)}
-                    style={{ fontSize: '15px' }}
-                  />
+                <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                  <p style={{ color: '#666', fontSize: '14px' }}>
+                    Already have an account?{' '}
+                    <button
+                      onClick={() => setShowSignUp(false)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#2563eb',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        textDecoration: 'underline'
+                      }}
+                    >
+                      Sign In
+                    </button>
+                  </p>
                 </div>
-              )}
-              
-              <button type="submit" className="login-btn" style={{ 
-                fontSize: '16px', 
-                fontWeight: '700',
-                letterSpacing: '2px',
-                textTransform: 'uppercase',
-                paddingTop: '14px',
-                paddingBottom: '14px'
-              }}>
-                ⛵ Access System
-              </button>
-            </form>
-
-            <div className="demo-accounts" style={{ marginTop: '30px', textAlign: 'center' }}>
-              <h3 style={{ color: '#fff', fontSize: '18px', marginBottom: '20px', fontWeight: '600' }}>🚀 Quick Access Demo Accounts</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '20px' }}>
-                <button 
-                  onClick={() => setEmail('admin@seatrace.com')} 
-                  type="button"
-                  style={{ 
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
-                    border: 'none', 
-                    color: '#fff', 
-                    padding: '12px 16px', 
-                    borderRadius: '8px', 
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    transition: 'transform 0.2s, box-shadow 0.2s',
-                    boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
-                  }}
-                  onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
-                  onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
-                >
-                  👑 Admin Access<br/>
-                  <small style={{ fontSize: '12px', opacity: '0.9' }}>Full System Control</small>
-                </button>
-                <button 
-                  onClick={() => setEmail('operator@seatrace.com')} 
-                  type="button"
-                  style={{ 
-                    background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', 
-                    border: 'none', 
-                    color: '#fff', 
-                    padding: '12px 16px', 
-                    borderRadius: '8px', 
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    transition: 'transform 0.2s, box-shadow 0.2s',
-                    boxShadow: '0 4px 15px rgba(245, 87, 108, 0.3)'
-                  }}
-                  onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
-                  onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
-                >
-                  ⚙️ Operator Access<br/>
-                  <small style={{ fontSize: '12px', opacity: '0.9' }}>Reporting & Monitoring</small>
-                </button>
-                <button 
-                  onClick={() => setEmail('viewer@seatrace.com')} 
-                  type="button"
-                  style={{ 
-                    background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', 
-                    border: 'none', 
-                    color: '#fff', 
-                    padding: '12px 16px', 
-                    borderRadius: '8px', 
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    transition: 'transform 0.2s, box-shadow 0.2s',
-                    boxShadow: '0 4px 15px rgba(79, 172, 254, 0.3)'
-                  }}
-                  onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
-                  onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
-                >
-                  👁️ Viewer Access<br/>
-                  <small style={{ fontSize: '12px', opacity: '0.9' }}>Read-Only Dashboard</small>
-                </button>
-              </div>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', marginTop: '15px', lineHeight: '1.4' }}>
-                <strong>No passwords required!</strong> Just click any account above to explore SeaTrace's features.<br/>
-                Experience real-time maritime intelligence and environmental monitoring.
-              </p>
-            </div>
+              </>
+            ) : (
+              <LoginForm
+                onLogin={async (email, password) => {
+                  // Wrapper to match LoginForm signature with handleLogin logic
+                  try {
+                    const testEmails = ['admin@seatrace.com', 'operator@seatrace.com', 'viewer@seatrace.com'];
+                    const loginData = { email };
+                    if (!testEmails.includes(email) && password) {
+                      loginData.password = password;
+                    }
+                    const response = await axios.post(`${API_BASE_URL}/auth/login`, loginData);
+                    handleAuthSuccess(response.data);
+                  } catch (error) {
+                    alert('Login failed: ' + (error.response?.data?.error || error.message));
+                  }
+                }}
+                onSwitchToSignUp={() => setShowSignUp(true)}
+              />
+            )}
 
           </div>
           <div className="login-footer">
@@ -725,7 +664,7 @@ function App() {
         zIndex: -1,
         pointerEvents: 'none'
       }}></div>
-      
+
       <nav className="navbar">
         <div className="navbar-left">
           <h1>⚓ SeaTrace</h1>
@@ -740,7 +679,7 @@ function App() {
           {/* Notifications for Admin/Operator */}
           {(userRole === 'admin' || userRole === 'operator') && (
             <div className="notification-container">
-              <button 
+              <button
                 onClick={() => setShowNotifications(!showNotifications)}
                 className="notification-bell"
                 style={{
@@ -778,7 +717,7 @@ function App() {
                   </span>
                 )}
               </button>
-              
+
               {showNotifications && (
                 <div className="notification-panel" style={{
                   position: 'absolute',
@@ -809,15 +748,15 @@ function App() {
                       <div key={notification.id} style={{
                         padding: '12px 16px',
                         borderBottom: '1px solid #f3f4f6',
-                        backgroundColor: 
+                        backgroundColor:
                           notification.type === 'danger' ? '#fef2f2' :
-                          notification.type === 'warning' ? '#fefce8' : '#f0f9ff'
+                            notification.type === 'warning' ? '#fefce8' : '#f0f9ff'
                       }}>
                         <div style={{
                           fontWeight: 'bold',
-                          color: 
+                          color:
                             notification.type === 'danger' ? '#dc2626' :
-                            notification.type === 'warning' ? '#d97706' : '#2563eb',
+                              notification.type === 'warning' ? '#d97706' : '#2563eb',
                           fontSize: '14px'
                         }}>
                           {notification.title}
@@ -835,14 +774,14 @@ function App() {
               )}
             </div>
           )}
-          
+
           <div className="user-info">
             <span>{userName}</span>
             <span className="role-badge">{userRole.toUpperCase()}</span>
           </div>
           {userRole === 'admin' && (
-            <button 
-              onClick={() => setShowThemeEditor(!showThemeEditor)} 
+            <button
+              onClick={() => setShowThemeEditor(!showThemeEditor)}
               style={{
                 padding: '8px 16px',
                 background: 'linear-gradient(135deg, #f59e0b, #d97706)',
@@ -874,7 +813,7 @@ function App() {
           >
             📊 Dashboard
           </button>
-          
+
           <button
             className={`tab-btn ${activeTab === 'map' ? 'active' : ''}`}
             onClick={() => setActiveTab('map')}
@@ -888,7 +827,7 @@ function App() {
           >
             📡 Real-Time Analysis
           </button>
-          
+
           {userRole !== 'viewer' && (
             <>
               <button
@@ -911,7 +850,7 @@ function App() {
               </button>
             </>
           )}
-          
+
           {userRole === 'admin' && (
             <button
               className={`tab-btn ${activeTab === 'admin' ? 'active' : ''}`}
@@ -940,7 +879,7 @@ function App() {
               <h3 style={{ margin: '0', fontSize: '18px', fontWeight: '700' }}>🎨 Theme Customizer</h3>
               <button onClick={() => setShowThemeEditor(false)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}>✕</button>
             </div>
-            
+
             <div style={{ display: 'grid', gap: '15px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '8px', textTransform: 'uppercase' }}>Primary Color</label>
@@ -1014,7 +953,7 @@ function App() {
         {activeTab === 'dashboard' && dashboardData && (
           <div className="dashboard-container">
             <h2>Dashboard Overview</h2>
-            
+
             {/* System Status Indicator */}
             <div className="system-status-section" style={{
               background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%)',
@@ -1043,7 +982,7 @@ function App() {
                 }}></span>
                 System Status: {connectionStatus === 'connected' ? '🟢 All Systems Operational' : '🔴 System Issues Detected'}
               </h3>
-              
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
                 <div className="status-item" style={{
                   padding: '16px',
@@ -1060,7 +999,7 @@ function App() {
                     <div style={{ fontSize: '12px', color: '#6b7280' }}>Active & Running</div>
                   </div>
                 </div>
-                
+
                 <div className="status-item" style={{
                   padding: '16px',
                   borderRadius: '12px',
@@ -1076,7 +1015,7 @@ function App() {
                     <div style={{ fontSize: '12px', color: '#6b7280' }}>Processing Live Data</div>
                   </div>
                 </div>
-                
+
                 <div className="status-item" style={{
                   padding: '16px',
                   borderRadius: '12px',
@@ -1092,7 +1031,7 @@ function App() {
                     <div style={{ fontSize: '12px', color: '#6b7280' }}>Monitoring Active</div>
                   </div>
                 </div>
-                
+
                 <div className="status-item" style={{
                   padding: '16px',
                   borderRadius: '12px',
@@ -1110,7 +1049,7 @@ function App() {
                 </div>
               </div>
             </div>
-            
+
             {/* Weather Widget */}
             {weatherData && (
               <div className="charts-section" style={{ marginBottom: '40px' }}>
@@ -1155,7 +1094,7 @@ function App() {
                 </div>
               </div>
             )}
-            
+
             <div className="stats-grid">
               <div className="stat-card">
                 <h3>Total Vessels</h3>
@@ -1337,10 +1276,10 @@ function App() {
                             <YAxis />
                             <Tooltip />
                             <Legend />
-                            <Line 
-                              type="monotone" 
-                              dataKey="speed" 
-                              stroke="#2563eb" 
+                            <Line
+                              type="monotone"
+                              dataKey="speed"
+                              stroke="#2563eb"
                               strokeWidth={2}
                               name="Speed (knots)"
                             />
@@ -1365,17 +1304,17 @@ function App() {
                             <YAxis />
                             <Tooltip />
                             <Legend />
-                            <Line 
-                              type="monotone" 
-                              dataKey="size_tons" 
-                              stroke="#ef4444" 
+                            <Line
+                              type="monotone"
+                              dataKey="size_tons"
+                              stroke="#ef4444"
                               strokeWidth={2}
                               name="Size (tons)"
                             />
-                            <Line 
-                              type="monotone" 
-                              dataKey="area_km2" 
-                              stroke="#f59e0b" 
+                            <Line
+                              type="monotone"
+                              dataKey="area_km2"
+                              stroke="#f59e0b"
                               strokeWidth={2}
                               name="Area (km²)"
                             />
@@ -1426,7 +1365,7 @@ function App() {
                           </div>
                           <div className="ship-rating">
                             <div className="rating-bar-small">
-                              <div 
+                              <div
                                 className="rating-fill-small"
                                 style={{
                                   width: `${vessel.compliance_rating * 10}%`,
@@ -1458,7 +1397,7 @@ function App() {
                 url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
                 attribution="Tiles &copy; Esri"
               />
-              
+
               {/* Country Boundaries */}
               {Object.entries(countryBoundaries).map(([countryName, geoJson]) => (
                 <GeoJSON
@@ -1481,7 +1420,7 @@ function App() {
                   iconSize: [40, 40],
                   className: 'ship-icon'
                 });
-                
+
                 return (
                   <Marker
                     key={vessel.imo}
@@ -1510,9 +1449,9 @@ function App() {
               {Object.entries(vesselMovementData).map(([imo, movementData]) => {
                 const vessel = vessels.find(v => v.imo === imo);
                 if (!vessel || movementData.length < 2) return null;
-                
+
                 const trailPositions = movementData.map(point => [point.lat, point.lon]);
-                
+
                 return (
                   <Polyline
                     key={`trail-${imo}`}
@@ -1544,8 +1483,8 @@ function App() {
                         <img src={spill.image} alt={spill.spill_id} style={{ width: '100%', marginBottom: '12px', borderRadius: '6px', maxHeight: '180px', objectFit: 'cover' }} />
                         <h4 style={{ marginBottom: '8px', color: '#1f2937' }}>🛢️ {spill.spill_id}</h4>
                         <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Vessel:</strong> {spill.vessel_name}</p>
-                        <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Severity:</strong> <span style={{ 
-                          backgroundColor: getSeverityColor(spill.severity), 
+                        <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Severity:</strong> <span style={{
+                          backgroundColor: getSeverityColor(spill.severity),
                           color: 'white',
                           padding: '2px 6px',
                           borderRadius: '3px',
@@ -1565,7 +1504,7 @@ function App() {
               {Object.entries(oilSpillProgression).map(([spillId, progressionData]) => {
                 const spill = oilSpills.find(s => s.spill_id === spillId);
                 if (!spill || progressionData.length < 2) return null;
-                
+
                 // Create expanding circles for spill progression
                 return progressionData.map((point, index) => (
                   <Circle
@@ -1592,10 +1531,10 @@ function App() {
               {vessels.map(vessel => (
                 <div key={vessel.imo} className="vessel-card">
                   <img src={vessel.image} alt={vessel.name} className="vessel-image" />
-                  
+
                   <div className="card-header">
                     <h3>{vessel.name}</h3>
-                    <div 
+                    <div
                       className="risk-indicator"
                       style={{ backgroundColor: getRiskColor(vessel.risk_level) }}
                     >
@@ -1668,10 +1607,10 @@ function App() {
               {oilSpills.map(spill => (
                 <div key={spill.spill_id} className="spill-card">
                   <img src={spill.image} alt={spill.spill_id} className="spill-image" />
-                  
+
                   <div className="card-header">
                     <h3>{spill.spill_id}</h3>
-                    <div 
+                    <div
                       className="severity-indicator"
                       style={{ backgroundColor: getSeverityColor(spill.severity) }}
                     >
@@ -1724,8 +1663,8 @@ function App() {
               <div className="report-card">
                 <h3>📋 Vessels Report</h3>
                 <p>Download comprehensive report of all vessels, their compliance ratings, and risk assessments.</p>
-                <button 
-                  className="download-btn" 
+                <button
+                  className="download-btn"
                   onClick={() => generateReport('vessels')}
                   disabled={reportLoading}
                 >
@@ -1736,8 +1675,8 @@ function App() {
               <div className="report-card">
                 <h3>⚠️ Oil Spills Report</h3>
                 <p>Download detailed report of all oil spill incidents, locations, and status updates.</p>
-                <button 
-                  className="download-btn" 
+                <button
+                  className="download-btn"
                   onClick={() => generateReport('spills')}
                   disabled={reportLoading}
                 >
@@ -1748,8 +1687,8 @@ function App() {
               <div className="report-card">
                 <h3>📊 Comprehensive Report</h3>
                 <p>Download complete marine monitoring report with vessels, spills, and all analytics.</p>
-                <button 
-                  className="download-btn" 
+                <button
+                  className="download-btn"
                   onClick={() => generateReport('comprehensive')}
                   disabled={reportLoading}
                 >
@@ -1764,7 +1703,7 @@ function App() {
         {activeTab === 'admin' && userRole === 'admin' && (
           <div className="admin-panel-container">
             <h2>⚙️ Admin Control Panel</h2>
-            
+
             {adminPanelMessage && (
               <div className={`admin-message ${adminPanelMessage.includes('Error') ? 'error' : 'success'}`}>
                 {adminPanelMessage}
@@ -1774,7 +1713,7 @@ function App() {
             <div className="admin-tabs">
               <div className="admin-section">
                 <h3>👥 User Management</h3>
-                
+
                 {/* Create New User Form */}
                 <div className="user-form-card">
                   <h4>Create New Company User</h4>
@@ -1785,7 +1724,7 @@ function App() {
                         type="email"
                         placeholder="user@company.com"
                         value={newUserData.email}
-                        onChange={(e) => setNewUserData({...newUserData, email: e.target.value})}
+                        onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
                         required
                       />
                     </div>
@@ -1795,7 +1734,7 @@ function App() {
                         type="text"
                         placeholder="John Doe"
                         value={newUserData.name}
-                        onChange={(e) => setNewUserData({...newUserData, name: e.target.value})}
+                        onChange={(e) => setNewUserData({ ...newUserData, name: e.target.value })}
                         required
                       />
                     </div>
@@ -1805,7 +1744,7 @@ function App() {
                         type="password"
                         placeholder="Secure password"
                         value={newUserData.password}
-                        onChange={(e) => setNewUserData({...newUserData, password: e.target.value})}
+                        onChange={(e) => setNewUserData({ ...newUserData, password: e.target.value })}
                         required
                       />
                     </div>
@@ -1815,7 +1754,7 @@ function App() {
                         type="text"
                         placeholder="Company Name"
                         value={newUserData.company}
-                        onChange={(e) => setNewUserData({...newUserData, company: e.target.value})}
+                        onChange={(e) => setNewUserData({ ...newUserData, company: e.target.value })}
                         required
                       />
                     </div>
@@ -1823,7 +1762,7 @@ function App() {
                       <label>Role:</label>
                       <select
                         value={newUserData.role}
-                        onChange={(e) => setNewUserData({...newUserData, role: e.target.value})}
+                        onChange={(e) => setNewUserData({ ...newUserData, role: e.target.value })}
                       >
                         <option value="operator">Operator</option>
                         <option value="viewer">Viewer</option>
@@ -1843,7 +1782,7 @@ function App() {
                       🔄 Refresh
                     </button>
                   </div>
-                  
+
                   {allUsers.length > 0 ? (
                     <div className="users-table">
                       {allUsers.map((user, idx) => (
@@ -1855,8 +1794,8 @@ function App() {
                             <span className={`role-badge role-${user.role}`}>{user.role}</span>
                           </div>
                           {user.email !== email && (
-                            <button 
-                              className="delete-btn" 
+                            <button
+                              className="delete-btn"
                               onClick={() => handleDeleteUser(user.email)}
                               disabled={adminPanelLoading}
                             >
@@ -1882,7 +1821,7 @@ function App() {
                       🔄 Refresh
                     </button>
                   </div>
-                  
+
                   {auditLogs.length > 0 ? (
                     <div className="audit-table">
                       {auditLogs.map((log, idx) => (
@@ -1909,9 +1848,9 @@ function App() {
         {activeTab === 'realtime' && (
           <div className="realtime-analysis-container">
             <h2>📡 Real-Time Marine Monitoring Analysis</h2>
-            
+
             {/* Real-time Status */}
-            <div style={{ 
+            <div style={{
               backgroundColor: connectionStatus === 'connected' ? '#d1fae5' : '#fecaca',
               border: `2px solid ${connectionStatus === 'connected' ? '#10b981' : '#ef4444'}`,
               padding: '16px',
@@ -2018,9 +1957,9 @@ function App() {
                       </div>
                     ))
                   ) : (
-                    <div style={{ 
-                      padding: '24px', 
-                      textAlign: 'center', 
+                    <div style={{
+                      padding: '24px',
+                      textAlign: 'center',
                       color: '#10b981',
                       backgroundColor: '#f0fdf4',
                       borderRadius: '8px',
@@ -2036,8 +1975,8 @@ function App() {
             {/* Download Real-Time Analysis Report */}
             <div style={{ marginTop: '24px', padding: '20px', backgroundColor: '#f9fafb', borderRadius: '12px' }}>
               <h3 style={{ marginBottom: '16px' }}>📥 Export Real-Time Analysis</h3>
-              <button 
-                className="download-btn" 
+              <button
+                className="download-btn"
                 onClick={() => generateReport('realtime')}
                 disabled={reportLoading}
                 style={{ width: '100%' }}
@@ -2056,15 +1995,15 @@ function App() {
               <p style={{ color: '#666', marginBottom: '10px' }}>View real-time vessel locations and maritime activity in the Indian Ocean region. Download vessel images for analysis.</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginTop: '15px' }}>
                 {vessels.slice(0, 5).map(vessel => (
-                  <div key={vessel.imo} style={{ 
-                    backgroundColor: '#f9fafb', 
-                    padding: '15px', 
+                  <div key={vessel.imo} style={{
+                    backgroundColor: '#f9fafb',
+                    padding: '15px',
                     borderRadius: '8px',
                     border: '1px solid #e5e7eb',
                     cursor: 'pointer',
                     transition: 'all 0.3s'
                   }}>
-                    <div style={{ 
+                    <div style={{
                       backgroundImage: `url('${vessel.image}')`,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
@@ -2107,18 +2046,36 @@ function App() {
             </div>
 
             {/* Read-only Map for Viewers */}
-            <MapContainer center={[11, 77]} zoom={5} className="map" style={{ marginBottom: '20px' }}>
-              <TileLayer
-                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                attribution="Tiles &copy; Esri"
-              />
+            <MapContainer center={[20, 78]} zoom={4} style={{ height: '100%', width: '100%' }}>
+              <LayersControl position="topright">
+                <LayersControl.BaseLayer checked name="OpenStreetMap">
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  />
+                </LayersControl.BaseLayer>
+
+                <LayersControl.BaseLayer name="Satellite (Esri)">
+                  <TileLayer
+                    url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                    attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+                  />
+                </LayersControl.BaseLayer>
+
+                <LayersControl.BaseLayer name="Dark Matter">
+                  <TileLayer
+                    url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                  />
+                </LayersControl.BaseLayer>
+              </LayersControl>
               {vessels.map(vessel => {
                 const shipIcon = L.divIcon({
                   html: `<div style="background: linear-gradient(135deg, #2563eb, #764ba2); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);" title="${vessel.name}">⚓</div>`,
                   iconSize: [40, 40],
                   className: 'ship-icon'
                 });
-                
+
                 return (
                   <Marker
                     key={vessel.imo}
@@ -2180,8 +2137,8 @@ function App() {
                         <img src={spill.image} alt={spill.spill_id} style={{ width: '100%', marginBottom: '12px', borderRadius: '6px', maxHeight: '150px', objectFit: 'cover' }} />
                         <h4 style={{ marginBottom: '8px', color: '#1f2937' }}>🛢️ {spill.spill_id}</h4>
                         <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Vessel:</strong> {spill.vessel_name}</p>
-                        <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Severity:</strong> <span style={{ 
-                          backgroundColor: getSeverityColor(spill.severity), 
+                        <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Severity:</strong> <span style={{
+                          backgroundColor: getSeverityColor(spill.severity),
                           color: 'white',
                           padding: '2px 6px',
                           borderRadius: '3px',

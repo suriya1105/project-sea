@@ -145,6 +145,15 @@ class DataManager:
                 self.company_users[company].append(email)
             self._save_json_file(self.company_users_file, self.company_users)
 
+    def update_user(self, email, user_data):
+        """Update existing user"""
+        with self.lock:
+            if email in self.users:
+                self.users[email].update(user_data)
+                self._save_json_file(self.users_file, self.users)
+                return True
+            return False
+
     def delete_user(self, email):
         """Delete user"""
         with self.lock:
