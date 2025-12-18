@@ -1,56 +1,57 @@
-# Deployment Connection Guide
+# 🚀 SeaTrace Deployment Master Guide
 
-## 🔗 How to Connect Backend (Render) to Frontend (Vercel)
+This guide covers everything you need to deploy your Full Stack application.
 
-This is the final step to make your app work live. You need to tell your **Frontend** where your **Backend** lives.
+## 🟢 Part 1: Deploy Backend (Render)
 
-### Step 1: Get your Backend URL
-1.  Go to your **Render Dashboard**.
-2.  Click on your `project-sea` Web Service.
-3.  Copy the URL near the top left (it looks like `https://project-sea.onrender.com`).
+We use **Render** for the Python Backend because it supports Docker and Background Tasks.
 
-### Step 2: Configure Vercel
-1.  Go to your **Vercel Dashboard**.
-2.  Click on your **SeaTrace** project.
-3.  Click on the **Settings** tab (top menu).
-4.  Click on **Environment Variables** (left menu).
+1.  **Push Code to GitHub**: Ensure your latest code is on GitHub (we did this!).
+2.  **Go to Render Dashboard**: [dashboard.render.com](https://dashboard.render.com)
+3.  Click **New +** -> **Web Service**.
+4.  **Connect GitHub**: Select your `project-sea` repository.
+5.  **Configure Service**:
+    *   **Name**: `project-sea-backend`
+    *   **Runtime**: **Docker** (Important! Do not select Python)
+    *   **Region**: Singapore or nearest to you.
+    *   **Branch**: `main`
+6.  **Environment Variables**:
+    *   Scroll down to "Environment Variables".
+    *   Add `SECRET_KEY`: `any-random-secure-text`
+    *   Add `CORS_ORIGINS`: `*` (Allows anyone to connect, or put your Vercel URL later)
+7.  **Click "Create Web Service"**.
 
-### Step 3: Add Variables
-You need to add these **TWO** variables exactly as written below:
+> **Wait**: It will bake the Docker image. Once you see "Your service is live", copy the **URL** (e.g., `https://project-sea-backend.onrender.com`).
 
-#### Variable 1: API URL
--   **Key**: `REACT_APP_API_BASE_URL`
--   **Value**: `https://project-sea.onrender.com/api`
-    -   *Note*: Ensure you add `/api` at the end.
--   Click **Save**.
+---
 
-#### Variable 2: Socket URL
--   **Key**: `REACT_APP_SOCKET_URL`
--   **Value**: `https://project-sea.onrender.com`
-    -   *Note*: **NO** `/api` at the end.
--   Click **Save**.
+## ▲ Part 2: Deploy Frontend (Vercel)
 
-### Step 4: Redeploy
-1.  Go to the **Deployments** tab.
-2.  Click the **three dots (...)** next to your latest deployment.
-3.  Select **Redeploy**.
-4.  Click **Redeploy** again.
+We use **Vercel** for the React Frontend because it is fast and simple.
 
-### ❓ Troubleshooting
+1.  **Go to Vercel Dashboard**: [vercel.com](https://vercel.com)
+2.  Click **Add New...** -> **Project**.
+3.  **Import GitHub Repo**: Select `project-sea`.
+4.  **Framework Preset**: It should auto-detect **Create React App**.
+5.  **Root Directory**: Click "Edit" and select `seatrace-frontend`.
+6.  **Environment Variables** (Crucial Step):
+    *   Add `REACT_APP_API_BASE_URL`: `https://YOUR-RENDER-URL.onrender.com/api` (Must end with `/api`)
+    *   Add `REACT_APP_SOCKET_URL`: `https://YOUR-RENDER-URL.onrender.com`
+    *   Add `CI`: `false` (Prevents build failing on warnings)
+7.  **Click "Deploy"**.
 
-#### ❌ Authentication Error
-If you see "Network Error" on login:
--   Check your `REACT_APP_API_BASE_URL`.
--   It **MUST** have `/api` at the end.
+---
 
-#### ❌ Build Error ("exited with 1")
-If Vercel fails with `Command "npm run build" exited with 1`:
-1.  Go to **Environment Variables** in Vercel.
-2.  Add a new variable:
-    -   **Key**: `CI`
-    -   **Value**: `false`
-3.  **Redeploy**.
-    -   *Reason*: This tells Vercel to ignore minor warnings (like unused variables) and finish the build.
+## ❓ Troubleshooting
 
-**Success!** 🎉
-Once the redeployment finishes, your SeaTrace app on Vercel will effectively "talk" to your Backend on Render. You can test it by trying to **Login**.
+### ❌ Backend "Deploy Failed"
+*   **Cause**: Dockerfile missing?
+*   **Fix**: We verified `Dockerfile` is in the root. Check logs. If it says "File not found", double check GitHub repo has the file.
+
+### ❌ Frontend "Network Error" on Login
+*   **Cause**: Frontend is checking `localhost`.
+*   **Fix**: You forgot the Environment Variables in Part 2, Step 6. Add them and **Redeploy**.
+
+### ❌ Frontend "Build Exited with 1"
+*   **Cause**: Warnings treated as errors.
+*   **Fix**: Ensure `CI` variable is set to `false`.
