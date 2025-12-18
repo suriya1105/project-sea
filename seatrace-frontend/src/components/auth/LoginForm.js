@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Lock, ArrowRight, Activity, Radio, Shield, Zap } from 'lucide-react';
+import { User, Lock, ArrowRight, Activity, Shield, Zap } from 'lucide-react';
 
 const LoginForm = ({ onLogin, onSwitchToSignUp }) => {
     const [email, setEmail] = useState('');
