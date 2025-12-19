@@ -9,13 +9,13 @@ import sys
 # Add current directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-try:
-    import eventlet
-    eventlet.monkey_patch()
-    USE_EVENTLET = True
-except ImportError:
-    USE_EVENTLET = False
-    print("Warning: eventlet not installed, using default SocketIO transport")
+# try:
+#     import eventlet
+#     eventlet.monkey_patch()
+#     USE_EVENTLET = True
+# except ImportError:
+USE_EVENTLET = False
+print("Warning: eventlet disabled manually")
 
 from app import socketio, app
 

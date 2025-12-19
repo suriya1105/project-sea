@@ -16,6 +16,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAx
 import './App.css';
 import SignUpForm from './components/auth/SignUpForm';
 import LoginForm from './components/auth/LoginForm';
+import LoginPage from './components/LoginPage';
 import { API_BASE_URL, SOCKET_URL } from './config';
 
 // Fix leaflet icon issue
@@ -542,6 +543,27 @@ function App() {
   };
 
   if (!isLoggedIn) {
+    if (!showSignUp) {
+      return (
+        <LoginPage
+          onLogin={async (email, password) => {
+            try {
+              const testEmails = ['admin@seatrace.com', 'operator@seatrace.com', 'viewer@seatrace.com'];
+              const loginData = { email };
+              if (!testEmails.includes(email) && password) {
+                loginData.password = password;
+              }
+              const response = await axios.post(`${API_BASE_URL}/auth/login`, loginData);
+              handleAuthSuccess(response.data);
+            } catch (error) {
+              alert('Login failed: ' + (error.response?.data?.error || error.message));
+            }
+          }}
+          onSwitchToSignUp={() => setShowSignUp(true)}
+        />
+      );
+    }
+
     return (
       <div className="app">
         <div className="login-container" style={{
@@ -572,50 +594,28 @@ function App() {
               </div>
             </div>
 
-            {showSignUp ? (
-              <>
-                <SignUpForm
-                  onAuthSuccess={handleAuthSuccess}
-                  onSwitchToLogin={() => setShowSignUp(false)}
-                />
-                <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                  <p style={{ color: '#666', fontSize: '14px' }}>
-                    Already have an account?{' '}
-                    <button
-                      onClick={() => setShowSignUp(false)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: '#2563eb',
-                        fontWeight: 'bold',
-                        cursor: 'pointer',
-                        textDecoration: 'underline'
-                      }}
-                    >
-                      Sign In
-                    </button>
-                  </p>
-                </div>
-              </>
-            ) : (
-              <LoginForm
-                onLogin={async (email, password) => {
-                  // Wrapper to match LoginForm signature with handleLogin logic
-                  try {
-                    const testEmails = ['admin@seatrace.com', 'operator@seatrace.com', 'viewer@seatrace.com'];
-                    const loginData = { email };
-                    if (!testEmails.includes(email) && password) {
-                      loginData.password = password;
-                    }
-                    const response = await axios.post(`${API_BASE_URL}/auth/login`, loginData);
-                    handleAuthSuccess(response.data);
-                  } catch (error) {
-                    alert('Login failed: ' + (error.response?.data?.error || error.message));
-                  }
-                }}
-                onSwitchToSignUp={() => setShowSignUp(true)}
-              />
-            )}
+            <SignUpForm
+              onAuthSuccess={handleAuthSuccess}
+              onSwitchToLogin={() => setShowSignUp(false)}
+            />
+            <div style={{ marginTop: '20px', textAlign: 'center' }}>
+              <p style={{ color: '#666', fontSize: '14px' }}>
+                Already have an account?{' '}
+                <button
+                  onClick={() => setShowSignUp(false)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#2563eb',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    textDecoration: 'underline'
+                  }}
+                >
+                  Sign In
+                </button>
+              </p>
+            </div>
 
           </div>
           <div className="login-footer">
