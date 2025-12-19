@@ -141,7 +141,7 @@ const LoginForm = ({ onLogin, onSwitchToSignUp }) => {
                                     <div
                                         key={role.id}
                                         onClick={() => handleRoleSelect(role.id, `${role.id}@seatrace.com`)}
-                                        className={`role-box p-2 text-center flex flex-col items-center justify-center h-20clip-path-polygon ${activeRole === role.id ? 'active' : ''}`}
+                                        className={`role-box p-2 text-center flex flex-col items-center justify-center h-20 ${activeRole === role.id ? 'active' : ''}`}
                                     >
                                         <span className="text-xs text-gray-400 mb-1">{role.label}</span>
                                         <span className="text-2xl">{role.id === 'admin' ? '⚡' : role.id === 'operator' ? '⚓' : '👁️'}</span>
