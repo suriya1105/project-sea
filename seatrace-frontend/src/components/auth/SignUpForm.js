@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, User, Lock, ArrowRight, Loader, Eye, EyeOff } from 'lucide-react';
 import VerificationModal from './VerificationModal';
+import { API_BASE_URL } from '../../config';
 
 const SignUpForm = ({ onAuthSuccess, onSwitchToLogin }) => {
     const [formData, setFormData] = useState({
@@ -25,7 +26,7 @@ const SignUpForm = ({ onAuthSuccess, onSwitchToLogin }) => {
 
         try {
             // 1. Register User
-            const response = await fetch('http://localhost:5000/api/auth/register-public', {
+            const response = await fetch(`${API_BASE_URL}/auth/register-public`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -58,7 +59,7 @@ const SignUpForm = ({ onAuthSuccess, onSwitchToLogin }) => {
 
     const sendVerificationCode = async (target, method) => {
         try {
-            const response = await fetch('http://localhost:5000/api/auth/send-verification', {
+            const response = await fetch(`${API_BASE_URL}/auth/send-verification`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ target, method })
@@ -80,7 +81,7 @@ const SignUpForm = ({ onAuthSuccess, onSwitchToLogin }) => {
 
     const handleVerify = async (code) => {
         try {
-            const response = await fetch('http://localhost:5000/api/auth/verify', {
+            const response = await fetch(`${API_BASE_URL}/auth/verify`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -104,7 +105,7 @@ const SignUpForm = ({ onAuthSuccess, onSwitchToLogin }) => {
 
     const loginUser = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/auth/login', {
+            const response = await fetch(`${API_BASE_URL}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

@@ -16,6 +16,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAx
 import './App.css';
 import SignUpForm from './components/auth/SignUpForm';
 import LoginForm from './components/auth/LoginForm';
+import { API_BASE_URL, SOCKET_URL } from './config';
 
 // Fix leaflet icon issue
 delete L.Icon.Default.prototype._getIconUrl;
@@ -25,8 +26,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:5000/api';
-const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:5000';
+
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
