@@ -15,10 +15,13 @@ We use **Render** for the Python Backend because it supports Docker and Backgrou
     *   **Runtime**: **Docker** (Important! Do not select Python)
     *   **Region**: Singapore or nearest to you.
     *   **Branch**: `main`
-6.  **Environment Variables**:
-    *   Scroll down to "Environment Variables".
-    *   Add `SECRET_KEY`: `any-random-secure-text`
-    *   Add `CORS_ORIGINS`: `*` (Allows anyone to connect, or put your Vercel URL later)
+6.  **Environment Variables** (Auto-configured):
+    *   The `render.yaml` file automatically sets up:
+        *   `SECRET_KEY`: Auto-generated secure key
+        *   `CORS_ORIGINS`: `*` (Allows all origins)
+        *   `PORT`: `5000`
+        *   `FLASK_ENV`: `production`
+        *   `PYTHONUNBUFFERED`: `1`
 7.  **Click "Create Web Service"**.
 
 > **Wait**: It will bake the Docker image. Once you see "Your service is live", copy the **URL** (e.g., `https://project-sea-backend.onrender.com`).
@@ -37,8 +40,21 @@ We use **Vercel** for the React Frontend because it is fast and simple.
 6.  **Environment Variables** (Crucial Step):
     *   Add `REACT_APP_API_BASE_URL`: `https://YOUR-RENDER-URL.onrender.com/api` (Must end with `/api`)
     *   Add `REACT_APP_SOCKET_URL`: `https://YOUR-RENDER-URL.onrender.com`
+    *   Add `REACT_APP_GOOGLE_CLIENT_ID`: `your_google_oauth_client_id` (Optional - for Google login)
     *   Add `CI`: `false` (Prevents build failing on warnings)
 7.  **Click "Deploy"**.
+
+---
+
+## 🔐 Google OAuth Setup (Optional)
+
+To enable Google login in production:
+
+1. **Go to Google Cloud Console**: [console.cloud.google.com](https://console.cloud.google.com)
+2. **Create/select project** and enable "Google Identity Services API"
+3. **Create OAuth 2.0 Client ID** (Web application)
+4. **Authorized redirect URIs**: Add your Vercel domain (e.g., `https://seatrace-frontend.vercel.app`)
+5. **Copy Client ID** and add to Vercel environment variables as `REACT_APP_GOOGLE_CLIENT_ID`
 
 ---
 
