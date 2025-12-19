@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff } from "lucide-react";
+import { X, Lock, RefreshCw } from 'lucide-react';
+
 const VerificationModal = ({ isOpen, onClose, onVerify, onResend, method, target }) => {
     const [code, setCode] = useState(['', '', '', '', '', '']);
     const [loading, setLoading] = useState(false);

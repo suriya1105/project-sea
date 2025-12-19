@@ -30,6 +30,7 @@ const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:5000';
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [email, setEmail] = useState('');
+  // eslint-disable-next-line no-unused-vars
   const [password, setPassword] = useState('');
   const [userName, setUserName] = useState('');
   const [userRole, setUserRole] = useState('viewer');
@@ -70,7 +71,6 @@ function App() {
   // Real-time movement tracking state
   const [vesselMovementData, setVesselMovementData] = useState({});
   const [oilSpillProgression, setOilSpillProgression] = useState({});
-  const [movementHistory, setMovementHistory] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -152,7 +152,7 @@ function App() {
       }
       initializeSocket(savedToken);
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Real-time movement data updates
   useEffect(() => {
@@ -163,7 +163,7 @@ function App() {
     }, 300000); // Update every 5 minutes
 
     return () => clearInterval(updateInterval);
-  }, [isLoggedIn, vessels, oilSpills]);
+  }, [isLoggedIn, vessels, oilSpills]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Initialize WebSocket connection
   const initializeSocket = (authToken) => {
@@ -278,25 +278,6 @@ function App() {
       fetchOilSpills(newToken);
     }
     initializeSocket(newToken);
-  };
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      const testEmails = ['admin@seatrace.com', 'operator@seatrace.com', 'viewer@seatrace.com'];
-      const loginData = { email };
-
-      // Only send password if it's not a test email or if password is provided
-      if (!testEmails.includes(email) && password) {
-        loginData.password = password;
-      }
-
-      const response = await axios.post(`${API_BASE_URL}/auth/login`, loginData);
-
-      handleAuthSuccess(response.data);
-    } catch (error) {
-      alert('Login failed: ' + (error.response?.data?.error || error.message));
-    }
   };
 
   // Generate simulated vessel movement data
@@ -477,7 +458,7 @@ function App() {
 
     setAdminPanelLoading(true);
     try {
-      const response = await axios.post(
+      await axios.post(
         `${API_BASE_URL}/admin/users/register`,
         newUserData,
         {

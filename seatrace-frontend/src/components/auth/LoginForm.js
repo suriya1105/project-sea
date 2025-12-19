@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { User, Lock, ArrowRight, Activity, Shield, Zap } from 'lucide-react';
+import { User, ArrowRight, Activity, Shield, Zap, Eye, EyeOff } from 'lucide-react';
 
 const LoginForm = ({ onLogin, onSwitchToSignUp }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [activeRole, setActiveRole] = useState(null);
 
@@ -115,14 +116,20 @@ const LoginForm = ({ onLogin, onSwitchToSignUp }) => {
 
                             <div className="cyber-input-group">
                                 <input
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     className="cyber-input"
                                     placeholder=" "
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
                                 <label className="cyber-label">Security Key</label>
-                                <Lock className="absolute right-4 top-4 text-cyan-700 w-5 h-5 pointer-events-none" />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-4 text-cyan-700 hover:text-cyan-400 transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                </button>
                             </div>
 
                             <div className="grid grid-cols-3 gap-2 mb-8">
