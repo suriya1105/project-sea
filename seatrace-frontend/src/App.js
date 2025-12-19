@@ -17,6 +17,7 @@ import './App.css';
 import SignUpForm from './components/auth/SignUpForm';
 import LoginForm from './components/auth/LoginForm';
 import LoginPage from './components/LoginPage';
+import UsersPage from './components/UsersPage';
 import { API_BASE_URL, SOCKET_URL } from './config';
 
 // Fix leaflet icon issue
@@ -747,12 +748,20 @@ function App() {
                 Live Map
               </button>
               {userRole === 'admin' && (
-                <button
-                  onClick={() => { setShowThemeEditor(!showThemeEditor); setIsMobileMenuOpen(false); }}
-                  className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-yellow-500 hover:bg-gray-700"
-                >
-                  🎨 Customize Theme
-                </button>
+                <>
+                  <button
+                    onClick={() => { setActiveTab('users'); setIsMobileMenuOpen(false); }}
+                    className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium ${activeTab === 'users' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}
+                  >
+                    👥 Users
+                  </button>
+                  <button
+                    onClick={() => { setShowThemeEditor(!showThemeEditor); setIsMobileMenuOpen(false); }}
+                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-yellow-500 hover:bg-gray-700"
+                  >
+                    🎨 Customize Theme
+                  </button>
+                </>
               )}
               <button
                 onClick={handleLogout}
@@ -813,12 +822,20 @@ function App() {
           )}
 
           {userRole === 'admin' && (
-            <button
-              className={`tab-btn ${activeTab === 'admin' ? 'active' : ''}`}
-              onClick={() => setActiveTab('admin')}
-            >
-              ⚙️ Admin Panel
-            </button>
+            <>
+              <button
+                className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`}
+                onClick={() => setActiveTab('users')}
+              >
+                👥 Users
+              </button>
+              <button
+                className={`tab-btn ${activeTab === 'admin' ? 'active' : ''}`}
+                onClick={() => setActiveTab('admin')}
+              >
+                ⚙️ Admin Panel
+              </button>
+            </>
           )}
         </div>
 
@@ -1658,6 +1675,11 @@ function App() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Users Page - Admin Only */}
+        {activeTab === 'users' && userRole === 'admin' && (
+          <UsersPage />
         )}
 
         {/* Admin Panel - Admin Only */}
