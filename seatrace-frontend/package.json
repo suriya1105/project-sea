@@ -2,6 +2,7 @@
   "name": "seatrace-frontend",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:10000",
   "description": "SeaTrace Frontend Application",
   "dependencies": {
     "@testing-library/dom": "^10.4.1",

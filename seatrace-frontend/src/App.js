@@ -16,7 +16,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAx
 import './App.css';
 import SignUpForm from './components/auth/SignUpForm';
 import LoginForm from './components/auth/LoginForm';
-import LoginPage from './components/LoginPage';
+import AuthPage from './components/AuthPage';
 import UsersPage from './components/UsersPage';
 import { API_BASE_URL, SOCKET_URL } from './config';
 
@@ -544,87 +544,18 @@ function App() {
   };
 
   if (!isLoggedIn) {
-    if (!showSignUp) {
-      return (
-        <LoginPage
-          onLogin={async (email, password) => {
-            try {
-              const testEmails = ['admin@seatrace.com', 'operator@seatrace.com', 'viewer@seatrace.com'];
-              const loginData = { email };
-              if (!testEmails.includes(email) && password) {
-                loginData.password = password;
-              }
-              const response = await axios.post(`${API_BASE_URL}/auth/login`, loginData);
-              handleAuthSuccess(response.data);
-            } catch (error) {
-              alert('Login failed: ' + (error.response?.data?.error || error.message));
-            }
-          }}
-          onSwitchToSignUp={() => setShowSignUp(true)}
-        />
-      );
-    }
-
     return (
-      <div className="app">
-        <div className="login-container" style={{
-          backgroundImage: 'linear-gradient(135deg, rgba(38, 99, 235, 0.9), rgba(118, 75, 162, 0.9)), url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 1200 600%27%3E%3Cpath d=%27M0,300 Q300,200 600,300 T1200,300%27 fill=%27%23667eea%27 opacity=%270.3%27/%3E%3Cpath d=%27M0,400 Q300,250 600,400 T1200,400%27 fill=%27%23764ba2%27 opacity=%270.2%27/%3E%3Ccircle cx=%27100%27 cy=%27100%27 r=%2750%27 fill=%27%23f59e0b%27 opacity=%270.2%27/%3E%3Ccircle cx=%271100%27 cy=%27500%27 r=%2760%27 fill=%27%2310b981%27 opacity=%270.15%27/%3E%3C/svg%3E")',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundAttachment: 'fixed'
-        }}>
-          <div className="login-card">
-            <div className="login-header">
-              <h1 style={{ fontSize: '48px', marginBottom: '8px' }}>⚓ SeaTrace</h1>
-              <p className="subtitle" style={{ fontSize: '18px', color: '#667eea', marginBottom: '10px', fontWeight: '600', letterSpacing: '2px' }}>MARITIME INTELLIGENCE</p>
-              <p className="tagline" style={{ fontSize: '14px', color: '#666', marginBottom: '20px' }}>Advanced Ocean Monitoring & Environmental Protection</p>
-
-              <div style={{
-                background: 'rgba(16, 185, 129, 0.1)',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
-                borderRadius: '8px',
-                padding: '15px',
-                marginBottom: '20px',
-                textAlign: 'center'
-              }}>
-                <h3 style={{ color: '#10b981', margin: '0 0 8px 0', fontSize: '16px' }}>🎉 Welcome to SeaTrace!</h3>
-                <p style={{ color: '#666', margin: '0', fontSize: '13px', lineHeight: '1.4' }}>
-                  Real-time vessel tracking, oil spill monitoring, and maritime analytics.<br />
-                  <strong>Click any demo account below for instant access!</strong>
-                </p>
-              </div>
-            </div>
-
-            <SignUpForm
-              onAuthSuccess={handleAuthSuccess}
-              onSwitchToLogin={() => setShowSignUp(false)}
-            />
-            <div style={{ marginTop: '20px', textAlign: 'center' }}>
-              <p style={{ color: '#666', fontSize: '14px' }}>
-                Already have an account?{' '}
-                <button
-                  onClick={() => setShowSignUp(false)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#2563eb',
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                    textDecoration: 'underline'
-                  }}
-                >
-                  Sign In
-                </button>
-              </p>
-            </div>
-
-          </div>
-          <div className="login-footer">
-            <p>&copy; 2025 SeaTrace. Developed by <strong>Suriya</strong>. All rights reserved.</p>
-            <p style={{ fontSize: '12px', marginTop: '8px', color: 'rgba(255,255,255,0.7)' }}>Advanced Maritime Intelligence & Environmental Protection System</p>
-          </div>
-        </div>
-      </div>
+      <AuthPage
+        onLogin={async (email, password) => {
+          try {
+            const response = await axios.post(`${API_BASE_URL}/auth/login`, { email, password });
+            handleAuthSuccess(response.data);
+          } catch (error) {
+            throw new Error(error.response?.data?.error || 'Login failed');
+          }
+        }}
+        onAuthSuccess={handleAuthSuccess}
+      />
     );
   }
 

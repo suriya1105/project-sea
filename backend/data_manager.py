@@ -130,6 +130,21 @@ class DataManager:
         with self.lock:
             return self.users.get(email)
 
+    def get_next_user_id(self):
+        """Get next available user ID"""
+        with self.lock:
+            existing_ids = [int(u.get('id', 0)) for u in self.users.values() if str(u.get('id', '')).isdigit()]
+            if not existing_ids:
+                return "1001"
+            return str(max(existing_ids) + 1)
+
+    def add_user(self, email, user_data):
+        """Alias for create_user to match app.py expectation"""
+        # Ensure email is in user_data
+        if 'email' not in user_data:
+            user_data['email'] = email
+        return self.create_user(user_data)
+
     def create_user(self, user_data):
         """Create new user"""
         with self.lock:
