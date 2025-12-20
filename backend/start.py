@@ -12,11 +12,15 @@ if __name__ == '__main__':
     print(f"Environment: {os.environ.get('FLASK_ENV', 'development')}")
     
     # Use SocketIO with threading (more compatible)
+    # Disable debug in production for security and performance
+    is_debug = os.environ.get('FLASK_ENV') == 'development'
+    
     socketio.run(
         app, 
-        debug=True, 
+        debug=is_debug, 
         port=port, 
         host='0.0.0.0',
-        use_reloader=False,
-        log_output=True
+        use_reloader=is_debug,
+        log_output=True,
+        allow_unsafe_werkzeug=True if is_debug else False
     )

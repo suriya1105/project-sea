@@ -12,11 +12,13 @@ COPY . /app
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Make port 5000 available to the world outside this container
-EXPOSE 5000
+# Make port 10000 available to the world outside this container
+EXPOSE 10000
 
 # Define environment variable
 ENV FLASK_APP=app.py
 ENV FLASK_ENV=production
+ENV PORT=10000
 
 # Run app.py when the container launches
-CMD ["gunicorn", "-k", "eventlet", "-w", "1", "-b", "0.0.0.0:5000", "app:app"]
+CMD ["gunicorn", "-k", "eventlet", "-w", "1", "-b", "0.0.0.0:10000", "app:app"]
