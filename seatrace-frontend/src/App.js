@@ -560,1542 +560,1066 @@ function App() {
   }
 
   return (
-    <div className="app">
-      {/* AI-Generated Maritime Background Pattern */}
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        background: `
-          radial-gradient(circle at 25% 25%, rgba(30, 136, 229, 0.05) 0%, transparent 50%),
-          radial-gradient(circle at 75% 75%, rgba(245, 158, 11, 0.03) 0%, transparent 50%),
-          radial-gradient(circle at 50% 10%, rgba(16, 185, 129, 0.04) 0%, transparent 50%),
-          url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600"><defs><pattern id="waves" x="0" y="0" width="200" height="100" patternUnits="userSpaceOnUse"><path d="M0,50 Q50,30 100,50 T200,50" stroke="%2342a5f5" stroke-width="1" fill="none" opacity="0.1"/><path d="M0,60 Q50,40 100,60 T200,60" stroke="%2300897b" stroke-width="1" fill="none" opacity="0.08"/><circle cx="50" cy="30" r="3" fill="%23f59e0b" opacity="0.1"/><circle cx="150" cy="70" r="2" fill="%2310b981" opacity="0.15"/><text x="80" y="45" font-family="Arial" font-size="8" fill="%23667eea" opacity="0.1">⚓</text><text x="120" y="55" font-family="Arial" font-size="6" fill="%23ef4444" opacity="0.08">🛢️</text></svg>')
-        `,
-        backgroundSize: 'cover',
-        backgroundAttachment: 'fixed',
-        zIndex: -1,
-        pointerEvents: 'none'
-      }}></div>
+    <div className="app flex h-screen overflow-hidden bg-[url('https://images.unsplash.com/photo-1518544806352-a22c09fb110e?auto=format&fit=crop&q=80')] bg-cover bg-center">
+      {/* Cyber Overlay */}
+      <div className="absolute inset-0 bg-slate-900/90 backdrop-blur-sm z-0"></div>
+      <div className="grid-overlay"></div>
 
-      <nav className="bg-gray-900/80 backdrop-blur-md border-b border-white/10 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-
-            {/* Logo Section */}
-            <div className="flex-shrink-0 flex items-center gap-2">
-              <span className="text-2xl">⚓</span>
-              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-400">
-                SeaTrace
-              </span>
-            </div>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-4">
-              <div className="flex items-center px-3 py-1 bg-white/5 rounded-full border border-white/10">
-                <span className={`h-2 w-2 rounded-full mr-2 ${connectionStatus === 'connected' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></span>
-                <span className="text-xs text-slate-300 uppercase tracking-wider font-semibold">
-                  {connectionStatus === 'connected' ? 'Real-time' : 'Offline'}
-                </span>
-              </div>
-
-              {(userRole === 'admin' || userRole === 'operator') && (
-                <div className="relative">
-                  <button
-                    onClick={() => setShowNotifications(!showNotifications)}
-                    className="p-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-full transition-colors relative"
-                  >
-                    🔔
-                    {notifications.length > 0 && (
-                      <span className="absolute top-0 right-0 block h-4 w-4 rounded-full bg-red-500 text-[10px] font-bold text-white flex items-center justify-center">
-                        {notifications.length}
-                      </span>
-                    )}
-                  </button>
-                  {/* Notification dropdown would go here - simplified for brevity */}
-                </div>
-              )}
-
-              <div className="flex items-center gap-3 pl-4 border-l border-white/10">
-                <div className="text-right hidden lg:block">
-                  <div className="text-sm font-medium text-white">{userName}</div>
-                  <div className="text-xs text-blue-400 font-mono uppercase">{userRole}</div>
-                </div>
-                {userRole === 'admin' && (
-                  <button
-                    onClick={() => setShowThemeEditor(!showThemeEditor)}
-                    className="p-2 text-yellow-500 hover:bg-yellow-500/10 rounded-lg transition-colors text-sm font-medium"
-                  >
-                    🎨 Customize
-                  </button>
-                )}
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm font-medium rounded-lg border border-red-500/20 transition-all"
-                >
-                  Logout
-                </button>
-              </div>
-            </div>
-
-            {/* Mobile menu button */}
-            <div className="md:hidden flex items-center">
-              <div className="mr-4 flex items-center px-2 py-1 bg-white/5 rounded-full border border-white/10">
-                <span className={`h-2 w-2 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500' : 'bg-red-500'}`}></span>
-              </div>
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none"
-              >
-                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </button>
-            </div>
-          </div>
+      {/* Cyber Sidebar */}
+      <div className={`cyber-sidebar flex flex-col ${isMobileMenuOpen ? 'w-64' : 'w-20'} transition-all duration-300 relative z-50 h-full border-r border-cyan-500/30`}>
+        {/* Logo Area */}
+        <div className="h-16 flex items-center justify-center border-b border-cyan-500/20">
+          <Zap className={`text-cyan-400 w-8 h-8 ${isMobileMenuOpen ? 'mr-2' : ''} animate-pulse`} />
+          {isMobileMenuOpen && <span className="text-xl font-bold font-orbitron text-cyan-400 tracking-widest">SEATRACE</span>}
         </div>
 
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden bg-gray-900 border-b border-white/10 animate-fade-in">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-              <div className="flex items-center px-3 py-3 border-b border-white/5 mb-2">
-                <div>
-                  <div className="text-base font-medium text-white">{userName}</div>
-                  <div className="text-sm text-gray-400">{userRole}</div>
-                </div>
-              </div>
-
-              <button
-                onClick={() => { setActiveTab('dashboard'); setIsMobileMenuOpen(false); }}
-                className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium ${activeTab === 'dashboard' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}
-              >
-                Dashboard
-              </button>
-              <button
-                onClick={() => { setActiveTab('map'); setIsMobileMenuOpen(false); }}
-                className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium ${activeTab === 'map' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}
-              >
-                Live Map
-              </button>
-              {userRole === 'admin' && (
-                <>
-                  <button
-                    onClick={() => { setActiveTab('users'); setIsMobileMenuOpen(false); }}
-                    className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium ${activeTab === 'users' ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}
-                  >
-                    👥 Users
-                  </button>
-                  <button
-                    onClick={() => { setShowThemeEditor(!showThemeEditor); setIsMobileMenuOpen(false); }}
-                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-yellow-500 hover:bg-gray-700"
-                  >
-                    🎨 Customize Theme
-                  </button>
-                </>
-              )}
-              <button
-                onClick={handleLogout}
-                className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-400 hover:bg-red-900/20"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        )}
-      </nav>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Tabs - All users can see Dashboard, Map, and Real-time Analysis */}
-        <div className="tabs">
-          <button
-            className={`tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setActiveTab('dashboard')}
-          >
-            📊 Dashboard
-          </button>
-
-          <button
-            className={`tab-btn ${activeTab === 'map' ? 'active' : ''}`}
-            onClick={() => setActiveTab('map')}
-          >
-            🗺️ Map
-          </button>
-
-          <button
-            className={`tab-btn ${activeTab === 'realtime' ? 'active' : ''}`}
-            onClick={() => setActiveTab('realtime')}
-          >
-            📡 Real-Time Analysis
-          </button>
-
-          {userRole !== 'viewer' && (
-            <>
-              <button
-                className={`tab-btn ${activeTab === 'vessels' ? 'active' : ''}`}
-                onClick={() => setActiveTab('vessels')}
-              >
-                📋 Vessels ({vessels.length})
-              </button>
-              <button
-                className={`tab-btn ${activeTab === 'spills' ? 'active' : ''}`}
-                onClick={() => setActiveTab('spills')}
-              >
-                ⚠️ Oil Spills ({oilSpills.length})
-              </button>
-              <button
-                className={`tab-btn ${activeTab === 'reports' ? 'active' : ''}`}
-                onClick={() => setActiveTab('reports')}
-              >
-                📄 Reports
-              </button>
-            </>
-          )}
-
-          {userRole === 'admin' && (
-            <>
-              <button
-                className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`}
-                onClick={() => setActiveTab('users')}
-              >
-                👥 Users
-              </button>
-              <button
-                className={`tab-btn ${activeTab === 'admin' ? 'active' : ''}`}
-                onClick={() => setActiveTab('admin')}
-              >
-                ⚙️ Admin Panel
-              </button>
-            </>
-          )}
+        {/* Navigation Items */}
+        <div className="flex-1 py-6 flex flex-col gap-2 px-2">
+          {[
+            { id: 'dashboard', icon: Activity, label: 'Live Ops' },
+            { id: 'map', icon: Globe, label: 'Global Map' },
+            { id: 'vessels', icon: Anchor, label: 'Vessels' },
+            { id: 'spills', icon: Shield, label: 'Hazards' },
+            ...(userRole === 'admin' ? [{ id: 'admin', icon: Lock, label: 'Command' }] : [])
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={`sidebar-item p-3 rounded-lg flex items-center justify-center md:justify-start gap-4 ${activeTab === item.id ? 'active' : ''}`}
+              title={item.label}
+            >
+              <item.icon className={`w-6 h-6 ${activeTab === item.id ? 'text-cyan-400 drop-shadow-[0_0_5px_rgba(0,243,255,0.5)]' : ''}`} />
+              {isMobileMenuOpen && <span className="font-rajdhani font-semibold tracking-wider text-sm whitespace-nowrap">{item.label}</span>}
+            </button>
+          ))}
         </div>
 
-        {/* Theme Editor - Admin Only */}
-        {showThemeEditor && userRole === 'admin' && (
-          <div style={{
-            position: 'fixed',
-            top: '80px',
-            right: '20px',
-            backgroundColor: 'white',
-            padding: '24px',
-            borderRadius: '12px',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
-            zIndex: 1000,
-            minWidth: '300px',
-            animation: 'slideIn 0.3s ease-out'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ margin: '0', fontSize: '18px', fontWeight: '700' }}>🎨 Theme Customizer</h3>
-              <button onClick={() => setShowThemeEditor(false)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}>✕</button>
+        {/* User Info & Toggle */}
+        <div className="p-4 border-t border-cyan-500/20 flex flex-col items-center gap-4">
+          {isMobileMenuOpen && (
+            <div className="text-center w-full bg-cyan-900/20 p-2 rounded border border-cyan-500/10">
+              <div className="text-cyan-300 font-bold text-sm truncate">{userName}</div>
+              <div className="text-xs text-cyan-600 uppercase">{userRole}</div>
             </div>
+          )}
+          <button onClick={handleLogout} className="p-2 hover:bg-red-500/20 rounded-full transition-colors group">
+            <User className="w-5 h-5 text-red-400 group-hover:text-red-200" />
+          </button>
 
-            <div style={{ display: 'grid', gap: '15px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '8px', textTransform: 'uppercase' }}>Primary Color</label>
-                <input
-                  type="color"
-                  value={themeColors.primary}
-                  onChange={(e) => {
-                    const newColors = { ...themeColors, primary: e.target.value };
-                    setThemeColors(newColors);
-                    localStorage.setItem('themeColors', JSON.stringify(newColors));
-                  }}
-                  style={{ width: '100%', height: '45px', border: '2px solid #e5e7eb', borderRadius: '6px', cursor: 'pointer' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '8px', textTransform: 'uppercase' }}>Secondary Color</label>
-                <input
-                  type="color"
-                  value={themeColors.secondary}
-                  onChange={(e) => {
-                    const newColors = { ...themeColors, secondary: e.target.value };
-                    setThemeColors(newColors);
-                    localStorage.setItem('themeColors', JSON.stringify(newColors));
-                  }}
-                  style={{ width: '100%', height: '45px', border: '2px solid #e5e7eb', borderRadius: '6px', cursor: 'pointer' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '8px', textTransform: 'uppercase' }}>Accent Color</label>
-                <input
-                  type="color"
-                  value={themeColors.accent}
-                  onChange={(e) => {
-                    const newColors = { ...themeColors, accent: e.target.value };
-                    setThemeColors(newColors);
-                    localStorage.setItem('themeColors', JSON.stringify(newColors));
-                  }}
-                  style={{ width: '100%', height: '45px', border: '2px solid #e5e7eb', borderRadius: '6px', cursor: 'pointer' }}
-                />
-              </div>
-              <button
-                onClick={() => {
-                  setThemeColors({
-                    primary: '#2563eb',
-                    secondary: '#0f766e',
-                    accent: '#f59e0b',
-                    danger: '#dc2626'
-                  });
-                  localStorage.removeItem('themeColors');
-                }}
-                style={{
-                  padding: '10px',
-                  backgroundColor: '#f3f4f6',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                  fontSize: '12px',
-                  transition: 'all 0.3s'
-                }}
-                onMouseOver={(e) => e.target.style.backgroundColor = '#e5e7eb'}
-                onMouseOut={(e) => e.target.style.backgroundColor = '#f3f4f6'}
-              >
-                ↺ Reset to Default
-              </button>
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="absolute -right-3 top-1/2 -translate-y-1/2 bg-cyan-900 border border-cyan-500 text-cyan-400 rounded-full p-1 hover:scale-110 transition-transform md:flex hidden"
+          >
+            {isMobileMenuOpen ? <X size={12} /> : <Menu size={12} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col relative z-10 overflow-hidden">
+
+        {/* Top Status Bar */}
+        <header className="h-16 flex items-center justify-between px-6 border-b border-cyan-500/20 bg-slate-900/50 backdrop-blur-md">
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 font-bold uppercase tracking-widest shadow-cyan-500/50 drop-shadow-sm">
+              {activeTab === 'dashboard' ? 'Real-Time Operations' : activeTab.toUpperCase()}
+            </h1>
+            {activeTab === 'dashboard' && <span className="flex items-center gap-2 text-xs font-mono text-cyan-500/70 border border-cyan-500/20 px-2 py-0.5 rounded bg-cyan-900/10"><span className="animate-ping w-1.5 h-1.5 bg-cyan-400 rounded-full"></span> LIVE FEED</span>}
+          </div>
+
+          <div className="flex items-center gap-6">
+            <div className="hidden md:flex items-center gap-2 text-sm font-rajdhani text-cyan-300/80">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse box-shadow-[0_0_10px_#22c55e]"></span>
+              SYSTEM ONLINE
+            </div>
+            <div className="text-xs font-mono text-cyan-600 hidden md:block">
+              {new Date().toLocaleTimeString()} :: {new Date().toLocaleDateString()}
             </div>
           </div>
-        )}
+        </header>
 
-        {/* Dashboard - Visible to all roles */}
-        {activeTab === 'dashboard' && dashboardData && (
-          <div className="dashboard-container">
-            <h2>Dashboard Overview</h2>
-
-            {/* System Status Indicator */}
-            <div className="system-status-section" style={{
-              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%)',
-              padding: '24px',
-              borderRadius: '16px',
-              marginBottom: '32px',
-              border: '1px solid rgba(148, 163, 184, 0.2)',
-              backdropFilter: 'blur(10px)',
-              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.1)'
-            }}>
-              <h3 style={{
-                fontSize: '20px',
-                fontWeight: '700',
-                color: '#1e293b',
-                marginBottom: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
-                <span style={{
-                  width: '12px',
-                  height: '12px',
-                  borderRadius: '50%',
-                  background: connectionStatus === 'connected' ? '#10b981' : '#ef4444',
-                  animation: 'pulse 2s infinite'
-                }}></span>
-                System Status: {connectionStatus === 'connected' ? '🟢 All Systems Operational' : '🔴 System Issues Detected'}
-              </h3>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-                <div className="status-item" style={{
-                  padding: '16px',
-                  borderRadius: '12px',
-                  background: 'rgba(16, 185, 129, 0.1)',
-                  border: '1px solid rgba(16, 185, 129, 0.2)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px'
-                }}>
-                  <span style={{ fontSize: '20px' }}>🛰️</span>
-                  <div>
-                    <div style={{ fontWeight: '600', color: '#059669' }}>Real-time Tracking</div>
-                    <div style={{ fontSize: '12px', color: '#6b7280' }}>Active & Running</div>
-                  </div>
-                </div>
-
-                <div className="status-item" style={{
-                  padding: '16px',
-                  borderRadius: '12px',
-                  background: 'rgba(59, 130, 246, 0.1)',
-                  border: '1px solid rgba(59, 130, 246, 0.2)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px'
-                }}>
-                  <span style={{ fontSize: '20px' }}>📊</span>
-                  <div>
-                    <div style={{ fontWeight: '600', color: '#2563eb' }}>Data Analytics</div>
-                    <div style={{ fontSize: '12px', color: '#6b7280' }}>Processing Live Data</div>
-                  </div>
-                </div>
-
-                <div className="status-item" style={{
-                  padding: '16px',
-                  borderRadius: '12px',
-                  background: 'rgba(245, 158, 11, 0.1)',
-                  border: '1px solid rgba(245, 158, 11, 0.2)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px'
-                }}>
-                  <span style={{ fontSize: '20px' }}>🚨</span>
-                  <div>
-                    <div style={{ fontWeight: '600', color: '#d97706' }}>Alert System</div>
-                    <div style={{ fontSize: '12px', color: '#6b7280' }}>Monitoring Active</div>
-                  </div>
-                </div>
-
-                <div className="status-item" style={{
-                  padding: '16px',
-                  borderRadius: '12px',
-                  background: 'rgba(139, 92, 246, 0.1)',
-                  border: '1px solid rgba(139, 92, 246, 0.2)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px'
-                }}>
-                  <span style={{ fontSize: '20px' }}>🛢️</span>
-                  <div>
-                    <div style={{ fontWeight: '600', color: '#7c3aed' }}>Spill Detection</div>
-                    <div style={{ fontSize: '12px', color: '#6b7280' }}>AI Models Running</div>
-                  </div>
-                </div>
-              </div>
+        {/* Scrollable Content */}
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 relative custom-scrollbar">
+          {connectionStatus !== 'connected' && (
+            <div className="mb-4 bg-red-900/20 border border-red-500/50 text-red-200 px-4 py-2 rounded flex items-center gap-2 animate-pulse">
+              <Activity className="w-4 h-4" />
+              <span>SIGNAL LOST: Reconnecting to satellite uplink...</span>
             </div>
+          )}
 
-            {/* Weather Widget */}
-            {weatherData && (
-              <div className="charts-section" style={{ marginBottom: '40px' }}>
-                <h3>🌍 Current Weather Conditions (First Vessel Location)</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-                  <div className="stat-card">
-                    <h3>Temperature</h3>
-                    <p className="stat-value">{weatherData.temperature}°C</p>
-                    <p style={{ fontSize: '12px', color: '#666' }}>Feels: {weatherData.feels_like}°C</p>
-                  </div>
-                  <div className="stat-card">
-                    <h3>Wind Speed</h3>
-                    <p className="stat-value">{weatherData.wind_speed} m/s</p>
-                    <p style={{ fontSize: '12px', color: '#666' }}>Gust: {weatherData.wind_gust} m/s</p>
-                  </div>
-                  <div className="stat-card">
-                    <h3>Humidity</h3>
-                    <p className="stat-value">{weatherData.humidity}%</p>
-                  </div>
-                  <div className="stat-card">
-                    <h3>Pressure</h3>
-                    <p className="stat-value">{weatherData.pressure} mb</p>
-                  </div>
-                  <div className="stat-card">
-                    <h3>Visibility</h3>
-                    <p className="stat-value">{weatherData.visibility} km</p>
-                  </div>
-                  <div className="stat-card">
-                    <h3>Sea State</h3>
-                    <p className="stat-value" style={{ fontSize: '20px' }}>{weatherData.sea_state}</p>
-                    <p style={{ fontSize: '12px', color: '#666' }}>Wave: {weatherData.wave_height}m</p>
-                  </div>
-                  <div className="stat-card">
-                    <h3>Conditions</h3>
-                    <p className="stat-value" style={{ fontSize: '20px' }}>{weatherData.conditions}</p>
-                    <p style={{ fontSize: '12px', color: '#666' }}>Rain: {weatherData.precipitation}mm</p>
-                  </div>
-                  <div className="stat-card">
-                    <h3>UV Index</h3>
-                    <p className="stat-value">{weatherData.uv_index}</p>
-                  </div>
-                </div>
-              </div>
-            )}
 
-            <div className="stats-grid">
-              <div className="stat-card">
-                <h3>Total Vessels</h3>
-                <p className="stat-value">{dashboardData.total_vessels}</p>
-              </div>
-              <div className="stat-card">
-                <h3>Active Vessels</h3>
-                <p className="stat-value">{dashboardData.active_vessels}</p>
-              </div>
-              <div className="stat-card">
-                <h3>High Risk Vessels</h3>
-                <p className="stat-value" style={{ color: '#ef4444' }}>
-                  {dashboardData.high_risk_vessels}
-                </p>
-              </div>
-              <div className="stat-card">
-                <h3>Avg Compliance Rating</h3>
-                <p className="stat-value">{dashboardData.avg_compliance}/10</p>
-              </div>
-            </div>
-
-            {/* Oil spill stats - operator/admin only */}
-            {dashboardData.oil_spills && (
-              <>
-                <div className="spill-stats">
-                  <h3>Oil Spill Incidents</h3>
-                  <div className="stats-grid">
-                    <div className="stat-card">
-                      <h3>Total Spills</h3>
-                      <p className="stat-value">{dashboardData.oil_spills.total}</p>
-                    </div>
-                    <div className="stat-card">
-                      <h3>High Severity</h3>
-                      <p className="stat-value" style={{ color: '#ef4444' }}>
-                        {dashboardData.oil_spills.by_severity.High}
-                      </p>
-                    </div>
-                    <div className="stat-card">
-                      <h3>Medium Severity</h3>
-                      <p className="stat-value" style={{ color: '#f59e0b' }}>
-                        {dashboardData.oil_spills.by_severity.Medium}
-                      </p>
-                    </div>
-                    <div className="stat-card">
-                      <h3>Low Severity</h3>
-                      <p className="stat-value" style={{ color: '#10b981' }}>
-                        {dashboardData.oil_spills.by_severity.Low}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="charts-section">
-                  <h3>Oil Spill & Vessel Analytics</h3>
-                  <div className="charts-grid">
-                    <div className="chart-container">
-                      <p className="chart-title">Oil Spill Severity Distribution</p>
-                      <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                          <Pie
-                            data={[
-                              { name: 'High', value: dashboardData.oil_spills.by_severity.High },
-                              { name: 'Medium', value: dashboardData.oil_spills.by_severity.Medium },
-                              { name: 'Low', value: dashboardData.oil_spills.by_severity.Low }
-                            ]}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            label={({ name, value }) => `${name}: ${value}`}
-                            outerRadius={80}
-                            fill="#8884d8"
-                            dataKey="value"
-                          >
-                            <Cell fill="#ef4444" />
-                            <Cell fill="#f59e0b" />
-                            <Cell fill="#10b981" />
-                          </Pie>
-                          <Tooltip />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-
-                    <div className="chart-container">
-                      <p className="chart-title">Vessel Risk Level Distribution</p>
-                      <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                          <Pie
-                            data={vessels.length > 0 ? [
-                              { name: 'Low', value: vessels.filter(v => v.risk_level === 'Low').length },
-                              { name: 'Medium', value: vessels.filter(v => v.risk_level === 'Medium').length },
-                              { name: 'High', value: vessels.filter(v => v.risk_level === 'High').length }
-                            ] : []}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            label={({ name, value }) => `${name}: ${value}`}
-                            outerRadius={80}
-                            fill="#8884d8"
-                            dataKey="value"
-                          >
-                            <Cell fill="#10b981" />
-                            <Cell fill="#f59e0b" />
-                            <Cell fill="#ef4444" />
-                          </Pie>
-                          <Tooltip />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-
-                    <div className="chart-container">
-                      <p className="chart-title">Vessel Type Distribution</p>
-                      <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                          <Pie
-                            data={vessels.length > 0 ? [
-                              { name: 'Container Ship', value: vessels.filter(v => v.type === 'Container Ship').length },
-                              { name: 'Bulk Carrier', value: vessels.filter(v => v.type === 'Bulk Carrier').length },
-                              { name: 'Tanker', value: vessels.filter(v => v.type === 'Tanker').length }
-                            ] : []}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            label={({ name, value }) => `${name}: ${value}`}
-                            outerRadius={80}
-                            fill="#8884d8"
-                            dataKey="value"
-                          >
-                            <Cell fill="#2563eb" />
-                            <Cell fill="#0f766e" />
-                            <Cell fill="#7c3aed" />
-                          </Pie>
-                          <Tooltip />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-
-                    <div className="chart-container">
-                      <p className="chart-title">Compliance Rating Bands</p>
-                      <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                          <Pie
-                            data={vessels.length > 0 ? [
-                              { name: '0-3', value: vessels.filter(v => v.compliance_rating < 3).length },
-                              { name: '3-5', value: vessels.filter(v => v.compliance_rating >= 3 && v.compliance_rating < 5).length },
-                              { name: '5-7', value: vessels.filter(v => v.compliance_rating >= 5 && v.compliance_rating < 7).length },
-                              { name: '7-10', value: vessels.filter(v => v.compliance_rating >= 7).length }
-                            ] : []}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            label={({ name, value }) => `${name}: ${value}`}
-                            outerRadius={80}
-                            fill="#8884d8"
-                            dataKey="value"
-                          >
-                            <Cell fill="#ef4444" />
-                            <Cell fill="#f59e0b" />
-                            <Cell fill="#3b82f6" />
-                            <Cell fill="#10b981" />
-                          </Pie>
-                          <Tooltip />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Real-Time Movement Graphs */}
-                <div className="charts-section">
-                  <h3>🚢 Real-Time Vessel Movement Tracking</h3>
-                  <div className="charts-grid">
-                    {vessels.slice(0, 2).map(vessel => (
-                      <div key={vessel.imo} className="chart-container">
-                        <p className="chart-title">{vessel.name} - Speed Over Time</p>
-                        <ResponsiveContainer width="100%" height={300}>
-                          <LineChart data={vesselMovementData[vessel.imo] || []}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="time" />
-                            <YAxis />
-                            <Tooltip />
-                            <Legend />
-                            <Line
-                              type="monotone"
-                              dataKey="speed"
-                              stroke="#2563eb"
-                              strokeWidth={2}
-                              name="Speed (knots)"
-                            />
-                          </LineChart>
-                        </ResponsiveContainer>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Oil Spill Progression Graphs */}
-                <div className="charts-section">
-                  <h3>🛢️ Oil Spill Progression Monitoring</h3>
-                  <div className="charts-grid">
-                    {oilSpills.slice(0, 2).map(spill => (
-                      <div key={spill.spill_id} className="chart-container">
-                        <p className="chart-title">{spill.spill_id} - Spill Size Over Time</p>
-                        <ResponsiveContainer width="100%" height={300}>
-                          <LineChart data={oilSpillProgression[spill.spill_id] || []}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="time" />
-                            <YAxis />
-                            <Tooltip />
-                            <Legend />
-                            <Line
-                              type="monotone"
-                              dataKey="size_tons"
-                              stroke="#ef4444"
-                              strokeWidth={2}
-                              name="Size (tons)"
-                            />
-                            <Line
-                              type="monotone"
-                              dataKey="area_km2"
-                              stroke="#f59e0b"
-                              strokeWidth={2}
-                              name="Area (km²)"
-                            />
-                          </LineChart>
-                        </ResponsiveContainer>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="recent-spills">
-                  <h3>Recent Incidents</h3>
-                  <div className="spills-list">
-                    {dashboardData.oil_spills.incidents.slice(0, 5).map(spill => (
-                      <div key={spill.spill_id} className="spill-item">
-                        <div className="spill-header">
-                          <h4>{spill.spill_id}</h4>
-                          <span className="spill-badge" style={{ backgroundColor: getSeverityColor(spill.severity) }}>
-                            {spill.severity}
-                          </span>
-                        </div>
-                        <p><strong>Vessel:</strong> {spill.vessel_name}</p>
-                        <p><strong>Location:</strong> {spill.lat.toFixed(2)}°, {spill.lon.toFixed(2)}°</p>
-                        <p><strong>Size:</strong> {spill.size_tons} tons</p>
-                        <p><strong>Status:</strong> {spill.status}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Ship Showcase Section */}
-                <div className="ship-showcase">
-                  <h3>⚓ Fleet Overview</h3>
-                  <div className="ships-grid">
-                    {vessels.slice(0, 6).map((vessel) => (
-                      <div key={vessel.imo} className="ship-showcase-card">
-                        <div className="ship-image-container">
-                          <img src={vessel.image} alt={vessel.name} className="ship-showcase-image" />
-                          <div className="ship-overlay">
-                            <p className="ship-type">{vessel.type}</p>
-                          </div>
-                        </div>
-                        <div className="ship-info">
-                          <h4>{vessel.name}</h4>
-                          <div className="ship-details">
-                            <span className="detail">🚩 {vessel.flag}</span>
-                            <span className="detail">⚡ {vessel.speed} knots</span>
-                          </div>
-                          <div className="ship-rating">
-                            <div className="rating-bar-small">
-                              <div
-                                className="rating-fill-small"
-                                style={{
-                                  width: `${vessel.compliance_rating * 10}%`,
-                                  backgroundColor: vessel.compliance_rating > 7 ? '#10b981' : vessel.compliance_rating > 5 ? '#f59e0b' : '#ef4444'
-                                }}
-                              ></div>
-                            </div>
-                            <span className="rating-label">{vessel.compliance_rating}/10</span>
-                          </div>
-                          <div className="risk-badge" style={{ backgroundColor: getRiskColor(vessel.risk_level), color: 'white' }}>
-                            {vessel.risk_level} Risk
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        )}
-
-        {/* Map - All roles */}
-        {activeTab === 'map' && (
-          <div className="map-container">
-            <h2>Real-Time Monitoring - India Region</h2>
-            <MapContainer center={[11, 77]} zoom={5} className="map">
-              <TileLayer
-                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                attribution="Tiles &copy; Esri"
-              />
-
-              {/* Country Boundaries */}
-              {Object.entries(countryBoundaries).map(([countryName, geoJson]) => (
-                <GeoJSON
-                  key={countryName}
-                  data={geoJson}
-                  style={{
-                    color: '#ffffff',
-                    weight: 2,
-                    opacity: 0.8,
-                    fillColor: '#2563eb',
-                    fillOpacity: 0.1
-                  }}
-                />
-              ))}
-
-              {/* Vessels with Ship Icons */}
-              {vessels.map(vessel => {
-                const shipIcon = L.divIcon({
-                  html: `<div style="background: linear-gradient(135deg, #2563eb, #764ba2); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);" title="${vessel.name}">⚓</div>`,
-                  iconSize: [40, 40],
-                  className: 'ship-icon'
-                });
-
-                return (
-                  <Marker
-                    key={vessel.imo}
-                    position={[vessel.lat, vessel.lon]}
-                    icon={shipIcon}
-                  >
-                    <Popup>
-                      <div className="popup-content">
-                        <img src={vessel.image} alt={vessel.name} style={{ width: '100%', marginBottom: '10px', borderRadius: '5px' }} />
-                        <h4>{vessel.name}</h4>
-                        <p><strong>Type:</strong> {vessel.type}</p>
-                        <p><strong>Flag:</strong> {vessel.flag}</p>
-                        <p><strong>Speed:</strong> {vessel.speed} knots</p>
-                        <p><strong>Destination:</strong> {vessel.destination}</p>
-                        <p><strong>Rating:</strong> {vessel.compliance_rating}/10</p>
-                        <p style={{ color: getRiskColor(vessel.risk_level) }}>
-                          <strong>Risk:</strong> {vessel.risk_level}
-                        </p>
-                      </div>
-                    </Popup>
-                  </Marker>
-                );
-              })}
-
-              {/* Vessel Movement Trails */}
-              {Object.entries(vesselMovementData).map(([imo, movementData]) => {
-                const vessel = vessels.find(v => v.imo === imo);
-                if (!vessel || movementData.length < 2) return null;
-
-                const trailPositions = movementData.map(point => [point.lat, point.lon]);
-
-                return (
-                  <Polyline
-                    key={`trail-${imo}`}
-                    positions={trailPositions}
-                    color="#2563eb"
-                    weight={2}
-                    opacity={0.7}
-                    dashArray="5, 10"
-                  />
-                );
-              })}
-
-              {/* Oil Spills */}
-              {oilSpills.map(spill => {
-                const spillIcon = L.divIcon({
-                  html: `<div style="background: ${getSeverityColor(spill.severity)}; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); border: 2px solid white;" title="${spill.spill_id}">🛢️</div>`,
-                  iconSize: [36, 36],
-                  className: 'oil-spill-icon'
-                });
-
-                return (
-                  <Marker
-                    key={spill.spill_id}
-                    position={[spill.lat, spill.lon]}
-                    icon={spillIcon}
-                  >
-                    <Popup>
-                      <div className="popup-content">
-                        <img src={spill.image} alt={spill.spill_id} style={{ width: '100%', marginBottom: '12px', borderRadius: '6px', maxHeight: '180px', objectFit: 'cover' }} />
-                        <h4 style={{ marginBottom: '8px', color: '#1f2937' }}>🛢️ {spill.spill_id}</h4>
-                        <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Vessel:</strong> {spill.vessel_name}</p>
-                        <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Severity:</strong> <span style={{
-                          backgroundColor: getSeverityColor(spill.severity),
-                          color: 'white',
-                          padding: '2px 6px',
-                          borderRadius: '3px',
-                          fontSize: '11px'
-                        }}>{spill.severity}</span></p>
-                        <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Size:</strong> {spill.size_tons} tons</p>
-                        <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Area:</strong> {spill.estimated_area_km2} km²</p>
-                        <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Status:</strong> {spill.status}</p>
-                        <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Confidence:</strong> {spill.confidence}%</p>
-                      </div>
-                    </Popup>
-                  </Marker>
-                );
-              })}
-
-              {/* Oil Spill Progression Trails */}
-              {Object.entries(oilSpillProgression).map(([spillId, progressionData]) => {
-                const spill = oilSpills.find(s => s.spill_id === spillId);
-                if (!spill || progressionData.length < 2) return null;
-
-                // Create expanding circles for spill progression
-                return progressionData.map((point, index) => (
-                  <Circle
-                    key={`spill-${spillId}-${index}`}
-                    center={[spill.lat, spill.lon]}
-                    radius={Math.sqrt(point.area_km2) * 1000} // Convert km² to approximate meters for radius
-                    color={getSeverityColor(spill.severity)}
-                    fillColor={getSeverityColor(spill.severity)}
-                    fillOpacity={0.1 - (index * 0.02)} // Fade older circles
-                    weight={1}
-                    opacity={0.3}
-                  />
-                ));
-              })}
-            </MapContainer>
-          </div>
-        )}
-
-        {/* Vessels Tab - Operator/Admin only */}
-        {activeTab === 'vessels' && userRole !== 'viewer' && (
-          <div className="vessels-container">
-            <h2>Vessel Details</h2>
-            <div className="vessels-grid">
-              {vessels.map(vessel => (
-                <div key={vessel.imo} className="vessel-card">
-                  <img src={vessel.image} alt={vessel.name} className="vessel-image" />
-
-                  <div className="card-header">
-                    <h3>{vessel.name}</h3>
-                    <div
-                      className="risk-indicator"
-                      style={{ backgroundColor: getRiskColor(vessel.risk_level) }}
-                    >
-                      {vessel.risk_level[0]}
-                    </div>
-                  </div>
-
-                  <div className="card-body">
-                    <div className="info-row">
-                      <span className="label">IMO:</span>
-                      <span className="value">{vessel.imo}</span>
-                    </div>
-                    <div className="info-row">
-                      <span className="label">MMSI:</span>
-                      <span className="value">{vessel.mmsi}</span>
-                    </div>
-                    <div className="info-row">
-                      <span className="label">Type:</span>
-                      <span className="value">{vessel.type}</span>
-                    </div>
-                    <div className="info-row">
-                      <span className="label">Flag:</span>
-                      <span className="value">{vessel.flag}</span>
-                    </div>
-                    <div className="info-row">
-                      <span className="label">DWT:</span>
-                      <span className="value">{vessel.dwt}</span>
-                    </div>
-                    <div className="info-row">
-                      <span className="label">Destination:</span>
-                      <span className="value">{vessel.destination}</span>
-                    </div>
-                    <div className="info-row">
-                      <span className="label">ETA:</span>
-                      <span className="value">{vessel.eta}</span>
-                    </div>
-
-                    <div className="rating-section">
-                      <div className="rating-item">
-                        <label>Compliance Rating</label>
-                        <div className="rating-bar">
-                          <div
-                            className="rating-fill"
-                            style={{
-                              width: `${vessel.compliance_rating * 10}%`,
-                              backgroundColor: vessel.compliance_rating > 7 ? '#10b981' : vessel.compliance_rating > 5 ? '#f59e0b' : '#ef4444'
-                            }}
-                          ></div>
-                        </div>
-                        <span className="rating-text">{vessel.compliance_rating}/10</span>
-                      </div>
-                    </div>
-
-                    <div className="inspection-info">
-                      <p><strong>Last Inspection:</strong> {vessel.last_inspection}</p>
-                      <p><strong>Violations:</strong> {vessel.violations}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Oil Spills Tab - Operator/Admin only */}
-        {activeTab === 'spills' && userRole !== 'viewer' && (
-          <div className="spills-container">
-            <h2>Oil Spill Incidents</h2>
-            <div className="spills-grid">
-              {oilSpills.map(spill => (
-                <div key={spill.spill_id} className="spill-card">
-                  <img src={spill.image} alt={spill.spill_id} className="spill-image" />
-
-                  <div className="card-header">
-                    <h3>{spill.spill_id}</h3>
-                    <div
-                      className="severity-indicator"
-                      style={{ backgroundColor: getSeverityColor(spill.severity) }}
-                    >
-                      {spill.severity[0]}
-                    </div>
-                  </div>
-
-                  <div className="card-body">
-                    <div className="info-row">
-                      <span className="label">Vessel:</span>
-                      <span className="value">{spill.vessel_name}</span>
-                    </div>
-                    <div className="info-row">
-                      <span className="label">Location:</span>
-                      <span className="value">{spill.lat.toFixed(2)}°, {spill.lon.toFixed(2)}°</span>
-                    </div>
-                    <div className="info-row">
-                      <span className="label">Time:</span>
-                      <span className="value">{new Date(spill.timestamp).toLocaleDateString()}</span>
-                    </div>
-                    <div className="info-row">
-                      <span className="label">Size:</span>
-                      <span className="value">{spill.size_tons} tons</span>
-                    </div>
-                    <div className="info-row">
-                      <span className="label">Area:</span>
-                      <span className="value">{spill.estimated_area_km2} km²</span>
-                    </div>
-                    <div className="info-row">
-                      <span className="label">Confidence:</span>
-                      <span className="value">{spill.confidence}%</span>
-                    </div>
-                    <div className="info-row">
-                      <span className="label">Status:</span>
-                      <span className="value">{spill.status}</span>
-                    </div>
-                    <p className="description">{spill.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Reports Tab - Operator/Admin only */}
-        {activeTab === 'reports' && userRole !== 'viewer' && (
-          <div className="reports-container">
-            <h2>Report Generator</h2>
-            <div className="reports-grid">
-              <div className="report-card">
-                <h3>📋 Vessels Report</h3>
-                <p>Download comprehensive report of all vessels, their compliance ratings, and risk assessments.</p>
-                <button
-                  className="download-btn"
-                  onClick={() => generateReport('vessels')}
-                  disabled={reportLoading}
-                >
-                  {reportLoading ? '⏳ Generating...' : '⬇️ Download PDF'}
-                </button>
-              </div>
-
-              <div className="report-card">
-                <h3>⚠️ Oil Spills Report</h3>
-                <p>Download detailed report of all oil spill incidents, locations, and status updates.</p>
-                <button
-                  className="download-btn"
-                  onClick={() => generateReport('spills')}
-                  disabled={reportLoading}
-                >
-                  {reportLoading ? '⏳ Generating...' : '⬇️ Download PDF'}
-                </button>
-              </div>
-
-              <div className="report-card">
-                <h3>📊 Comprehensive Report</h3>
-                <p>Download complete marine monitoring report with vessels, spills, and all analytics.</p>
-                <button
-                  className="download-btn"
-                  onClick={() => generateReport('comprehensive')}
-                  disabled={reportLoading}
-                >
-                  {reportLoading ? '⏳ Generating...' : '⬇️ Download PDF'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Users Page - Admin Only */}
-        {activeTab === 'users' && userRole === 'admin' && (
-          <UsersPage />
-        )}
-
-        {/* Admin Panel - Admin Only */}
-        {activeTab === 'admin' && userRole === 'admin' && (
-          <div className="admin-panel-container">
-            <h2>⚙️ Admin Control Panel</h2>
-
-            {adminPanelMessage && (
-              <div className={`admin-message ${adminPanelMessage.includes('Error') ? 'error' : 'success'}`}>
-                {adminPanelMessage}
-              </div>
-            )}
-
-            <div className="admin-tabs">
-              <div className="admin-section">
-                <h3>👥 User Management</h3>
-
-                {/* Create New User Form */}
-                <div className="user-form-card">
-                  <h4>Create New Company User</h4>
-                  <form onSubmit={handleCreateUser}>
-                    <div className="form-group">
-                      <label>Email:</label>
-                      <input
-                        type="email"
-                        placeholder="user@company.com"
-                        value={newUserData.email}
-                        onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Full Name:</label>
-                      <input
-                        type="text"
-                        placeholder="John Doe"
-                        value={newUserData.name}
-                        onChange={(e) => setNewUserData({ ...newUserData, name: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Password:</label>
-                      <input
-                        type="password"
-                        placeholder="Secure password"
-                        value={newUserData.password}
-                        onChange={(e) => setNewUserData({ ...newUserData, password: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Company:</label>
-                      <input
-                        type="text"
-                        placeholder="Company Name"
-                        value={newUserData.company}
-                        onChange={(e) => setNewUserData({ ...newUserData, company: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Role:</label>
-                      <select
-                        value={newUserData.role}
-                        onChange={(e) => setNewUserData({ ...newUserData, role: e.target.value })}
-                      >
-                        <option value="operator">Operator</option>
-                        <option value="viewer">Viewer</option>
-                      </select>
-                    </div>
-                    <button type="submit" className="admin-btn" disabled={adminPanelLoading}>
-                      {adminPanelLoading ? 'Creating...' : '✅ Create User'}
-                    </button>
-                  </form>
-                </div>
-
-                {/* Users List */}
-                <div className="users-list-card">
-                  <div className="list-header">
-                    <h4>All System Users</h4>
-                    <button className="admin-btn-small" onClick={fetchAllUsers} disabled={adminPanelLoading}>
-                      🔄 Refresh
-                    </button>
-                  </div>
-
-                  {allUsers.length > 0 ? (
-                    <div className="users-table">
-                      {allUsers.map((user, idx) => (
-                        <div key={idx} className="user-row">
-                          <div className="user-info">
-                            <div className="user-email">{user.email}</div>
-                            <div className="user-name">{user.name}</div>
-                            <div className="user-company">{user.company}</div>
-                            <span className={`role-badge role-${user.role}`}>{user.role}</span>
-                          </div>
-                          {user.email !== email && (
-                            <button
-                              className="delete-btn"
-                              onClick={() => handleDeleteUser(user.email)}
-                              disabled={adminPanelLoading}
-                            >
-                              🗑️ Delete
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="empty-message">No users found. Create one above.</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Audit Logs */}
-              <div className="admin-section">
-                <h3>📋 Audit Logs</h3>
-                <div className="audit-logs-card">
-                  <div className="list-header">
-                    <h4>System Access & Activity Log</h4>
-                    <button className="admin-btn-small" onClick={fetchAuditLogs} disabled={adminPanelLoading}>
-                      🔄 Refresh
-                    </button>
-                  </div>
-
-                  {auditLogs.length > 0 ? (
-                    <div className="audit-table">
-                      {auditLogs.map((log, idx) => (
-                        <div key={idx} className="audit-row">
-                          <div className="audit-timestamp">{new Date(log.timestamp).toLocaleString()}</div>
-                          <div className="audit-user">{log.user_email}</div>
-                          <div className="audit-action">
-                            <span className={`action-badge action-${log.action}`}>{log.action}</span>
-                          </div>
-                          <div className="audit-resource">{log.resource}</div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="empty-message">No audit logs found.</p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Real-Time Analysis - All Users */}
-        {activeTab === 'realtime' && (
-          <div className="realtime-analysis-container">
-            <h2>📡 Real-Time Marine Monitoring Analysis</h2>
-
-            {/* Real-time Status */}
+          {/* Theme Editor - Admin Only */}
+          {showThemeEditor && userRole === 'admin' && (
             <div style={{
-              backgroundColor: connectionStatus === 'connected' ? '#d1fae5' : '#fecaca',
-              border: `2px solid ${connectionStatus === 'connected' ? '#10b981' : '#ef4444'}`,
-              padding: '16px',
-              borderRadius: '8px',
-              marginBottom: '24px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px'
+              position: 'fixed',
+              top: '80px',
+              right: '20px',
+              backgroundColor: 'white',
+              padding: '24px',
+              borderRadius: '12px',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+              zIndex: 1000,
+              minWidth: '300px',
+              animation: 'slideIn 0.3s ease-out'
             }}>
-              <div style={{
-                width: '12px',
-                height: '12px',
-                borderRadius: '50%',
-                backgroundColor: connectionStatus === 'connected' ? '#10b981' : '#ef4444',
-                animation: 'pulse 2s infinite'
-              }}></div>
-              <div>
-                <strong>{connectionStatus === 'connected' ? 'Connected' : 'Disconnected'}</strong>
-                <p style={{ margin: '4px 0', fontSize: '14px', color: '#666' }}>
-                  {connectionStatus === 'connected' ? 'Receiving live updates' : 'Attempting to reconnect...'}
-                </p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h3 style={{ margin: '0', fontSize: '18px', fontWeight: '700' }}>🎨 Theme Customizer</h3>
+                <button onClick={() => setShowThemeEditor(false)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}>✕</button>
+              </div>
+
+              <div style={{ display: 'grid', gap: '15px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '8px', textTransform: 'uppercase' }}>Primary Color</label>
+                  <input
+                    type="color"
+                    value={themeColors.primary}
+                    onChange={(e) => {
+                      const newColors = { ...themeColors, primary: e.target.value };
+                      setThemeColors(newColors);
+                      localStorage.setItem('themeColors', JSON.stringify(newColors));
+                    }}
+                    style={{ width: '100%', height: '45px', border: '2px solid #e5e7eb', borderRadius: '6px', cursor: 'pointer' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '8px', textTransform: 'uppercase' }}>Secondary Color</label>
+                  <input
+                    type="color"
+                    value={themeColors.secondary}
+                    onChange={(e) => {
+                      const newColors = { ...themeColors, secondary: e.target.value };
+                      setThemeColors(newColors);
+                      localStorage.setItem('themeColors', JSON.stringify(newColors));
+                    }}
+                    style={{ width: '100%', height: '45px', border: '2px solid #e5e7eb', borderRadius: '6px', cursor: 'pointer' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '8px', textTransform: 'uppercase' }}>Accent Color</label>
+                  <input
+                    type="color"
+                    value={themeColors.accent}
+                    onChange={(e) => {
+                      const newColors = { ...themeColors, accent: e.target.value };
+                      setThemeColors(newColors);
+                      localStorage.setItem('themeColors', JSON.stringify(newColors));
+                    }}
+                    style={{ width: '100%', height: '45px', border: '2px solid #e5e7eb', borderRadius: '6px', cursor: 'pointer' }}
+                  />
+                </div>
+                <button
+                  onClick={() => {
+                    setThemeColors({
+                      primary: '#2563eb',
+                      secondary: '#0f766e',
+                      accent: '#f59e0b',
+                      danger: '#dc2626'
+                    });
+                    localStorage.removeItem('themeColors');
+                  }}
+                  style={{
+                    padding: '10px',
+                    backgroundColor: '#f3f4f6',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    fontSize: '12px',
+                    transition: 'all 0.3s'
+                  }}
+                  onMouseOver={(e) => e.target.style.backgroundColor = '#e5e7eb'}
+                  onMouseOut={(e) => e.target.style.backgroundColor = '#f3f4f6'}
+                >
+                  ↺ Reset to Default
+                </button>
               </div>
             </div>
+          )}
 
-            <div className="realtime-grid">
-              {/* Vessels Tracking Section */}
-              <div className="realtime-section">
-                <h3>⚓ Vessel Locations & Movement</h3>
-                <div className="tracking-list">
-                  {vessels.map((vessel) => (
-                    <div key={vessel.imo} className="tracking-item">
-                      <div className="tracking-header">
-                        <h4>{vessel.name}</h4>
-                        <span className="risk-badge" style={{ backgroundColor: getRiskColor(vessel.risk_level) }}>
-                          {vessel.risk_level}
-                        </span>
-                      </div>
-                      <div className="tracking-data">
-                        <div className="data-row">
-                          <span className="data-label">📍 Location</span>
-                          <span className="data-value">{vessel.lat.toFixed(4)}° N, {vessel.lon.toFixed(4)}° E</span>
-                        </div>
-                        <div className="data-row">
-                          <span className="data-label">⚡ Speed</span>
-                          <span className="data-value">{vessel.speed} knots</span>
-                        </div>
-                        <div className="data-row">
-                          <span className="data-label">🧭 Course</span>
-                          <span className="data-value">{vessel.course}°</span>
-                        </div>
-                        <div className="data-row">
-                          <span className="data-label">🎯 Destination</span>
-                          <span className="data-value">{vessel.destination}</span>
-                        </div>
-                        <div className="data-row">
-                          <span className="data-label">⭐ Compliance</span>
-                          <span className="data-value">{vessel.compliance_rating}/10</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+          {/* Dashboard - Visible to all roles */}
+          {activeTab === 'dashboard' && dashboardData && (
+            <div className="space-y-6">
+              {/* Stats Overview Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="cyber-panel flex items-center justify-between group hover:border-cyan-400 transition-colors">
+                  <div>
+                    <div className="text-cyan-500/70 text-sm font-bold tracking-wider mb-1">TOTAL VESSELS</div>
+                    <div className="text-4xl font-rajdhani font-bold text-white group-hover:text-cyan-400 transition-colors">{vessels.length}</div>
+                  </div>
+                  <Anchor className="w-10 h-10 text-cyan-500/20 group-hover:text-cyan-400/50 transition-colors" />
+                </div>
+
+                <div className="cyber-panel flex items-center justify-between group hover:border-red-400 transition-colors">
+                  <div>
+                    <div className="text-red-500/70 text-sm font-bold tracking-wider mb-1">ACTIVE ALERTS</div>
+                    <div className="text-4xl font-rajdhani font-bold text-white group-hover:text-red-400 transition-colors">{oilSpills.length}</div>
+                  </div>
+                  <Shield className="w-10 h-10 text-red-500/20 group-hover:text-red-400/50 transition-colors" />
+                </div>
+
+                <div className="cyber-panel flex items-center justify-between group hover:border-green-400 transition-colors">
+                  <div>
+                    <div className="text-green-500/70 text-sm font-bold tracking-wider mb-1">SYSTEM STATUS</div>
+                    <div className="text-2xl font-rajdhani font-bold text-green-400">OPERATIONAL</div>
+                  </div>
+                  <Activity className="w-10 h-10 text-green-500/20 group-hover:text-green-400/50 transition-colors" />
+                </div>
+
+                <div className="cyber-panel flex items-center justify-between group hover:border-purple-400 transition-colors">
+                  <div>
+                    <div className="text-purple-500/70 text-sm font-bold tracking-wider mb-1">OCEAN TEMP</div>
+                    <div className="text-4xl font-rajdhani font-bold text-white">{weatherData?.temp_c || '27.5'}°C</div>
+                  </div>
+                  <div className="w-10 h-10 rounded-full border border-purple-500/30 flex items-center justify-center animate-spin-slow">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  </div>
                 </div>
               </div>
 
-              {/* Oil Spills Monitoring Section */}
-              <div className="realtime-section">
-                <h3>🛢️ Oil Spill Incidents & Status</h3>
-                <div className="tracking-list">
-                  {oilSpills.length > 0 ? (
-                    oilSpills.map((spill) => (
-                      <div key={spill.spill_id} className="tracking-item spill-item">
-                        <div className="tracking-header">
-                          <h4>{spill.spill_id}</h4>
-                          <span className="severity-badge" style={{ backgroundColor: getSeverityColor(spill.severity) }}>
-                            {spill.severity}
-                          </span>
-                        </div>
-                        <div className="tracking-data">
-                          <div className="data-row">
-                            <span className="data-label">📍 Location</span>
-                            <span className="data-value">{spill.lat.toFixed(4)}° N, {spill.lon.toFixed(4)}° E</span>
-                          </div>
-                          <div className="data-row">
-                            <span className="data-label">🚢 Vessel</span>
-                            <span className="data-value">{spill.vessel_name}</span>
-                          </div>
-                          <div className="data-row">
-                            <span className="data-label">📏 Size</span>
-                            <span className="data-value">{spill.size_tons} tons</span>
-                          </div>
-                          <div className="data-row">
-                            <span className="data-label">📐 Area</span>
-                            <span className="data-value">{spill.estimated_area_km2} km²</span>
-                          </div>
-                          <div className="data-row">
-                            <span className="data-label">🎯 Confidence</span>
-                            <span className="data-value">{spill.confidence}%</span>
-                          </div>
-                          <div className="data-row">
-                            <span className="data-label">📊 Status</span>
-                            <span className="data-value">{spill.status}</span>
-                          </div>
-                        </div>
+              {/* Main Dashboard Content Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Live Satellite Map Preview */}
+                <div className="lg:col-span-2 h-[400px] cyber-panel p-0 relative group">
+                  <div className="absolute top-4 left-4 z-[400] bg-slate-900/80 border border-cyan-500/30 px-3 py-1 rounded text-xs text-cyan-400 font-mono">
+                    LIVE SATELLITE TRACKING PREVIEW
+                  </div>
+                  <MapContainer center={[20, 80]} zoom={4} style={{ height: '100%', width: '100%' }} zoomControl={false} dragging={false} doubleClickZoom={false} scrollWheelZoom={false} className="z-0 bg-slate-900">
+                    <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
+                    <div className="absolute inset-0 z-[300] bg-gradient-to-t from-slate-900 via-transparent to-transparent pointer-events-none"></div>
+                    {vessels.slice(0, 10).map(v => <Circle key={v.imo} center={[v.lat, v.lon]} radius={30000} pathOptions={{ color: '#00f3ff', fillColor: '#00f3ff', fillOpacity: 0.6 }} />)}
+                  </MapContainer>
+                  <div className="absolute inset-0 bg-cyan-900/10 pointer-events-none group-hover:bg-transparent transition-colors z-[400]"></div>
+                  <button onClick={() => setActiveTab('map')} className="absolute bottom-4 right-4 z-[500] cyber-btn text-xs py-2 px-4 bg-slate-900/80">EXPAND MAP</button>
+                </div>
+
+                {/* Fleet Status List */}
+                <div className="cyber-panel overflow-hidden flex flex-col">
+                  <h3 className="text-cyan-400 font-orbitron mb-4 flex items-center gap-2 text-sm border-b border-cyan-500/30 pb-2">
+                    <Activity className="w-4 h-4" /> RECENT ACTIVITY
+                  </h3>
+                  <div className="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-2">
+                    {notifications.length > 0 ? notifications.map(n => (
+                      <div key={n.id} className="p-3 bg-slate-900/50 border border-cyan-500/10 rounded">
+                        <div className="text-xs text-cyan-500 font-mono mb-1">{new Date(n.timestamp).toLocaleTimeString()}</div>
+                        <div className="text-sm text-gray-300 font-bold">{n.title}</div>
+                        <div className="text-xs text-gray-500">{n.message}</div>
                       </div>
-                    ))
-                  ) : (
-                    <div style={{
-                      padding: '24px',
-                      textAlign: 'center',
-                      color: '#10b981',
-                      backgroundColor: '#f0fdf4',
-                      borderRadius: '8px',
-                      border: '1px solid #bbf7d0'
-                    }}>
-                      <p>✓ No oil spill incidents detected</p>
-                    </div>
-                  )}
+                    )) : (
+                      <div className="text-center text-gray-500 py-10 italic">No recent alerts</div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Download Real-Time Analysis Report */}
-            <div style={{ marginTop: '24px', padding: '20px', backgroundColor: '#f9fafb', borderRadius: '12px' }}>
-              <h3 style={{ marginBottom: '16px' }}>📥 Export Real-Time Analysis</h3>
+              {/* Graphs Row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="cyber-panel">
+                  <h3 className="text-cyan-400 font-orbitron mb-4 text-sm">REAL-TIME SPEED ANALYSIS</h3>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={Object.values(vesselMovementData)[0] || []}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0, 243, 255, 0.1)" />
+                        <XAxis dataKey="time" hide />
+                        <YAxis stroke="#4b5563" fontSize={10} />
+                        <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#00f3ff', color: '#fff' }} />
+                        <Line type="monotone" dataKey="speed" stroke="#00f3ff" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: '#00f3ff' }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="cyber-panel">
+                  <h3 className="text-cyan-400 font-orbitron mb-4 text-sm">FLEET COMPLIANCE</h3>
+                  <div className="h-64 flex items-center justify-center">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={[
+                            { name: 'High Risk', value: vessels.filter(v => v.risk_level === 'High').length, fill: '#ef4444' },
+                            { name: 'Medium', value: vessels.filter(v => v.risk_level === 'Medium').length, fill: '#f59e0b' },
+                            { name: 'Low Risk', value: vessels.filter(v => v.risk_level === 'Low').length, fill: '#10b981' }
+                          ]}
+                          innerRadius={60}
+                          outerRadius={80}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          <Cell fill="#ef4444" />
+                          <Cell fill="#f59e0b" />
+                          <Cell fill="#10b981" />
+                        </Pie>
+                        <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#00f3ff', color: '#fff' }} />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
+
+      </div>
+          )}
+
+      {/* Map - All roles */}
+      {activeTab === 'map' && (
+        <div className="flex-1 flex flex-col h-full cyber-panel p-0 overflow-hidden relative" style={{ minHeight: '80vh' }}>
+          <div className="absolute inset-0 z-0 map-radar-overlay"></div>
+
+          {/* Map Controls Overlay */}
+          <div className="absolute top-4 right-4 z-[500] flex flex-col gap-2">
+            <div className="bg-slate-900/80 backdrop-blur border border-cyan-500/30 p-2 rounded text-cyan-400 text-xs font-mono">
+              <div className="flex items-center gap-2 mb-1"><span className="w-2 h-2 rounded-full bg-cyan-400"></span> LIVE SAT FEED</div>
+              <div>LAT: {vessels[0]?.lat.toFixed(4) || '00.000'} | LON: {vessels[0]?.lon.toFixed(4) || '00.000'}</div>
+            </div>
+          </div>
+
+          <MapContainer center={[20, 80]} zoom={5} style={{ height: '100%', width: '100%' }} className="z-0 bg-slate-900">
+            <LayersControl position="topright">
+              <LayersControl.BaseLayer checked name="Deep Ocean (Dark)">
+                <TileLayer
+                  url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                />
+              </LayersControl.BaseLayer>
+              <LayersControl.BaseLayer name="Satellite Mode">
+                <TileLayer
+                  url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                  attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+                />
+              </LayersControl.BaseLayer>
+            </LayersControl>
+
+            {/* GeoJSON Boundaries */}
+            {Object.values(countryBoundaries).map((country, index) => (
+              <GeoJSON
+                key={index}
+                data={country}
+                style={{
+                  color: '#00f3ff',
+                  weight: 1,
+                  fillColor: '#00f3ff',
+                  fillOpacity: 0.05,
+                  dashArray: '5, 5'
+                }}
+              />
+            ))}
+
+            {/* Vessels */}
+            {vessels.map(vessel => (
+              <div key={vessel.imo}>
+                <Marker position={[vessel.lat, vessel.lon]}>
+                  <Popup className="cyber-popup">
+                    <div className="p-2 bg-slate-900 text-cyan-400 border border-cyan-500/50 rounded text-xs font-mono">
+                      <strong className="text-sm block mb-1 border-b border-cyan-500/30 pb-1">{vessel.name}</strong>
+                      <div>IMO: {vessel.imo}</div>
+                      <div>Type: {vessel.type}</div>
+                      <div>Speed: {vessel.speed} kts</div>
+                      <div className="text-green-400 mt-1">STATUS: ACTIVE</div>
+                    </div>
+                  </Popup>
+                </Marker>
+                {/* Vessel Trail */}
+                {vesselMovementData[vessel.imo] && (
+                  <Polyline
+                    positions={vesselMovementData[vessel.imo].map(d => [d.lat, d.lon])}
+                    pathOptions={{ color: '#00f3ff', weight: 1, opacity: 0.4 }}
+                  />
+                )}
+              </div>
+            ))}
+
+            {/* Oil Spills */}
+            {oilSpills.map(spill => (
+              <div key={spill.spill_id}>
+                <Circle
+                  center={[spill.lat, spill.lon]}
+                  radius={spill.radius * 2 || 5000}
+                  pathOptions={{
+                    color: '#ef4444',
+                    fillColor: '#ef4444',
+                    fillOpacity: 0.3,
+                    className: 'animate-pulse'
+                  }}
+                >
+                  <Popup>
+                    <div className="p-2 bg-red-900/90 text-red-100 border border-red-500 rounded text-xs font-mono">
+                      <strong className="text-sm block mb-1">⚠️ SPILL DETECTED</strong>
+                      <div>ID: {spill.spill_id}</div>
+                      <div>Severtiy: {spill.severity}</div>
+                      <div>Area: {spill.estimated_area_km2} km²</div>
+                    </div>
+                  </Popup>
+                </Circle>
+              </div>
+            ))}
+          </MapContainer>
+        </div>
+      )}
+
+      {/* Vessels Tab - Operator/Admin only */}
+      {activeTab === 'vessels' && userRole !== 'viewer' && (
+        <div className="vessels-container">
+          <h2>Vessel Details</h2>
+          <div className="vessels-grid">
+            {vessels.map(vessel => (
+              <div key={vessel.imo} className="vessel-card">
+                <img src={vessel.image} alt={vessel.name} className="vessel-image" />
+
+                <div className="card-header">
+                  <h3>{vessel.name}</h3>
+                  <div
+                    className="risk-indicator"
+                    style={{ backgroundColor: getRiskColor(vessel.risk_level) }}
+                  >
+                    {vessel.risk_level[0]}
+                  </div>
+                </div>
+
+                <div className="card-body">
+                  <div className="info-row">
+                    <span className="label">IMO:</span>
+                    <span className="value">{vessel.imo}</span>
+                  </div>
+                  <div className="info-row">
+                    <span className="label">MMSI:</span>
+                    <span className="value">{vessel.mmsi}</span>
+                  </div>
+                  <div className="info-row">
+                    <span className="label">Type:</span>
+                    <span className="value">{vessel.type}</span>
+                  </div>
+                  <div className="info-row">
+                    <span className="label">Flag:</span>
+                    <span className="value">{vessel.flag}</span>
+                  </div>
+                  <div className="info-row">
+                    <span className="label">DWT:</span>
+                    <span className="value">{vessel.dwt}</span>
+                  </div>
+                  <div className="info-row">
+                    <span className="label">Destination:</span>
+                    <span className="value">{vessel.destination}</span>
+                  </div>
+                  <div className="info-row">
+                    <span className="label">ETA:</span>
+                    <span className="value">{vessel.eta}</span>
+                  </div>
+
+                  <div className="rating-section">
+                    <div className="rating-item">
+                      <label>Compliance Rating</label>
+                      <div className="rating-bar">
+                        <div
+                          className="rating-fill"
+                          style={{
+                            width: `${vessel.compliance_rating * 10}%`,
+                            backgroundColor: vessel.compliance_rating > 7 ? '#10b981' : vessel.compliance_rating > 5 ? '#f59e0b' : '#ef4444'
+                          }}
+                        ></div>
+                      </div>
+                      <span className="rating-text">{vessel.compliance_rating}/10</span>
+                    </div>
+                  </div>
+
+                  <div className="inspection-info">
+                    <p><strong>Last Inspection:</strong> {vessel.last_inspection}</p>
+                    <p><strong>Violations:</strong> {vessel.violations}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Oil Spills Tab - Operator/Admin only */}
+      {activeTab === 'spills' && userRole !== 'viewer' && (
+        <div className="spills-container">
+          <h2>Oil Spill Incidents</h2>
+          <div className="spills-grid">
+            {oilSpills.map(spill => (
+              <div key={spill.spill_id} className="spill-card">
+                <img src={spill.image} alt={spill.spill_id} className="spill-image" />
+
+                <div className="card-header">
+                  <h3>{spill.spill_id}</h3>
+                  <div
+                    className="severity-indicator"
+                    style={{ backgroundColor: getSeverityColor(spill.severity) }}
+                  >
+                    {spill.severity[0]}
+                  </div>
+                </div>
+
+                <div className="card-body">
+                  <div className="info-row">
+                    <span className="label">Vessel:</span>
+                    <span className="value">{spill.vessel_name}</span>
+                  </div>
+                  <div className="info-row">
+                    <span className="label">Location:</span>
+                    <span className="value">{spill.lat.toFixed(2)}°, {spill.lon.toFixed(2)}°</span>
+                  </div>
+                  <div className="info-row">
+                    <span className="label">Time:</span>
+                    <span className="value">{new Date(spill.timestamp).toLocaleDateString()}</span>
+                  </div>
+                  <div className="info-row">
+                    <span className="label">Size:</span>
+                    <span className="value">{spill.size_tons} tons</span>
+                  </div>
+                  <div className="info-row">
+                    <span className="label">Area:</span>
+                    <span className="value">{spill.estimated_area_km2} km²</span>
+                  </div>
+                  <div className="info-row">
+                    <span className="label">Confidence:</span>
+                    <span className="value">{spill.confidence}%</span>
+                  </div>
+                  <div className="info-row">
+                    <span className="label">Status:</span>
+                    <span className="value">{spill.status}</span>
+                  </div>
+                  <p className="description">{spill.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Reports Tab - Operator/Admin only */}
+      {activeTab === 'reports' && userRole !== 'viewer' && (
+        <div className="reports-container">
+          <h2>Report Generator</h2>
+          <div className="reports-grid">
+            <div className="report-card">
+              <h3>📋 Vessels Report</h3>
+              <p>Download comprehensive report of all vessels, their compliance ratings, and risk assessments.</p>
               <button
                 className="download-btn"
-                onClick={() => generateReport('realtime')}
+                onClick={() => generateReport('vessels')}
                 disabled={reportLoading}
-                style={{ width: '100%' }}
               >
-                {reportLoading ? '⏳ Generating PDF Report...' : '📄 Download Real-Time Analysis Report'}
+                {reportLoading ? '⏳ Generating...' : '⬇️ Download PDF'}
+              </button>
+            </div>
+
+            <div className="report-card">
+              <h3>⚠️ Oil Spills Report</h3>
+              <p>Download detailed report of all oil spill incidents, locations, and status updates.</p>
+              <button
+                className="download-btn"
+                onClick={() => generateReport('spills')}
+                disabled={reportLoading}
+              >
+                {reportLoading ? '⏳ Generating...' : '⬇️ Download PDF'}
+              </button>
+            </div>
+
+            <div className="report-card">
+              <h3>📊 Comprehensive Report</h3>
+              <p>Download complete marine monitoring report with vessels, spills, and all analytics.</p>
+              <button
+                className="download-btn"
+                onClick={() => generateReport('comprehensive')}
+                disabled={reportLoading}
+              >
+                {reportLoading ? '⏳ Generating...' : '⬇️ Download PDF'}
               </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Map Analysis - Viewer Only */}
-        {activeTab === 'mapAnalysis' && userRole === 'viewer' && (
-          <div className="map-container">
-            <h2>🗺️ Map Analysis - Vessel Locations & Status</h2>
-            <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', marginBottom: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-              <p style={{ color: '#666', marginBottom: '10px' }}>View real-time vessel locations and maritime activity in the Indian Ocean region. Download vessel images for analysis.</p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginTop: '15px' }}>
-                {vessels.slice(0, 5).map(vessel => (
-                  <div key={vessel.imo} style={{
-                    backgroundColor: '#f9fafb',
-                    padding: '15px',
-                    borderRadius: '8px',
-                    border: '1px solid #e5e7eb',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s'
-                  }}>
-                    <div style={{
-                      backgroundImage: `url('${vessel.image}')`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      height: '120px',
-                      borderRadius: '6px',
-                      marginBottom: '10px'
-                    }}></div>
-                    <h4 style={{ marginBottom: '5px', color: '#1f2937' }}>{vessel.name}</h4>
-                    <p style={{ fontSize: '12px', color: '#666', margin: '3px 0' }}>Type: {vessel.type}</p>
-                    <p style={{ fontSize: '12px', color: '#666', margin: '3px 0' }}>Location: {vessel.lat.toFixed(2)}°N, {vessel.lon.toFixed(2)}°E</p>
-                    <p style={{ fontSize: '12px', color: '#666', margin: '3px 0' }}>Speed: {vessel.speed} knots</p>
-                    <button
-                      onClick={() => {
-                        const link = document.createElement('a');
-                        link.href = vessel.image;
-                        link.download = `${vessel.name}-vessel-image.jpg`;
-                        link.click();
-                      }}
-                      style={{
-                        width: '100%',
-                        marginTop: '10px',
-                        padding: '8px',
-                        backgroundColor: '#2563eb',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        fontWeight: '600',
-                        transition: 'background 0.3s'
-                      }}
-                      onMouseOver={(e) => e.target.style.backgroundColor = '#1e40af'}
-                      onMouseOut={(e) => e.target.style.backgroundColor = '#2563eb'}
+      {/* Users Page - Admin Only */}
+      {activeTab === 'users' && userRole === 'admin' && (
+        <UsersPage />
+      )}
+
+      {/* Admin Panel - Admin Only */}
+      {activeTab === 'admin' && userRole === 'admin' && (
+        <div className="admin-panel-container">
+          <h2>⚙️ Admin Control Panel</h2>
+
+          {adminPanelMessage && (
+            <div className={`admin-message ${adminPanelMessage.includes('Error') ? 'error' : 'success'}`}>
+              {adminPanelMessage}
+            </div>
+          )}
+
+          <div className="admin-tabs">
+            <div className="admin-section">
+              <h3>👥 User Management</h3>
+
+              {/* Create New User Form */}
+              <div className="user-form-card">
+                <h4>Create New Company User</h4>
+                <form onSubmit={handleCreateUser}>
+                  <div className="form-group">
+                    <label>Email:</label>
+                    <input
+                      type="email"
+                      placeholder="user@company.com"
+                      value={newUserData.email}
+                      onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Full Name:</label>
+                    <input
+                      type="text"
+                      placeholder="John Doe"
+                      value={newUserData.name}
+                      onChange={(e) => setNewUserData({ ...newUserData, name: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Password:</label>
+                    <input
+                      type="password"
+                      placeholder="Secure password"
+                      value={newUserData.password}
+                      onChange={(e) => setNewUserData({ ...newUserData, password: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Company:</label>
+                    <input
+                      type="text"
+                      placeholder="Company Name"
+                      value={newUserData.company}
+                      onChange={(e) => setNewUserData({ ...newUserData, company: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Role:</label>
+                    <select
+                      value={newUserData.role}
+                      onChange={(e) => setNewUserData({ ...newUserData, role: e.target.value })}
                     >
-                      📥 Download Image
-                    </button>
+                      <option value="operator">Operator</option>
+                      <option value="viewer">Viewer</option>
+                    </select>
+                  </div>
+                  <button type="submit" className="admin-btn" disabled={adminPanelLoading}>
+                    {adminPanelLoading ? 'Creating...' : '✅ Create User'}
+                  </button>
+                </form>
+              </div>
+
+              {/* Users List */}
+              <div className="users-list-card">
+                <div className="list-header">
+                  <h4>All System Users</h4>
+                  <button className="admin-btn-small" onClick={fetchAllUsers} disabled={adminPanelLoading}>
+                    🔄 Refresh
+                  </button>
+                </div>
+
+                {allUsers.length > 0 ? (
+                  <div className="users-table">
+                    {allUsers.map((user, idx) => (
+                      <div key={idx} className="user-row">
+                        <div className="user-info">
+                          <div className="user-email">{user.email}</div>
+                          <div className="user-name">{user.name}</div>
+                          <div className="user-company">{user.company}</div>
+                          <span className={`role-badge role-${user.role}`}>{user.role}</span>
+                        </div>
+                        {user.email !== email && (
+                          <button
+                            className="delete-btn"
+                            onClick={() => handleDeleteUser(user.email)}
+                            disabled={adminPanelLoading}
+                          >
+                            🗑️ Delete
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="empty-message">No users found. Create one above.</p>
+                )}
+              </div>
+            </div>
+
+            {/* Audit Logs */}
+            <div className="admin-section">
+              <h3>📋 Audit Logs</h3>
+              <div className="audit-logs-card">
+                <div className="list-header">
+                  <h4>System Access & Activity Log</h4>
+                  <button className="admin-btn-small" onClick={fetchAuditLogs} disabled={adminPanelLoading}>
+                    🔄 Refresh
+                  </button>
+                </div>
+
+                {auditLogs.length > 0 ? (
+                  <div className="audit-table">
+                    {auditLogs.map((log, idx) => (
+                      <div key={idx} className="audit-row">
+                        <div className="audit-timestamp">{new Date(log.timestamp).toLocaleString()}</div>
+                        <div className="audit-user">{log.user_email}</div>
+                        <div className="audit-action">
+                          <span className={`action-badge action-${log.action}`}>{log.action}</span>
+                        </div>
+                        <div className="audit-resource">{log.resource}</div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="empty-message">No audit logs found.</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Real-Time Analysis - All Users */}
+      {activeTab === 'realtime' && (
+        <div className="realtime-analysis-container">
+          <h2>📡 Real-Time Marine Monitoring Analysis</h2>
+
+          {/* Real-time Status */}
+          <div style={{
+            backgroundColor: connectionStatus === 'connected' ? '#d1fae5' : '#fecaca',
+            border: `2px solid ${connectionStatus === 'connected' ? '#10b981' : '#ef4444'}`,
+            padding: '16px',
+            borderRadius: '8px',
+            marginBottom: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <div style={{
+              width: '12px',
+              height: '12px',
+              borderRadius: '50%',
+              backgroundColor: connectionStatus === 'connected' ? '#10b981' : '#ef4444',
+              animation: 'pulse 2s infinite'
+            }}></div>
+            <div>
+              <strong>{connectionStatus === 'connected' ? 'Connected' : 'Disconnected'}</strong>
+              <p style={{ margin: '4px 0', fontSize: '14px', color: '#666' }}>
+                {connectionStatus === 'connected' ? 'Receiving live updates' : 'Attempting to reconnect...'}
+              </p>
+            </div>
+          </div>
+
+          <div className="realtime-grid">
+            {/* Vessels Tracking Section */}
+            <div className="realtime-section">
+              <h3>⚓ Vessel Locations & Movement</h3>
+              <div className="tracking-list">
+                {vessels.map((vessel) => (
+                  <div key={vessel.imo} className="tracking-item">
+                    <div className="tracking-header">
+                      <h4>{vessel.name}</h4>
+                      <span className="risk-badge" style={{ backgroundColor: getRiskColor(vessel.risk_level) }}>
+                        {vessel.risk_level}
+                      </span>
+                    </div>
+                    <div className="tracking-data">
+                      <div className="data-row">
+                        <span className="data-label">📍 Location</span>
+                        <span className="data-value">{vessel.lat.toFixed(4)}° N, {vessel.lon.toFixed(4)}° E</span>
+                      </div>
+                      <div className="data-row">
+                        <span className="data-label">⚡ Speed</span>
+                        <span className="data-value">{vessel.speed} knots</span>
+                      </div>
+                      <div className="data-row">
+                        <span className="data-label">🧭 Course</span>
+                        <span className="data-value">{vessel.course}°</span>
+                      </div>
+                      <div className="data-row">
+                        <span className="data-label">🎯 Destination</span>
+                        <span className="data-value">{vessel.destination}</span>
+                      </div>
+                      <div className="data-row">
+                        <span className="data-label">⭐ Compliance</span>
+                        <span className="data-value">{vessel.compliance_rating}/10</span>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Read-only Map for Viewers */}
-            <MapContainer center={[20, 78]} zoom={4} style={{ height: '100%', width: '100%' }}>
-              <LayersControl position="topright">
-                <LayersControl.BaseLayer checked name="OpenStreetMap">
-                  <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  />
-                </LayersControl.BaseLayer>
-
-                <LayersControl.BaseLayer name="Satellite (Esri)">
-                  <TileLayer
-                    url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                    attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-                  />
-                </LayersControl.BaseLayer>
-
-                <LayersControl.BaseLayer name="Dark Matter">
-                  <TileLayer
-                    url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                  />
-                </LayersControl.BaseLayer>
-              </LayersControl>
-              {vessels.map(vessel => {
-                const shipIcon = L.divIcon({
-                  html: `<div style="background: linear-gradient(135deg, #2563eb, #764ba2); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);" title="${vessel.name}">⚓</div>`,
-                  iconSize: [40, 40],
-                  className: 'ship-icon'
-                });
-
-                return (
-                  <Marker
-                    key={vessel.imo}
-                    position={[vessel.lat, vessel.lon]}
-                    icon={shipIcon}
-                  >
-                    <Popup>
-                      <div className="popup-content">
-                        <img src={vessel.image} alt={vessel.name} style={{ width: '100%', marginBottom: '10px', borderRadius: '5px' }} />
-                        <h4>{vessel.name}</h4>
-                        <p><strong>Type:</strong> {vessel.type}</p>
-                        <p><strong>Location:</strong> {vessel.lat.toFixed(2)}°N, {vessel.lon.toFixed(2)}°E</p>
-                        <p><strong>Speed:</strong> {vessel.speed} knots</p>
-                        <p><strong>Destination:</strong> {vessel.destination}</p>
-                        <button
-                          onClick={() => {
-                            const link = document.createElement('a');
-                            link.href = vessel.image;
-                            link.download = `${vessel.name}-vessel-image.jpg`;
-                            link.click();
-                          }}
-                          style={{
-                            width: '100%',
-                            marginTop: '10px',
-                            padding: '8px',
-                            backgroundColor: '#10b981',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            fontWeight: '600'
-                          }}
-                        >
-                          📥 Download Image
-                        </button>
+            {/* Oil Spills Monitoring Section */}
+            <div className="realtime-section">
+              <h3>🛢️ Oil Spill Incidents & Status</h3>
+              <div className="tracking-list">
+                {oilSpills.length > 0 ? (
+                  oilSpills.map((spill) => (
+                    <div key={spill.spill_id} className="tracking-item spill-item">
+                      <div className="tracking-header">
+                        <h4>{spill.spill_id}</h4>
+                        <span className="severity-badge" style={{ backgroundColor: getSeverityColor(spill.severity) }}>
+                          {spill.severity}
+                        </span>
                       </div>
-                    </Popup>
-                  </Marker>
-                );
-              })}
-
-              {/* Oil Spills for Viewers - Read Only */}
-              {oilSpills.map(spill => {
-                const spillIcon = L.divIcon({
-                  html: `<div style="background: ${getSeverityColor(spill.severity)}; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); border: 2px solid white;" title="${spill.spill_id}">🛢️</div>`,
-                  iconSize: [36, 36],
-                  className: 'oil-spill-icon'
-                });
-
-                return (
-                  <Marker
-                    key={spill.spill_id}
-                    position={[spill.lat, spill.lon]}
-                    icon={spillIcon}
-                  >
-                    <Popup>
-                      <div className="popup-content">
-                        <img src={spill.image} alt={spill.spill_id} style={{ width: '100%', marginBottom: '12px', borderRadius: '6px', maxHeight: '150px', objectFit: 'cover' }} />
-                        <h4 style={{ marginBottom: '8px', color: '#1f2937' }}>🛢️ {spill.spill_id}</h4>
-                        <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Vessel:</strong> {spill.vessel_name}</p>
-                        <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Severity:</strong> <span style={{
-                          backgroundColor: getSeverityColor(spill.severity),
-                          color: 'white',
-                          padding: '2px 6px',
-                          borderRadius: '3px',
-                          fontSize: '11px'
-                        }}>{spill.severity}</span></p>
-                        <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Size:</strong> {spill.size_tons} tons</p>
-                        <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Area:</strong> {spill.estimated_area_km2} km²</p>
+                      <div className="tracking-data">
+                        <div className="data-row">
+                          <span className="data-label">📍 Location</span>
+                          <span className="data-value">{spill.lat.toFixed(4)}° N, {spill.lon.toFixed(4)}° E</span>
+                        </div>
+                        <div className="data-row">
+                          <span className="data-label">🚢 Vessel</span>
+                          <span className="data-value">{spill.vessel_name}</span>
+                        </div>
+                        <div className="data-row">
+                          <span className="data-label">📏 Size</span>
+                          <span className="data-value">{spill.size_tons} tons</span>
+                        </div>
+                        <div className="data-row">
+                          <span className="data-label">📐 Area</span>
+                          <span className="data-value">{spill.estimated_area_km2} km²</span>
+                        </div>
+                        <div className="data-row">
+                          <span className="data-label">🎯 Confidence</span>
+                          <span className="data-value">{spill.confidence}%</span>
+                        </div>
+                        <div className="data-row">
+                          <span className="data-label">📊 Status</span>
+                          <span className="data-value">{spill.status}</span>
+                        </div>
                       </div>
-                    </Popup>
-                  </Marker>
-                );
-              })}
-            </MapContainer>
-
-            <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-              <h3>📊 Vessel Analysis Summary</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginTop: '15px' }}>
-                <div style={{ padding: '15px', backgroundColor: '#f0f9ff', borderRadius: '8px', borderLeft: '4px solid #2563eb' }}>
-                  <p style={{ color: '#666', fontSize: '12px', margin: '0 0 5px 0' }}>Total Vessels Tracked</p>
-                  <h3 style={{ color: '#2563eb', margin: '0', fontSize: '24px' }}>{vessels.length}</h3>
-                </div>
-                <div style={{ padding: '15px', backgroundColor: '#f0fdf4', borderRadius: '8px', borderLeft: '4px solid #10b981' }}>
-                  <p style={{ color: '#666', fontSize: '12px', margin: '0 0 5px 0' }}>Active Vessels</p>
-                  <h3 style={{ color: '#10b981', margin: '0', fontSize: '24px' }}>{vessels.filter(v => v.status === 'Active').length}</h3>
-                </div>
-                <div style={{ padding: '15px', backgroundColor: '#fef3c7', borderRadius: '8px', borderLeft: '4px solid #f59e0b' }}>
-                  <p style={{ color: '#666', fontSize: '12px', margin: '0 0 5px 0' }}>Average Speed (knots)</p>
-                  <h3 style={{ color: '#f59e0b', margin: '0', fontSize: '24px' }}>{(vessels.reduce((sum, v) => sum + v.speed, 0) / vessels.length).toFixed(1)}</h3>
-                </div>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{
+                    padding: '24px',
+                    textAlign: 'center',
+                    color: '#10b981',
+                    backgroundColor: '#f0fdf4',
+                    borderRadius: '8px',
+                    border: '1px solid #bbf7d0'
+                  }}>
+                    <p>✓ No oil spill incidents detected</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
-        )}
 
-        {/* Footer */}
-        <footer className="app-footer">
-          <div className="footer-content">
-            <p>&copy; 2025 SeaTrace Maritime Intelligence System. Developed by <strong>Suriya</strong>. All rights reserved.</p>
-            <p style={{ fontSize: '12px', color: 'rgba(100,100,100,0.7)', marginTop: '4px' }}>Advanced Ocean Monitoring | Environmental Protection | Real-Time Analytics</p>
+          {/* Download Real-Time Analysis Report */}
+          <div style={{ marginTop: '24px', padding: '20px', backgroundColor: '#f9fafb', borderRadius: '12px' }}>
+            <h3 style={{ marginBottom: '16px' }}>📥 Export Real-Time Analysis</h3>
+            <button
+              className="download-btn"
+              onClick={() => generateReport('realtime')}
+              disabled={reportLoading}
+              style={{ width: '100%' }}
+            >
+              {reportLoading ? '⏳ Generating PDF Report...' : '📄 Download Real-Time Analysis Report'}
+            </button>
           </div>
-        </footer>
-      </div>
-    </div>
+        </div>
+      )}
+
+      {/* Map Analysis - Viewer Only */}
+      {activeTab === 'mapAnalysis' && userRole === 'viewer' && (
+        <div className="map-container">
+          <h2>🗺️ Map Analysis - Vessel Locations & Status</h2>
+          <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', marginBottom: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+            <p style={{ color: '#666', marginBottom: '10px' }}>View real-time vessel locations and maritime activity in the Indian Ocean region. Download vessel images for analysis.</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginTop: '15px' }}>
+              {vessels.slice(0, 5).map(vessel => (
+                <div key={vessel.imo} style={{
+                  backgroundColor: '#f9fafb',
+                  padding: '15px',
+                  borderRadius: '8px',
+                  border: '1px solid #e5e7eb',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s'
+                }}>
+                  <div style={{
+                    backgroundImage: `url('${vessel.image}')`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    height: '120px',
+                    borderRadius: '6px',
+                    marginBottom: '10px'
+                  }}></div>
+                  <h4 style={{ marginBottom: '5px', color: '#1f2937' }}>{vessel.name}</h4>
+                  <p style={{ fontSize: '12px', color: '#666', margin: '3px 0' }}>Type: {vessel.type}</p>
+                  <p style={{ fontSize: '12px', color: '#666', margin: '3px 0' }}>Location: {vessel.lat.toFixed(2)}°N, {vessel.lon.toFixed(2)}°E</p>
+                  <p style={{ fontSize: '12px', color: '#666', margin: '3px 0' }}>Speed: {vessel.speed} knots</p>
+                  <button
+                    onClick={() => {
+                      const link = document.createElement('a');
+                      link.href = vessel.image;
+                      link.download = `${vessel.name}-vessel-image.jpg`;
+                      link.click();
+                    }}
+                    style={{
+                      width: '100%',
+                      marginTop: '10px',
+                      padding: '8px',
+                      backgroundColor: '#2563eb',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      transition: 'background 0.3s'
+                    }}
+                    onMouseOver={(e) => e.target.style.backgroundColor = '#1e40af'}
+                    onMouseOut={(e) => e.target.style.backgroundColor = '#2563eb'}
+                  >
+                    📥 Download Image
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Read-only Map for Viewers */}
+          <MapContainer center={[20, 78]} zoom={4} style={{ height: '100%', width: '100%' }}>
+            <LayersControl position="topright">
+              <LayersControl.BaseLayer checked name="OpenStreetMap">
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+              </LayersControl.BaseLayer>
+
+              <LayersControl.BaseLayer name="Satellite (Esri)">
+                <TileLayer
+                  url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                  attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+                />
+              </LayersControl.BaseLayer>
+
+              <LayersControl.BaseLayer name="Dark Matter">
+                <TileLayer
+                  url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                />
+              </LayersControl.BaseLayer>
+            </LayersControl>
+            {vessels.map(vessel => {
+              const shipIcon = L.divIcon({
+                html: `<div style="background: linear-gradient(135deg, #2563eb, #764ba2); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);" title="${vessel.name}">⚓</div>`,
+                iconSize: [40, 40],
+                className: 'ship-icon'
+              });
+
+              return (
+                <Marker
+                  key={vessel.imo}
+                  position={[vessel.lat, vessel.lon]}
+                  icon={shipIcon}
+                >
+                  <Popup>
+                    <div className="popup-content">
+                      <img src={vessel.image} alt={vessel.name} style={{ width: '100%', marginBottom: '10px', borderRadius: '5px' }} />
+                      <h4>{vessel.name}</h4>
+                      <p><strong>Type:</strong> {vessel.type}</p>
+                      <p><strong>Location:</strong> {vessel.lat.toFixed(2)}°N, {vessel.lon.toFixed(2)}°E</p>
+                      <p><strong>Speed:</strong> {vessel.speed} knots</p>
+                      <p><strong>Destination:</strong> {vessel.destination}</p>
+                      <button
+                        onClick={() => {
+                          const link = document.createElement('a');
+                          link.href = vessel.image;
+                          link.download = `${vessel.name}-vessel-image.jpg`;
+                          link.click();
+                        }}
+                        style={{
+                          width: '100%',
+                          marginTop: '10px',
+                          padding: '8px',
+                          backgroundColor: '#10b981',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          fontWeight: '600'
+                        }}
+                      >
+                        📥 Download Image
+                      </button>
+                    </div>
+                  </Popup>
+                </Marker>
+              );
+            })}
+
+            {/* Oil Spills for Viewers - Read Only */}
+            {oilSpills.map(spill => {
+              const spillIcon = L.divIcon({
+                html: `<div style="background: ${getSeverityColor(spill.severity)}; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); border: 2px solid white;" title="${spill.spill_id}">🛢️</div>`,
+                iconSize: [36, 36],
+                className: 'oil-spill-icon'
+              });
+
+              return (
+                <Marker
+                  key={spill.spill_id}
+                  position={[spill.lat, spill.lon]}
+                  icon={spillIcon}
+                >
+                  <Popup>
+                    <div className="popup-content">
+                      <img src={spill.image} alt={spill.spill_id} style={{ width: '100%', marginBottom: '12px', borderRadius: '6px', maxHeight: '150px', objectFit: 'cover' }} />
+                      <h4 style={{ marginBottom: '8px', color: '#1f2937' }}>🛢️ {spill.spill_id}</h4>
+                      <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Vessel:</strong> {spill.vessel_name}</p>
+                      <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Severity:</strong> <span style={{
+                        backgroundColor: getSeverityColor(spill.severity),
+                        color: 'white',
+                        padding: '2px 6px',
+                        borderRadius: '3px',
+                        fontSize: '11px'
+                      }}>{spill.severity}</span></p>
+                      <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Size:</strong> {spill.size_tons} tons</p>
+                      <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Area:</strong> {spill.estimated_area_km2} km²</p>
+                    </div>
+                  </Popup>
+                </Marker>
+              );
+            })}
+          </MapContainer>
+
+          <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+            <h3>📊 Vessel Analysis Summary</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginTop: '15px' }}>
+              <div style={{ padding: '15px', backgroundColor: '#f0f9ff', borderRadius: '8px', borderLeft: '4px solid #2563eb' }}>
+                <p style={{ color: '#666', fontSize: '12px', margin: '0 0 5px 0' }}>Total Vessels Tracked</p>
+                <h3 style={{ color: '#2563eb', margin: '0', fontSize: '24px' }}>{vessels.length}</h3>
+              </div>
+              <div style={{ padding: '15px', backgroundColor: '#f0fdf4', borderRadius: '8px', borderLeft: '4px solid #10b981' }}>
+                <p style={{ color: '#666', fontSize: '12px', margin: '0 0 5px 0' }}>Active Vessels</p>
+                <h3 style={{ color: '#10b981', margin: '0', fontSize: '24px' }}>{vessels.filter(v => v.status === 'Active').length}</h3>
+              </div>
+              <div style={{ padding: '15px', backgroundColor: '#fef3c7', borderRadius: '8px', borderLeft: '4px solid #f59e0b' }}>
+                <p style={{ color: '#666', fontSize: '12px', margin: '0 0 5px 0' }}>Average Speed (knots)</p>
+                <h3 style={{ color: '#f59e0b', margin: '0', fontSize: '24px' }}>{(vessels.reduce((sum, v) => sum + v.speed, 0) / vessels.length).toFixed(1)}</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Footer */}
+      <footer className="app-footer">
+        <div className="footer-content">
+          <p>&copy; 2025 SeaTrace Maritime Intelligence System. Developed by <strong>Suriya</strong>. All rights reserved.</p>
+          <p style={{ fontSize: '12px', color: 'rgba(100,100,100,0.7)', marginTop: '4px' }}>Advanced Ocean Monitoring | Environmental Protection | Real-Time Analytics</p>
+        </div>
+      </footer>
+    </main>
+      </div >
+    </div >
   );
 }
 

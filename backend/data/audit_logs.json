@@ -297,5 +297,89 @@
     "action": "VIEW",
     "resource": "oil_spills_list",
     "details": {}
+  },
+  {
+    "timestamp": "2025-12-20T18:48:08.555458",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-20T18:48:08.669262",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "oil_spills_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-20T18:48:08.779068",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-20T18:48:08.873706",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "oil_spills_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-20T18:48:45.818977",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-20T18:48:45.831057",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "oil_spills_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-20T18:48:45.839035",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-20T18:48:45.849634",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "oil_spills_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-20T18:48:46.926569",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-20T18:48:46.947361",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "oil_spills_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-20T18:48:46.983494",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-20T18:48:47.018842",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "oil_spills_list",
+    "details": {}
   }
 ]
