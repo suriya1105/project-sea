@@ -1,11 +1,24 @@
 {
-  "SeaTrace Admin": ["admin@seatrace.com"],
-  "SeaTrace Ops": ["operator@seatrace.com"],
-  "SeaTrace Monitor": ["viewer@seatrace.com"],
-  "Test Company": ["test@seatrace.com"],
+  "SeaTrace Admin": [
+    "admin@seatrace.com"
+  ],
+  "SeaTrace Ops": [
+    "operator@seatrace.com"
+  ],
+  "SeaTrace Monitor": [
+    "viewer@seatrace.com"
+  ],
+  "Test Company": [
+    "test@seatrace.com"
+  ],
   "Korea Merchant Marine Co.": [],
   "MSC Cruises": [],
   "Evergreen Marine": [],
   "Ocean Tankers Ltd": [],
-  "Indian Navy": []
+  "Indian Navy": [],
+  "Public User": [
+    "debug_test@example.com",
+    "suriyaraja.1105@gmail.com",
+    "suriyap.aids2023@citchennai.net"
+  ]
 }

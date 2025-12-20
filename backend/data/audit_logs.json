@@ -167,5 +167,135 @@
     "action": "VIEW",
     "resource": "oil_spills_list",
     "details": {}
+  },
+  {
+    "timestamp": "2025-12-20T17:22:20.181404",
+    "user_email": "debug_test@example.com",
+    "action": "REGISTER",
+    "resource": "authentication",
+    "details": {
+      "name": "Test User"
+    }
+  },
+  {
+    "timestamp": "2025-12-20T17:23:02.042076",
+    "user_email": "debug_test@example.com",
+    "action": "LOGIN_FAILED",
+    "resource": "authentication",
+    "details": {
+      "success": false
+    }
+  },
+  {
+    "timestamp": "2025-12-20T17:23:08.795177",
+    "user_email": "debug_test@example.com",
+    "action": "LOGIN_FAILED",
+    "resource": "authentication",
+    "details": {
+      "success": false
+    }
+  },
+  {
+    "timestamp": "2025-12-20T17:23:27.520620",
+    "user_email": "debug_test@example.com",
+    "action": "LOGIN_FAILED",
+    "resource": "authentication",
+    "details": {
+      "success": false
+    }
+  },
+  {
+    "timestamp": "2025-12-20T17:23:40.558582",
+    "user_email": "debug_test@example.com",
+    "action": "LOGIN_FAILED",
+    "resource": "authentication",
+    "details": {
+      "success": false
+    }
+  },
+  {
+    "timestamp": "2025-12-20T17:24:09.141361",
+    "user_email": "suriyaraja.1105@gmail.com",
+    "action": "REGISTER",
+    "resource": "authentication",
+    "details": {
+      "name": "suriya"
+    }
+  },
+  {
+    "timestamp": "2025-12-20T18:08:29.220825",
+    "user_email": "suriyap.aids2023@citchennai.net",
+    "action": "REGISTER",
+    "resource": "authentication",
+    "details": {
+      "name": "aravibd"
+    }
+  },
+  {
+    "timestamp": "2025-12-20T18:13:39.073350",
+    "user_email": "suriyap.aids2023@citchennai.net",
+    "action": "LOGIN",
+    "resource": "authentication",
+    "details": {
+      "success": true
+    }
+  },
+  {
+    "timestamp": "2025-12-20T18:13:39.228888",
+    "user_email": "suriyap.aids2023@citchennai.net",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-20T18:15:02.679183",
+    "user_email": "admin@seatrace.com",
+    "action": "LOGIN",
+    "resource": "authentication",
+    "details": {
+      "success": true
+    }
+  },
+  {
+    "timestamp": "2025-12-20T18:15:02.795064",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-20T18:15:02.815978",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "oil_spills_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-20T18:25:18.197289",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-20T18:25:18.216342",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "oil_spills_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-20T18:25:18.229086",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-20T18:25:18.259659",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "oil_spills_list",
+    "details": {}
   }
 ]

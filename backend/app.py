@@ -39,6 +39,14 @@ import threading
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-prod')
 
+# Global Error Handler
+@app.errorhandler(Exception)
+def handle_exception(e):
+    import traceback
+    traceback.print_exc()
+    print(f"DEBUG: GLOBAL EXCEPTION: {e}")
+    return jsonify({'error': f"Internal Server Error: {str(e)}"}), 500
+
 # Configure CORS from environment variable
 cors_origins = os.environ.get('CORS_ORIGINS', '*')
 if cors_origins != '*':
@@ -183,40 +191,55 @@ verification_codes = {}  # In-memory storage for simple verification codes: {ema
 @app.route('/api/auth/register-public', methods=['POST'])
 def register_public():
     """Public registration endpoint"""
-    data = request.json
-    email = data.get('email')
-    name = data.get('name')
-    password = data.get('password')
-    phone = data.get('phone')
-    
-    if not all([email, name, password]):
-        return jsonify({'error': 'Missing required fields: email, name, password'}), 400
-    
-    if data_manager.get_user(email):
-        return jsonify({'error': 'User already exists'}), 409
-    
-    # Create new user (viewer role by default for public)
-    new_user = {
-        'id': data_manager.get_next_user_id(),
-        'name': name,
-        'email': email,
-        'phone': phone,
-        'password': password,
-        'role': 'viewer',
-        'company': 'Public User',
-        'created_at': datetime.utcnow().isoformat(),
-        'email_verified': False,
-        'phone_verified': False,
-        'active': True
-    }
-    
-    data_manager.add_user(email, new_user)
-    log_access(email, 'REGISTER', 'authentication', {'name': name})
-    
-    return jsonify({
-        'message': 'Registration successful. Please verify your account.',
-        'userId': new_user['id']
-    }), 201
+    print("DEBUG: register_public called")
+    try:
+        data = request.json
+        print(f"DEBUG: Data received: {data}")
+        email = data.get('email')
+        name = data.get('name')
+        password = data.get('password')
+        phone = data.get('phone')
+        
+        if not all([email, name, password]):
+            return jsonify({'error': 'Missing required fields: email, name, password'}), 400
+        
+        print("DEBUG: Checking user existence")
+        if data_manager.get_user(email):
+            return jsonify({'error': 'User already exists'}), 409
+        
+        # Create new user (viewer role by default for public)
+        print("DEBUG: Generating user ID")
+        new_id = data_manager.get_next_user_id()
+        print(f"DEBUG: New ID: {new_id}")
+        
+        new_user = {
+            'id': new_id,
+            'name': name,
+            'email': email,
+            'phone': phone,
+            'password': password,
+            'role': 'viewer',
+            'company': 'Public User',
+            'created_at': datetime.utcnow().isoformat(),
+            'email_verified': False,
+            'phone_verified': False,
+            'active': True
+        }
+        
+        print("DEBUG: Adding user to DB")
+        data_manager.add_user(email, new_user)
+        print("DEBUG: Logging access")
+        log_access(email, 'REGISTER', 'authentication', {'name': name})
+        
+        return jsonify({
+            'message': 'Registration successful. Please verify your account.',
+            'userId': new_user['id']
+        }), 201
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"DEBUG: EXCEPTION: {e}")
+        return jsonify({'error': f"Internal Error: {str(e)}"}), 500
 
 @app.route('/api/auth/send-verification', methods=['POST'])
 def send_verification():
@@ -412,7 +435,8 @@ def get_user_audit_logs(email):
 def get_vessels():
     """Get all vessels - viewable by all roles"""
     log_access(request.user['email'], 'VIEW', 'vessels_list')
-    return jsonify(data_manager.get_vessels()), 200
+    vessels_dict = data_manager.get_vessels()
+    return jsonify(list(vessels_dict.values())), 200
 
 @app.route('/api/vessels/<imo>', methods=['GET'])
 @token_required
@@ -454,7 +478,8 @@ def update_vessel(imo):
 def get_oil_spills():
     """Get all oil spill incidents - viewable by all roles"""
     log_access(request.user['email'], 'VIEW', 'oil_spills_list')
-    return jsonify(data_manager.get_oil_spills()), 200
+    spills_dict = data_manager.get_oil_spills()
+    return jsonify(list(spills_dict.values())), 200
 
 @app.route('/api/oil-spills/<spill_id>', methods=['GET'])
 @token_required
@@ -765,7 +790,10 @@ def get_secure_history():
 # Existing Routes
 @app.route('/api/health', methods=['GET'])
 def health():
+    print("DEBUG: Health check called")
     return jsonify({'status': 'ok', 'service': 'SeaTrace Backend'}), 200
+
+
 
 # WebSocket events for real-time monitoring
 @socketio.on('connect')

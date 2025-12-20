@@ -1,0 +1,11 @@
+[
+  {
+    "timestamp": "2025-12-20T17:14:24.978778",
+    "user_email": "debug_test@example.com",
+    "action": "REGISTER",
+    "resource": "authentication",
+    "details": {
+      "name": "Test User"
+    }
+  }
+]

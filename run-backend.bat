@@ -32,6 +32,7 @@ echo.
 echo Press Ctrl+C to stop the server
 echo.
 
+set FLASK_ENV=production
 python start.py
 
 pause
