@@ -39,6 +39,15 @@ import threading
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-prod')
 
+@app.route('/')
+def index():
+    """Root endpoint to confirm backend is running"""
+    return jsonify({
+        'message': 'SeaTrace Backend API is running by Antigravity',
+        'health_check': '/api/health',
+        'documentation': 'See /api endpoints'
+    }), 200
+
 # Global Error Handler
 @app.errorhandler(Exception)
 def handle_exception(e):
