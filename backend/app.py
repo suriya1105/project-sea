@@ -55,7 +55,7 @@ else:
     cors_origins = '*'
 
 CORS(app, origins=cors_origins)
-socketio = SocketIO(app, cors_allowed_origins=cors_origins, async_mode='threading')
+socketio = SocketIO(app, cors_allowed_origins=cors_origins)
 
 def log_access(user_email, action, resource, details=None):
     """Log user access for audit trail"""
