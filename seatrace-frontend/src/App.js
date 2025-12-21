@@ -521,7 +521,10 @@ function App() {
             const response = await axios.post(`${API_BASE_URL}/auth/login`, { email, password });
             handleAuthSuccess(response.data);
           } catch (error) {
-            throw new Error(error.response?.data?.error || 'Login failed');
+            console.error("Login Handler Error:", error);
+            // If we have a backend error message, use it. Otherwise use the error message (e.g. 'Network Error')
+            const message = error.response?.data?.error || error.message || 'Login failed';
+            throw new Error(message);
           }
         }}
         onAuthSuccess={handleAuthSuccess}
