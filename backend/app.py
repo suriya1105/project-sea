@@ -7,6 +7,10 @@ and environmental monitoring for maritime operations.
 """
 
 from flask import Flask, request, jsonify, send_file
+# Apply eventlet monkey patching for async compatibility
+import eventlet
+eventlet.monkey_patch()
+
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import jwt
