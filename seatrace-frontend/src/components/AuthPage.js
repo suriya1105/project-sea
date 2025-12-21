@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Lock, ArrowRight, Activity, Shield, Zap, Eye, EyeOff, Anchor, Mail, Phone, Globe } from 'lucide-react';
+import { User, Lock, ArrowRight, Activity, Shield, Eye, EyeOff, Anchor, Mail, Phone } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
 const AuthPage = ({ onLogin, onAuthSuccess }) => {
@@ -45,7 +45,7 @@ const AuthPage = ({ onLogin, onAuthSuccess }) => {
                     }
                 }
 
-                const data = await response.json();
+                await response.json();
 
                 // Auto login after signup (or show success message)
                 // For now, let's auto-login or switch to login

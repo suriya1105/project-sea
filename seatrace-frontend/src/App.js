@@ -14,8 +14,7 @@ import io from 'socket.io-client';
 import axios from 'axios';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import './App.css';
-import SignUpForm from './components/auth/SignUpForm';
-import LoginForm from './components/auth/LoginForm';
+
 import AuthPage from './components/AuthPage';
 import UsersPage from './components/UsersPage';
 import { API_BASE_URL, SOCKET_URL } from './config';
@@ -70,13 +69,12 @@ function App() {
   const [adminPanelMessage, setAdminPanelMessage] = useState('');
 
   // Auth UI state
-  const [showSignUp, setShowSignUp] = useState(false);
 
   // Real-time movement tracking state
   const [vesselMovementData, setVesselMovementData] = useState({});
-  const [oilSpillProgression, setOilSpillProgression] = useState({});
+
   const [notifications, setNotifications] = useState([]);
-  const [showNotifications, setShowNotifications] = useState(false);
+
 
   // Country boundaries for India region (simplified)
   const countryBoundaries = {
@@ -310,31 +308,7 @@ function App() {
   };
 
   // Generate oil spill progression data
-  const generateOilSpillProgression = (spill) => {
-    const progressionData = [];
-    const now = new Date();
 
-    // Generate progression over time
-    for (let i = 23; i >= 0; i--) {
-      const timestamp = new Date(now.getTime() - (i * 60 * 60 * 1000)); // Every hour
-      const baseSize = spill.size_tons;
-      const baseArea = spill.estimated_area_km2;
-
-      // Oil spreads over time
-      const timeFactor = (24 - i) / 24; // 0 to 1 over 24 hours
-      const sizeIncrease = baseSize * timeFactor * 0.1; // 10% increase over time
-      const areaIncrease = baseArea * timeFactor * 0.2; // 20% area increase
-
-      progressionData.push({
-        time: timestamp.toLocaleTimeString(),
-        size_tons: baseSize + sizeIncrease,
-        area_km2: baseArea + areaIncrease,
-        confidence: Math.min(95, spill.confidence + timeFactor * 5)
-      });
-    }
-
-    return progressionData;
-  };
 
   // Update movement data for all vessels
   const updateMovementData = () => {
@@ -344,11 +318,7 @@ function App() {
     });
     setVesselMovementData(newMovementData);
 
-    const newSpillProgression = {};
-    oilSpills.forEach(spill => {
-      newSpillProgression[spill.spill_id] = generateOilSpillProgression(spill);
-    });
-    setOilSpillProgression(newSpillProgression);
+
 
     // Check for movement alerts
     checkMovementAlerts(newMovementData);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, UserPlus, Search, Filter, MoreVertical, Edit, Trash2, Shield, Eye, Settings, Mail, Phone, Building, Calendar, CheckCircle, XCircle, Crown, Anchor } from 'lucide-react';
+import { Users, UserPlus, Search, MoreVertical, Edit, Trash2, Eye, Mail, Building, Calendar, CheckCircle, XCircle, Crown, Anchor } from 'lucide-react';
 
 const UsersPage = () => {
     const [users, setUsers] = useState([]);
@@ -7,7 +7,7 @@ const UsersPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterRole, setFilterRole] = useState('all');
     const [showAddModal, setShowAddModal] = useState(false);
-    const [selectedUser, setSelectedUser] = useState(null);
+
     const [newUser, setNewUser] = useState({
         email: '',
         name: '',
@@ -83,8 +83,8 @@ const UsersPage = () => {
 
     const filteredUsers = users.filter(user => {
         const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            user.company.toLowerCase().includes(searchTerm.toLowerCase());
+            user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.company.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesRole = filterRole === 'all' || user.role === filterRole;
         return matchesSearch && matchesRole;
     });
@@ -378,7 +378,7 @@ const UsersPage = () => {
                                 <input
                                     type="text"
                                     value={newUser.name}
-                                    onChange={(e) => setNewUser({...newUser, name: e.target.value})}
+                                    onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
                                     className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                                     placeholder="Enter full name"
                                 />
@@ -389,7 +389,7 @@ const UsersPage = () => {
                                 <input
                                     type="email"
                                     value={newUser.email}
-                                    onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                                     className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                                     placeholder="Enter email address"
                                 />
@@ -400,7 +400,7 @@ const UsersPage = () => {
                                 <input
                                     type="password"
                                     value={newUser.password}
-                                    onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
                                     className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                                     placeholder="Enter password"
                                 />
@@ -411,7 +411,7 @@ const UsersPage = () => {
                                 <input
                                     type="text"
                                     value={newUser.company}
-                                    onChange={(e) => setNewUser({...newUser, company: e.target.value})}
+                                    onChange={(e) => setNewUser({ ...newUser, company: e.target.value })}
                                     className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                                     placeholder="Enter company name"
                                 />
@@ -422,7 +422,7 @@ const UsersPage = () => {
                                 <input
                                     type="tel"
                                     value={newUser.phone}
-                                    onChange={(e) => setNewUser({...newUser, phone: e.target.value})}
+                                    onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })}
                                     className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                                     placeholder="Enter phone number"
                                 />
@@ -432,7 +432,7 @@ const UsersPage = () => {
                                 <label className="block text-sm font-medium text-slate-300 mb-2">Role</label>
                                 <select
                                     value={newUser.role}
-                                    onChange={(e) => setNewUser({...newUser, role: e.target.value})}
+                                    onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
                                     className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                                 >
                                     <option value="viewer">Viewer</option>
