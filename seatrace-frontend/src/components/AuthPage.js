@@ -57,7 +57,7 @@ const AuthPage = ({ onLogin, onAuthSuccess }) => {
             let errorMessage = err.message || 'Authentication failed';
 
             if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
-                errorMessage = `Unable to connect to server at ${API_BASE_URL}. If on Vercel, check REACT_APP_API_BASE_URL setting.`;
+                errorMessage = `⚠️ Unable to connect to server at ${API_BASE_URL}. \n\nPOSSIBLE CAUSES:\n1. Backend is sleeping (Render Free Tier) - Wait 60s and try again.\n2. Incorrect API Configuration - Check REACT_APP_API_BASE_URL in Vercel settings.\n3. Backend Deployment Failed - Check Render logs.`;
             } else if (errorMessage.includes('401')) {
                 errorMessage = "Invalid credentials. Please check your email and password.";
             }

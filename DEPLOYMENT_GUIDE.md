@@ -71,3 +71,25 @@ To enable Google login in production:
 ### ❌ Frontend "Build Exited with 1"
 *   **Cause**: Warnings treated as errors.
 *   **Fix**: Ensure `CI` variable is set to `false`.
+
+---
+
+## ⚙️ Configuration Cheat Sheet
+
+### Render (Backend)
+| Variable | Value | Description |
+| :--- | :--- | :--- |
+| `Root Directory` | `backend` | **IMPORTANT**: Tells Render to build from the backend folder |
+| `PYTHON_VERSION` | `3.9.0` | (Optional) Specifies Python version |
+| `CORS_ORIGINS` | `*` | Allows frontend to connect from anywhere |
+| `PORT` | `5000` | Internal port Flask runs on (Default) |
+| `SECRET_KEY` | *(Random String)* | Security key for sessions |
+
+### Vercel (Frontend)
+| Variable | Value | Description |
+| :--- | :--- | :--- |
+| `Root Directory` | `seatrace-frontend` | **IMPORTANT**: Select this in the project settings |
+| `REACT_APP_API_BASE_URL` | `https://your-backend.onrender.com/api` | **CRITICAL**: Connects to backend. Must end in `/api` |
+| `REACT_APP_SOCKET_URL` | `https://your-backend.onrender.com` | **CRITICAL**: For real-time updates. No `/api` |
+| `CI` | `false` | Prevents build failure on warnings |
+

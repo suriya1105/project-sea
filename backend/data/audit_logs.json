@@ -381,5 +381,47 @@
     "action": "VIEW",
     "resource": "oil_spills_list",
     "details": {}
+  },
+  {
+    "timestamp": "2025-12-21T13:41:34.538380",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-21T13:41:34.550977",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "oil_spills_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-21T13:41:34.566100",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-21T13:41:34.587840",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "oil_spills_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-21T13:59:58.593827",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-21T13:59:58.822613",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "oil_spills_list",
+    "details": {}
   }
 ]
