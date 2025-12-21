@@ -57,7 +57,7 @@ const AuthPage = ({ onLogin, onAuthSuccess }) => {
             let errorMessage = err.message || 'Authentication failed';
 
             if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
-                errorMessage = "Unable to connect to server. Please check your internet connection or try again later.";
+                errorMessage = `Unable to connect to server at ${API_BASE_URL}. If on Vercel, check REACT_APP_API_BASE_URL setting.`;
             } else if (errorMessage.includes('401')) {
                 errorMessage = "Invalid credentials. Please check your email and password.";
             }
