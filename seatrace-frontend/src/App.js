@@ -20,6 +20,7 @@ import 'leaflet/dist/leaflet.css';
 
 import AuthPage from './components/AuthPage';
 import UsersPage from './components/UsersPage';
+import VesselsPage from './components/VesselsPage';
 import AIAnalysisPanel from './components/AIAnalysisPanel';
 import { API_BASE_URL, SOCKET_URL } from './config';
 
@@ -994,923 +995,877 @@ function App() {
             </div>
           )}
 
-          {/* Vessels Tab - Visible to All Roles */}
           {activeTab === 'vessels' && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-2xl font-bold font-orbitron text-white flex items-center gap-2">
-                  <Anchor className="w-6 h-6 text-cyan-400" />
-                  ACTIVE FLEET REGISTRY
-                </h2>
-                <div className="text-sm text-cyan-400/70 font-mono border border-cyan-500/30 px-3 py-1 rounded bg-slate-900/50">
-                  TOTAL VESSELS: {vessels.length}
-                </div>
-              </div>
+            <VesselsPage vessels={vessels} />
+          )}
+      </div>
+    </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {vessels.map(vessel => (
-                  <div key={vessel.imo} className="cyber-panel p-0 overflow-hidden group hover:border-cyan-400/50 transition-all duration-300">
-                    {/* Vessel Image Section */}
-                    <div className="relative h-48 w-full overflow-hidden bg-slate-900">
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent z-10"></div>
-                      <img
-                        src={vessel.image}
-                        alt={vessel.name}
-                        className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100"
-                        onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1559988583-7c055745749f?auto=format&fit=crop&q=80' }}
-                      />
-                      <div className="absolute top-3 right-3 z-20">
-                        <div
-                          className={`px-3 py-1 rounded-full text-xs font-bold font-mono border backdrop-blur-md ${vessel.risk_level === 'High' ? 'bg-red-500/20 text-red-400 border-red-500/50' :
-                            vessel.risk_level === 'Medium' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50' :
-                              'bg-green-500/20 text-green-400 border-green-500/50'
-                            }`}
-                        >
-                          {vessel.risk_level ? vessel.risk_level.toUpperCase() : 'UNKNOWN'} RISK
-                        </div>
-                      </div>
-                      <div className="absolute bottom-3 left-4 z-20">
-                        <h3 className="text-xl font-bold text-white font-orbitron tracking-wide drop-shadow-lg">{vessel.name}</h3>
-                        <div className="flex items-center gap-2 mt-1">
-                          {vessel.company_logo && <img src={vessel.company_logo} alt="Logo" className="w-4 h-4 rounded-full opacity-80" />}
-                          <span className="text-xs text-cyan-300 font-medium tracking-wider uppercase">{vessel.company_name || 'Unknown Company'}</span>
-                        </div>
-                      </div>
-                    </div>
+                  {/* Compliance Bar */ }
+  <div className="pt-2 border-t border-slate-700/50">
+    <div className="flex justify-between items-end mb-1">
+      <span className="text-xs text-slate-400 font-semibold uppercase">Compliance Score</span>
+      <span className={`text-sm font-bold font-mono ${vessel.compliance_rating > 8 ? 'text-green-400' : 'text-yellow-400'}`}>
+        {vessel.compliance_rating}/10
+      </span>
+    </div>
+    <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+      <div
+        className={`h-full rounded-full transition-all duration-1000 ${vessel.compliance_rating > 8 ? 'bg-gradient-to-r from-green-600 to-green-400' :
+          vessel.compliance_rating > 5 ? 'bg-gradient-to-r from-yellow-600 to-yellow-400' :
+            'bg-gradient-to-r from-red-600 to-red-400'
+          }`}
+        style={{ width: `${vessel.compliance_rating * 10}%` }}
+      ></div>
+    </div>
+  </div>
 
-                    {/* Vessel Details Body */}
-                    <div className="p-5 space-y-4 bg-slate-900/40">
-                      <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-sm">
-                        <div className="col-span-1">
-                          <span className="text-slate-500 text-xs uppercase block mb-0.5">Vessel Type</span>
-                          <span className="text-slate-300 font-medium">{vessel.type}</span>
-                        </div>
-                        <div className="col-span-1">
-                          <span className="text-slate-500 text-xs uppercase block mb-0.5">Flag State</span>
-                          <span className="text-slate-300 font-medium flex items-center gap-1">
-                            <span className="text-lg">🏳️</span> {vessel.flag}
-                          </span>
-                        </div>
-                        <div className="col-span-1">
-                          <span className="text-slate-500 text-xs uppercase block mb-0.5">IMO Number</span>
-                          <span className="text-cyan-400/80 font-mono">{vessel.imo}</span>
-                        </div>
-                        <div className="col-span-1">
-                          <span className="text-slate-500 text-xs uppercase block mb-0.5">Destination</span>
-                          <span className="text-slate-300 font-medium truncate">{vessel.destination || 'At Sea'}</span>
-                        </div>
-                      </div>
-
-                      {/* Compliance Bar */}
-                      <div className="pt-2 border-t border-slate-700/50">
-                        <div className="flex justify-between items-end mb-1">
-                          <span className="text-xs text-slate-400 font-semibold uppercase">Compliance Score</span>
-                          <span className={`text-sm font-bold font-mono ${vessel.compliance_rating > 8 ? 'text-green-400' : 'text-yellow-400'}`}>
-                            {vessel.compliance_rating}/10
-                          </span>
-                        </div>
-                        <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all duration-1000 ${vessel.compliance_rating > 8 ? 'bg-gradient-to-r from-green-600 to-green-400' :
-                              vessel.compliance_rating > 5 ? 'bg-gradient-to-r from-yellow-600 to-yellow-400' :
-                                'bg-gradient-to-r from-red-600 to-red-400'
-                              }`}
-                            style={{ width: `${vessel.compliance_rating * 10}%` }}
-                          ></div>
-                        </div>
-                      </div>
-
-                      {/* Action Footer */}
-                      <div className="flex justify-between items-center pt-2 gap-3">
-                        <div className="text-xs text-slate-500">
-                          Last Insp: <span className="text-slate-400">{vessel.last_inspection}</span>
-                        </div>
-                        <button className="text-xs bg-slate-800 hover:bg-cyan-900/50 text-cyan-400 border border-slate-700 hover:border-cyan-500/50 px-3 py-1.5 rounded transition-colors uppercase font-medium tracking-wider">
-                          View Details
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+  {/* Action Footer */ }
+  <div className="flex justify-between items-center pt-2 gap-3">
+    <div className="text-xs text-slate-500">
+      Last Insp: <span className="text-slate-400">{vessel.last_inspection}</span>
+    </div>
+    <button className="text-xs bg-slate-800 hover:bg-cyan-900/50 text-cyan-400 border border-slate-700 hover:border-cyan-500/50 px-3 py-1.5 rounded transition-colors uppercase font-medium tracking-wider">
+      View Details
+    </button>
+  </div>
+                </div >
+              </div >
+            ))
+}
+          </div >
+      </div >
           )}
 
-          {/* Oil Spills Tab - Operator/Admin only */}
-          {activeTab === 'spills' && userRole !== 'viewer' && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-2xl font-bold font-orbitron text-white flex items-center gap-2">
-                  <Shield className="w-6 h-6 text-red-500" />
-                  INCIDENT RESPONSE LOG
-                </h2>
-                <div className="text-sm text-red-400/70 font-mono border border-red-500/30 px-3 py-1 rounded bg-slate-900/50">
-                  ACTIVE HAZARDS: {oilSpills.length}
-                </div>
+{/* Oil Spills Tab - Operator/Admin only */ }
+{
+  activeTab === 'spills' && userRole !== 'viewer' && (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-2xl font-bold font-orbitron text-white flex items-center gap-2">
+          <Shield className="w-6 h-6 text-red-500" />
+          INCIDENT RESPONSE LOG
+        </h2>
+        <div className="text-sm text-red-400/70 font-mono border border-red-500/30 px-3 py-1 rounded bg-slate-900/50">
+          ACTIVE HAZARDS: {oilSpills.length}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {oilSpills.map(spill => (
+          <div key={spill.spill_id} className="cyber-panel p-0 overflow-hidden group hover:border-red-500/50 transition-all duration-300">
+            <div className="relative h-48 w-full overflow-hidden bg-slate-900">
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent z-10"></div>
+              <img
+                src={spill.image || 'https://images.unsplash.com/photo-1628126233061-0b445853b02c?auto=format&fit=crop&q=80'}
+                alt={spill.spill_id}
+                className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 opacity-60 group-hover:opacity-100"
+                onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1628126233061-0b445853b02c?auto=format&fit=crop&q=80' }}
+              />
+              <div className="absolute top-3 right-3 z-20">
+                <span className="px-3 py-1 rounded bg-slate-900/80 backdrop-blur border border-red-500/50 text-red-400 text-xs font-bold font-mono">
+                  CONFIDENCE: {spill.confidence}%
+                </span>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {oilSpills.map(spill => (
-                  <div key={spill.spill_id} className="cyber-panel p-0 overflow-hidden group hover:border-red-500/50 transition-all duration-300">
-                    <div className="relative h-48 w-full overflow-hidden bg-slate-900">
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent z-10"></div>
-                      <img
-                        src={spill.image || 'https://images.unsplash.com/photo-1628126233061-0b445853b02c?auto=format&fit=crop&q=80'}
-                        alt={spill.spill_id}
-                        className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 opacity-60 group-hover:opacity-100"
-                        onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1628126233061-0b445853b02c?auto=format&fit=crop&q=80' }}
-                      />
-                      <div className="absolute top-3 right-3 z-20">
-                        <span className="px-3 py-1 rounded bg-slate-900/80 backdrop-blur border border-red-500/50 text-red-400 text-xs font-bold font-mono">
-                          CONFIDENCE: {spill.confidence}%
-                        </span>
-                      </div>
-                      <div className="absolute bottom-3 left-4 z-20">
-                        <div className="flex items-center gap-2">
-                          <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${spill.severity === 'High' ? 'bg-red-600/80 text-white' :
-                            spill.severity === 'Medium' ? 'bg-orange-500/80 text-white' :
-                              'bg-yellow-500/80 text-white'
-                            }`}>
-                            {spill.severity} SEVERITY
-                          </span>
-                          <span className="text-xs text-slate-300 font-mono bg-slate-800/80 px-2 py-0.5 rounded border border-slate-600">ID: {spill.spill_id}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-5 space-y-4 bg-slate-900/40">
-                      <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-sm">
-                        <div className="col-span-2 border-b border-slate-700/50 pb-2 mb-1">
-                          <span className="text-slate-500 text-xs uppercase block">Related Vessel</span>
-                          <div className="text-white font-bold font-orbitron text-lg flex items-center gap-2">
-                            <Anchor className="w-4 h-4 text-cyan-500" /> {spill.vessel_name}
-                          </div>
-                        </div>
-
-                        <div className="col-span-1">
-                          <span className="text-slate-500 text-xs uppercase block mb-0.5">Spill Size</span>
-                          <span className="text-slate-300 font-medium">{spill.size_tons} tons</span>
-                        </div>
-                        <div className="col-span-1">
-                          <span className="text-slate-500 text-xs uppercase block mb-0.5">Affected Area</span>
-                          <span className="text-slate-300 font-medium">{spill.estimated_area_km2} km²</span>
-                        </div>
-                        <div className="col-span-1">
-                          <span className="text-slate-500 text-xs uppercase block mb-0.5">Location</span>
-                          <span className="text-cyan-400 font-mono text-xs">{spill.lat.toFixed(3)}°N, {spill.lon.toFixed(3)}°E</span>
-                        </div>
-                        <div className="col-span-1">
-                          <span className="text-slate-500 text-xs uppercase block mb-0.5">Status</span>
-                          <span className="text-slate-300 font-medium capitalize">{spill.status}</span>
-                        </div>
-                        <div className="col-span-2">
-                          <span className="text-slate-500 text-xs uppercase block mb-0.5">Reported Time</span>
-                          <span className="text-slate-400 text-xs font-mono">{spill.timestamp ? new Date(spill.timestamp).toLocaleString() : 'Timestamp unavailable'}</span>
-                        </div>
-                      </div>
-
-                      <div className="pt-3 border-t border-slate-700/50">
-                        <button className="w-full py-2 bg-red-900/20 hover:bg-red-900/40 border border-red-500/30 hover:border-red-500/60 text-red-400 text-xs font-bold uppercase tracking-wider rounded transition-colors flex items-center justify-center gap-2 group-hover:animate-pulse">
-                          <Shield className="w-4 h-4" /> Initiate Cleanup Protocol
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Reports Tab - Available to All Roles */}
-          {activeTab === 'reports' && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-2xl font-bold font-orbitron text-white flex items-center gap-2">
-                  <FileText className="w-6 h-6 text-cyan-500" />
-                  MISSION REPORTS GENERATOR
-                </h2>
-                <div className="text-sm text-cyan-400/70 font-mono border border-cyan-500/30 px-3 py-1 rounded bg-slate-900/50">
-                  SECURE ARCHIVE ACCESS
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Vessels Report Card */}
-                <div className="cyber-panel group hover:border-cyan-400/50 transition-all duration-300 flex flex-col relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                    <Anchor className="w-32 h-32 text-cyan-500" />
-                  </div>
-                  <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-3 z-10">
-                    <span className="bg-cyan-900/30 p-1.5 rounded text-cyan-400"><Clipboard className="w-5 h-5" /></span>
-                    FLEET REGISTRY
-                  </h3>
-                  <p className="text-slate-400 text-sm mb-6 flex-1 z-10">
-                    Generate comprehensive manifest of all active vessels, including compliance ratings, risk assessments, and current operational status.
-                  </p>
-                  <button
-                    className="w-full py-3 bg-gradient-to-r from-cyan-900/40 to-blue-900/40 border border-cyan-500/30 hover:border-cyan-400 text-cyan-400 font-bold uppercase tracking-wider rounded transition-all flex items-center justify-center gap-2 group-hover:shadow-[0_0_15px_rgba(34,211,238,0.2)] z-10"
-                    onClick={() => generateReport('vessels')}
-                    disabled={reportLoading}
-                  >
-                    {reportLoading ? <Loader className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                    {reportLoading ? 'COMPILING DATA...' : 'EXPORT DOSSIER (PDF)'}
-                  </button>
-                </div>
-
-                {/* Oil Spills Report Card */}
-                <div className="cyber-panel group hover:border-red-500/50 transition-all duration-300 flex flex-col relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                    <Shield className="w-32 h-32 text-red-500" />
-                  </div>
-                  <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-3 z-10">
-                    <span className="bg-red-900/30 p-1.5 rounded text-red-400"><AlertTriangle className="w-5 h-5" /></span>
-                    INCIDENT LOGS
-                  </h3>
-                  <p className="text-slate-400 text-sm mb-6 flex-1 z-10">
-                    Retrieve detailed analysis of environmental hazards, oil spill tracking data, severity classifications, and cleanup protocol status.
-                  </p>
-                  <button
-                    className="w-full py-3 bg-gradient-to-r from-red-900/40 to-orange-900/40 border border-red-500/30 hover:border-red-400 text-red-400 font-bold uppercase tracking-wider rounded transition-all flex items-center justify-center gap-2 group-hover:shadow-[0_0_15px_rgba(248,113,113,0.2)] z-10"
-                    onClick={() => generateReport('spills')}
-                    disabled={reportLoading}
-                  >
-                    {reportLoading ? <Loader className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                    {reportLoading ? 'COMPILING DATA...' : 'EXPORT INCIDENT REPORT (PDF)'}
-                  </button>
-                </div>
-
-                {/* Comprehensive Report Card */}
-                <div className="cyber-panel group hover:border-purple-500/50 transition-all duration-300 flex flex-col relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                    <Activity className="w-32 h-32 text-purple-500" />
-                  </div>
-                  <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-3 z-10">
-                    <span className="bg-purple-900/30 p-1.5 rounded text-purple-400"><FileText className="w-5 h-5" /></span>
-                    FULL DISPOSAL
-                  </h3>
-                  <p className="text-slate-400 text-sm mb-6 flex-1 z-10">
-                    Complete strategic overview combining fleet telemetry, environmental hazards, and system analytics into a single command viewing document.
-                  </p>
-                  <button
-                    className="w-full py-3 bg-gradient-to-r from-purple-900/40 to-indigo-900/40 border border-purple-500/30 hover:border-purple-400 text-purple-400 font-bold uppercase tracking-wider rounded transition-all flex items-center justify-center gap-2 group-hover:shadow-[0_0_15px_rgba(192,132,252,0.2)] z-10"
-                    onClick={() => generateReport('comprehensive')}
-                    disabled={reportLoading}
-                  >
-                    {reportLoading ? <Loader className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                    {reportLoading ? 'COMPILING DATA...' : 'EXPORT FULL BRIEF (PDF)'}
-                  </button>
-                </div>
-              </div>
-
-              {/* Recent Generated Reports (Placeholder / Visual Filler) */}
-              <div className="cyber-panel opacity-60 pointer-events-none">
-                <h3 className="text-slate-500 font-bold mb-2 text-xs uppercase tracking-wider">ARCHIVED TRANSMISSIONS (ENCRYPTED)</h3>
-                <div className="space-y-2">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="flex items-center justify-between p-2 border-b border-slate-800">
-                      <div className="flex items-center gap-3">
-                        <FileText className="w-4 h-4 text-slate-600" />
-                        <span className="text-xs text-slate-500 font-mono">SEATRACE_LOG_{20250000 + i}.enc</span>
-                      </div>
-                      <div className="text-[10px] text-slate-600">ARCHIVED</div>
-                    </div>
-                  ))}
+              <div className="absolute bottom-3 left-4 z-20">
+                <div className="flex items-center gap-2">
+                  <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${spill.severity === 'High' ? 'bg-red-600/80 text-white' :
+                    spill.severity === 'Medium' ? 'bg-orange-500/80 text-white' :
+                      'bg-yellow-500/80 text-white'
+                    }`}>
+                    {spill.severity} SEVERITY
+                  </span>
+                  <span className="text-xs text-slate-300 font-mono bg-slate-800/80 px-2 py-0.5 rounded border border-slate-600">ID: {spill.spill_id}</span>
                 </div>
               </div>
             </div>
-          )}
 
-          {/* Users Page - Admin Only */}
-          {activeTab === 'users' && userRole === 'admin' && (
-            <UsersPage />
-          )}
+            <div className="p-5 space-y-4 bg-slate-900/40">
+              <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-sm">
+                <div className="col-span-2 border-b border-slate-700/50 pb-2 mb-1">
+                  <span className="text-slate-500 text-xs uppercase block">Related Vessel</span>
+                  <div className="text-white font-bold font-orbitron text-lg flex items-center gap-2">
+                    <Anchor className="w-4 h-4 text-cyan-500" /> {spill.vessel_name}
+                  </div>
+                </div>
 
-          {/* Admin Panel - Admin Only */}
-          {activeTab === 'admin' && userRole === 'admin' && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold font-orbitron text-white flex items-center gap-2">
-                  <Shield className="w-6 h-6 text-red-500" />
-                  COMMAND CENTER STATUS: <span className="text-green-400">ONLINE</span>
-                </h2>
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-mono text-cyan-500/70 border border-cyan-500/20 px-2 py-1 rounded">SECURE CONNECTION</span>
-                  {adminPanelMessage && (
-                    <div className={`px-4 py-2 rounded border text-xs font-bold ${adminPanelMessage.includes('Error') ? 'bg-red-500/10 border-red-500 text-red-400' : 'bg-green-500/10 border-green-500 text-green-400'}`}>
-                      {adminPanelMessage}
-                    </div>
-                  )}
+                <div className="col-span-1">
+                  <span className="text-slate-500 text-xs uppercase block mb-0.5">Spill Size</span>
+                  <span className="text-slate-300 font-medium">{spill.size_tons} tons</span>
+                </div>
+                <div className="col-span-1">
+                  <span className="text-slate-500 text-xs uppercase block mb-0.5">Affected Area</span>
+                  <span className="text-slate-300 font-medium">{spill.estimated_area_km2} km²</span>
+                </div>
+                <div className="col-span-1">
+                  <span className="text-slate-500 text-xs uppercase block mb-0.5">Location</span>
+                  <span className="text-cyan-400 font-mono text-xs">{spill.lat.toFixed(3)}°N, {spill.lon.toFixed(3)}°E</span>
+                </div>
+                <div className="col-span-1">
+                  <span className="text-slate-500 text-xs uppercase block mb-0.5">Status</span>
+                  <span className="text-slate-300 font-medium capitalize">{spill.status}</span>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-slate-500 text-xs uppercase block mb-0.5">Reported Time</span>
+                  <span className="text-slate-400 text-xs font-mono">{spill.timestamp ? new Date(spill.timestamp).toLocaleString() : 'Timestamp unavailable'}</span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-                {/* User Access Management (Left Col) */}
-                <div className="lg:col-span-7 space-y-6">
-                  {/* Create User Panel */}
-                  <div className="cyber-panel p-6 border-l-4 border-l-cyan-500 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                      <UserPlus className="w-24 h-24 text-cyan-500" />
-                    </div>
-                    <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-4 border-b border-white/10 pb-2">
-                      <UserPlus className="w-5 h-5 text-cyan-400" /> PROVISION NEW CREDENTIALS
-                    </h3>
-
-                    <form onSubmit={handleCreateUser} className="space-y-4 relative z-10">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                          <label className="text-xs text-cyan-400 uppercase font-mono">Full Name</label>
-                          <input
-                            type="text"
-                            placeholder="e.g. Captain Sarah Lance"
-                            value={newUserData.name}
-                            onChange={(e) => setNewUserData({ ...newUserData, name: e.target.value })}
-                            className="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 p-2.5 placeholder-slate-600 transition-all hover:border-slate-500"
-                            required
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-xs text-cyan-400 uppercase font-mono">Email Identifier</label>
-                          <input
-                            type="email"
-                            placeholder="user@seatrace.mil"
-                            value={newUserData.email}
-                            onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
-                            className="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 p-2.5 placeholder-slate-600 transition-all hover:border-slate-500"
-                            required
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                          <label className="text-xs text-cyan-400 uppercase font-mono">Access Key (Password)</label>
-                          <input
-                            type="password"
-                            placeholder="••••••••••••"
-                            value={newUserData.password}
-                            onChange={(e) => setNewUserData({ ...newUserData, password: e.target.value })}
-                            className="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 p-2.5 placeholder-slate-600 transition-all hover:border-slate-500"
-                            required
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-xs text-cyan-400 uppercase font-mono">Affiliation</label>
-                          <input
-                            type="text"
-                            placeholder="e.g. Naval Command"
-                            value={newUserData.company}
-                            onChange={(e) => setNewUserData({ ...newUserData, company: e.target.value })}
-                            className="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 p-2.5 placeholder-slate-600 transition-all hover:border-slate-500"
-                            required
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4 items-end">
-                        <div className="space-y-1">
-                          <label className="text-xs text-cyan-400 uppercase font-mono">Clearance Level</label>
-                          <select
-                            value={newUserData.role}
-                            onChange={(e) => setNewUserData({ ...newUserData, role: e.target.value })}
-                            className="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 p-2.5 cursor-pointer hover:border-slate-500"
-                          >
-                            <option value="operator">Operator (Standard)</option>
-                            <option value="viewer">Viewer (Read Only)</option>
-                            <option value="admin">Administrator (Full)</option>
-                          </select>
-                        </div>
-                        <button
-                          type="submit"
-                          disabled={adminPanelLoading}
-                          className="w-full h-[42px] text-white bg-gradient-to-r from-cyan-700 to-blue-700 hover:from-cyan-600 hover:to-blue-600 font-bold rounded text-sm px-5 transition-all shadow-lg shadow-cyan-900/20 disabled:opacity-50 flex items-center justify-center gap-2 uppercase tracking-wider"
-                        >
-                          {adminPanelLoading ? <Loader className="w-4 h-4 animate-spin" /> : <><CheckCircle className="w-4 h-4" /> Grant Access</>}
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-
-                  {/* Users List */}
-                  <div className="cyber-panel p-0 overflow-hidden flex flex-col h-[400px]">
-                    <div className="p-4 bg-slate-800/80 border-b border-slate-700 flex justify-between items-center backdrop-blur">
-                      <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                        <Users className="w-4 h-4 text-purple-400" /> Active Personnel Registry
-                      </h3>
-                      <button
-                        onClick={fetchAllUsers}
-                        className="text-cyan-400 hover:text-white text-xs font-mono bg-cyan-900/30 hover:bg-cyan-800/50 px-3 py-1 rounded transition-all border border-cyan-500/20"
-                        disabled={adminPanelLoading}
-                      >
-                        SYNCHRONIZE DB 🔄
-                      </button>
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto custom-scrollbar p-0">
-                      <table className="w-full text-sm text-left">
-                        <thead className="text-xs text-slate-400 uppercase bg-slate-900/50 sticky top-0 backdrop-blur z-10">
-                          <tr>
-                            <th className="px-6 py-3 font-mono">Personnel</th>
-                            <th className="px-6 py-3 font-mono">Role</th>
-                            <th className="px-6 py-3 font-mono text-right">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-800/50">
-                          {allUsers.map((user, idx) => (
-                            <tr key={idx} className="bg-transparent hover:bg-slate-800/40 transition-colors group">
-                              <td className="px-6 py-3">
-                                <div className="font-bold text-white group-hover:text-cyan-400 transition-colors">{user.name}</div>
-                                <div className="text-xs text-slate-500 font-mono">{user.email}</div>
-                                <div className="text-[10px] text-slate-600 uppercase tracking-wide">{user.company}</div>
-                              </td>
-                              <td className="px-6 py-3">
-                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${user.role === 'admin' ? 'bg-purple-900/20 text-purple-400 border-purple-500/30' :
-                                  user.role === 'operator' ? 'bg-blue-900/20 text-blue-400 border-blue-500/30' :
-                                    'bg-green-900/20 text-green-400 border-green-500/30'
-                                  }`}>
-                                  {user.role}
-                                </span>
-                              </td>
-                              <td className="px-6 py-3 text-right">
-                                {user.email !== email && (
-                                  <button
-                                    onClick={() => handleDeleteUser(user.email)}
-                                    disabled={adminPanelLoading}
-                                    className="text-red-500/70 hover:text-red-400 hover:bg-red-900/20 p-1.5 rounded transition-all"
-                                    title="Revoke Access"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
-                          {allUsers.length === 0 && (
-                            <tr>
-                              <td colSpan="3" className="px-6 py-8 text-center text-slate-500 italic">No personnel records found in secure database.</td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Audit Logs (Right Col) */}
-                <div className="lg:col-span-5 h-full">
-                  <div className="cyber-panel flex flex-col h-full border-t-4 border-t-yellow-500/50">
-                    <div className="flex items-center justify-between p-4 border-b border-white/5 bg-slate-800/50">
-                      <h3 className="text-sm font-bold text-yellow-400 flex items-center gap-2 uppercase tracking-wider">
-                        <Activity className="w-4 h-4" /> System Audit Stream
-                      </h3>
-                      <button
-                        onClick={fetchAuditLogs}
-                        className="text-slate-400 hover:text-white text-xs"
-                      >
-                        <span className="animate-pulse">●</span> LIVE
-                      </button>
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1 bg-black/20 font-mono text-xs">
-                      {auditLogs.length > 0 ? (
-                        auditLogs.map((log, idx) => (
-                          <div key={idx} className="p-2.5 rounded border-l-2 border-slate-700 bg-slate-900/40 hover:bg-slate-800 hover:border-cyan-500 transition-all group">
-                            <div className="flex justify-between items-start mb-1">
-                              <span className="text-slate-500">[{new Date(log.timestamp).toLocaleTimeString()}]</span>
-                              <span className={`font-bold px-1.5 rounded ${log.action.includes('DELETE') || log.action.includes('FAIL') ? 'bg-red-900/30 text-red-500' :
-                                log.action.includes('CREATE') || log.action.includes('REGISTER') ? 'bg-green-900/30 text-green-500' :
-                                  'bg-blue-900/30 text-blue-400'
-                                }`}>{log.action}</span>
-                            </div>
-                            <div className="text-slate-300 group-hover:text-white transition-colors">{log.user_email}</div>
-                            <div className="text-slate-600 truncate mt-0.5">{log.resource}</div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="h-full flex flex-col items-center justify-center text-slate-600 opacity-50">
-                          <FileText className="w-12 h-12 mb-2" />
-                          <p>NO AUDIT TRAIL DATA</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          )}
-
-          {/* Real-Time Analysis - All Users */}
-          {activeTab === 'realtime' && (
-            <div className="realtime-analysis-container">
-              <h2>📡 Real-Time Marine Monitoring Analysis</h2>
-
-              {/* Real-time Status */}
-              <div style={{
-                backgroundColor: connectionStatus === 'connected' ? '#d1fae5' : '#fecaca',
-                border: `2px solid ${connectionStatus === 'connected' ? '#10b981' : '#ef4444'}`,
-                padding: '16px',
-                borderRadius: '8px',
-                marginBottom: '24px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px'
-              }}>
-                <div style={{
-                  width: '12px',
-                  height: '12px',
-                  borderRadius: '50%',
-                  backgroundColor: connectionStatus === 'connected' ? '#10b981' : '#ef4444',
-                  animation: 'pulse 2s infinite'
-                }}></div>
-                <div>
-                  <strong>{connectionStatus === 'connected' ? 'Connected' : 'Disconnected'}</strong>
-                  <p style={{ margin: '4px 0', fontSize: '14px', color: '#666' }}>
-                    {connectionStatus === 'connected' ? 'Receiving live updates' : 'Attempting to reconnect...'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="realtime-grid">
-                {/* Vessels Tracking Section */}
-                <div className="realtime-section">
-                  <h3>⚓ Vessel Locations & Movement</h3>
-                  <div className="tracking-list">
-                    {vessels.map((vessel) => (
-                      <div key={vessel.imo} className="tracking-item">
-                        <div className="tracking-header">
-                          <h4>{vessel.name}</h4>
-                          <span className="risk-badge" style={{ backgroundColor: getRiskColor(vessel.risk_level) }}>
-                            {vessel.risk_level}
-                          </span>
-                        </div>
-                        <div className="tracking-data">
-                          <div className="data-row">
-                            <span className="data-label">📍 Location</span>
-                            <span className="data-value">{vessel.lat.toFixed(4)}° N, {vessel.lon.toFixed(4)}° E</span>
-                          </div>
-                          <div className="data-row">
-                            <span className="data-label">⚡ Speed</span>
-                            <span className="data-value">{vessel.speed} knots</span>
-                          </div>
-                          <div className="data-row">
-                            <span className="data-label">🧭 Course</span>
-                            <span className="data-value">{vessel.course}°</span>
-                          </div>
-                          <div className="data-row">
-                            <span className="data-label">🎯 Destination</span>
-                            <span className="data-value">{vessel.destination}</span>
-                          </div>
-                          <div className="data-row">
-                            <span className="data-label">⭐ Compliance</span>
-                            <span className="data-value">{vessel.compliance_rating}/10</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Oil Spills Monitoring Section */}
-                <div className="realtime-section">
-                  <h3>🛢️ Oil Spill Incidents & Status</h3>
-                  <div className="tracking-list">
-                    {oilSpills.length > 0 ? (
-                      oilSpills.map((spill) => (
-                        <div key={spill.spill_id} className="tracking-item spill-item">
-                          <div className="tracking-header">
-                            <h4>{spill.spill_id}</h4>
-                            <span className="severity-badge" style={{ backgroundColor: getSeverityColor(spill.severity) }}>
-                              {spill.severity}
-                            </span>
-                          </div>
-                          <div className="tracking-data">
-                            <div className="data-row">
-                              <span className="data-label">📍 Location</span>
-                              <span className="data-value">{spill.lat.toFixed(4)}° N, {spill.lon.toFixed(4)}° E</span>
-                            </div>
-                            <div className="data-row">
-                              <span className="data-label">🚢 Vessel</span>
-                              <span className="data-value">{spill.vessel_name}</span>
-                            </div>
-                            <div className="data-row">
-                              <span className="data-label">📏 Size</span>
-                              <span className="data-value">{spill.size_tons} tons</span>
-                            </div>
-                            <div className="data-row">
-                              <span className="data-label">📐 Area</span>
-                              <span className="data-value">{spill.estimated_area_km2} km²</span>
-                            </div>
-                            <div className="data-row">
-                              <span className="data-label">🎯 Confidence</span>
-                              <span className="data-value">{spill.confidence}%</span>
-                            </div>
-                            <div className="data-row">
-                              <span className="data-label">📊 Status</span>
-                              <span className="data-value">{spill.status}</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div style={{
-                        padding: '24px',
-                        textAlign: 'center',
-                        color: '#10b981',
-                        backgroundColor: '#f0fdf4',
-                        borderRadius: '8px',
-                        border: '1px solid #bbf7d0'
-                      }}>
-                        <p>✓ No oil spill incidents detected</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Download Real-Time Analysis Report */}
-              <div style={{ marginTop: '24px', padding: '20px', backgroundColor: '#f9fafb', borderRadius: '12px' }}>
-                <h3 style={{ marginBottom: '16px' }}>📥 Export Real-Time Analysis</h3>
-                <button
-                  className="download-btn"
-                  onClick={() => generateReport('realtime')}
-                  disabled={reportLoading}
-                  style={{ width: '100%' }}
-                >
-                  {reportLoading ? '⏳ Generating PDF Report...' : '📄 Download Real-Time Analysis Report'}
+              <div className="pt-3 border-t border-slate-700/50">
+                <button className="w-full py-2 bg-red-900/20 hover:bg-red-900/40 border border-red-500/30 hover:border-red-500/60 text-red-400 text-xs font-bold uppercase tracking-wider rounded transition-colors flex items-center justify-center gap-2 group-hover:animate-pulse">
+                  <Shield className="w-4 h-4" /> Initiate Cleanup Protocol
                 </button>
               </div>
             </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+{/* Reports Tab - Available to All Roles */ }
+{
+  activeTab === 'reports' && (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-2xl font-bold font-orbitron text-white flex items-center gap-2">
+          <FileText className="w-6 h-6 text-cyan-500" />
+          MISSION REPORTS GENERATOR
+        </h2>
+        <div className="text-sm text-cyan-400/70 font-mono border border-cyan-500/30 px-3 py-1 rounded bg-slate-900/50">
+          SECURE ARCHIVE ACCESS
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Vessels Report Card */}
+        <div className="cyber-panel group hover:border-cyan-400/50 transition-all duration-300 flex flex-col relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+            <Anchor className="w-32 h-32 text-cyan-500" />
+          </div>
+          <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-3 z-10">
+            <span className="bg-cyan-900/30 p-1.5 rounded text-cyan-400"><Clipboard className="w-5 h-5" /></span>
+            FLEET REGISTRY
+          </h3>
+          <p className="text-slate-400 text-sm mb-6 flex-1 z-10">
+            Generate comprehensive manifest of all active vessels, including compliance ratings, risk assessments, and current operational status.
+          </p>
+          <button
+            className="w-full py-3 bg-gradient-to-r from-cyan-900/40 to-blue-900/40 border border-cyan-500/30 hover:border-cyan-400 text-cyan-400 font-bold uppercase tracking-wider rounded transition-all flex items-center justify-center gap-2 group-hover:shadow-[0_0_15px_rgba(34,211,238,0.2)] z-10"
+            onClick={() => generateReport('vessels')}
+            disabled={reportLoading}
+          >
+            {reportLoading ? <Loader className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+            {reportLoading ? 'COMPILING DATA...' : 'EXPORT DOSSIER (PDF)'}
+          </button>
+        </div>
+
+        {/* Oil Spills Report Card */}
+        <div className="cyber-panel group hover:border-red-500/50 transition-all duration-300 flex flex-col relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+            <Shield className="w-32 h-32 text-red-500" />
+          </div>
+          <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-3 z-10">
+            <span className="bg-red-900/30 p-1.5 rounded text-red-400"><AlertTriangle className="w-5 h-5" /></span>
+            INCIDENT LOGS
+          </h3>
+          <p className="text-slate-400 text-sm mb-6 flex-1 z-10">
+            Retrieve detailed analysis of environmental hazards, oil spill tracking data, severity classifications, and cleanup protocol status.
+          </p>
+          <button
+            className="w-full py-3 bg-gradient-to-r from-red-900/40 to-orange-900/40 border border-red-500/30 hover:border-red-400 text-red-400 font-bold uppercase tracking-wider rounded transition-all flex items-center justify-center gap-2 group-hover:shadow-[0_0_15px_rgba(248,113,113,0.2)] z-10"
+            onClick={() => generateReport('spills')}
+            disabled={reportLoading}
+          >
+            {reportLoading ? <Loader className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+            {reportLoading ? 'COMPILING DATA...' : 'EXPORT INCIDENT REPORT (PDF)'}
+          </button>
+        </div>
+
+        {/* Comprehensive Report Card */}
+        <div className="cyber-panel group hover:border-purple-500/50 transition-all duration-300 flex flex-col relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+            <Activity className="w-32 h-32 text-purple-500" />
+          </div>
+          <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-3 z-10">
+            <span className="bg-purple-900/30 p-1.5 rounded text-purple-400"><FileText className="w-5 h-5" /></span>
+            FULL DISPOSAL
+          </h3>
+          <p className="text-slate-400 text-sm mb-6 flex-1 z-10">
+            Complete strategic overview combining fleet telemetry, environmental hazards, and system analytics into a single command viewing document.
+          </p>
+          <button
+            className="w-full py-3 bg-gradient-to-r from-purple-900/40 to-indigo-900/40 border border-purple-500/30 hover:border-purple-400 text-purple-400 font-bold uppercase tracking-wider rounded transition-all flex items-center justify-center gap-2 group-hover:shadow-[0_0_15px_rgba(192,132,252,0.2)] z-10"
+            onClick={() => generateReport('comprehensive')}
+            disabled={reportLoading}
+          >
+            {reportLoading ? <Loader className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+            {reportLoading ? 'COMPILING DATA...' : 'EXPORT FULL BRIEF (PDF)'}
+          </button>
+        </div>
+      </div>
+
+      {/* Recent Generated Reports (Placeholder / Visual Filler) */}
+      <div className="cyber-panel opacity-60 pointer-events-none">
+        <h3 className="text-slate-500 font-bold mb-2 text-xs uppercase tracking-wider">ARCHIVED TRANSMISSIONS (ENCRYPTED)</h3>
+        <div className="space-y-2">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="flex items-center justify-between p-2 border-b border-slate-800">
+              <div className="flex items-center gap-3">
+                <FileText className="w-4 h-4 text-slate-600" />
+                <span className="text-xs text-slate-500 font-mono">SEATRACE_LOG_{20250000 + i}.enc</span>
+              </div>
+              <div className="text-[10px] text-slate-600">ARCHIVED</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+{/* Users Page - Admin Only */ }
+{
+  activeTab === 'users' && userRole === 'admin' && (
+    <UsersPage />
+  )
+}
+
+{/* Admin Panel - Admin Only */ }
+{
+  activeTab === 'admin' && userRole === 'admin' && (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-2xl font-bold font-orbitron text-white flex items-center gap-2">
+          <Shield className="w-6 h-6 text-red-500" />
+          COMMAND CENTER STATUS: <span className="text-green-400">ONLINE</span>
+        </h2>
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-mono text-cyan-500/70 border border-cyan-500/20 px-2 py-1 rounded">SECURE CONNECTION</span>
+          {adminPanelMessage && (
+            <div className={`px-4 py-2 rounded border text-xs font-bold ${adminPanelMessage.includes('Error') ? 'bg-red-500/10 border-red-500 text-red-400' : 'bg-green-500/10 border-green-500 text-green-400'}`}>
+              {adminPanelMessage}
+            </div>
           )}
+        </div>
+      </div>
 
-          {/* Map - All roles */}
-          {activeTab === 'map' && (
-            <div className="flex-1 flex flex-col h-full cyber-panel p-0 overflow-hidden relative" style={{ height: 'calc(100vh - 100px)' }}>
-              <div className="absolute inset-0 z-0 map-radar-overlay"></div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-              {/* Map Controls Overlay */}
-              <div className="absolute top-4 right-4 z-[500] flex flex-col gap-2">
-                <div className="bg-slate-900/80 backdrop-blur border border-cyan-500/30 p-2 rounded text-cyan-400 text-xs font-mono">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-                    MEDITERRANEAN MONITOR
-                  </div>
-                  <div>LAT: 34.0000 | LON: 18.0000</div>
+        {/* User Access Management (Left Col) */}
+        <div className="lg:col-span-7 space-y-6">
+          {/* Create User Panel */}
+          <div className="cyber-panel p-6 border-l-4 border-l-cyan-500 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <UserPlus className="w-24 h-24 text-cyan-500" />
+            </div>
+            <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-4 border-b border-white/10 pb-2">
+              <UserPlus className="w-5 h-5 text-cyan-400" /> PROVISION NEW CREDENTIALS
+            </h3>
+
+            <form onSubmit={handleCreateUser} className="space-y-4 relative z-10">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs text-cyan-400 uppercase font-mono">Full Name</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Captain Sarah Lance"
+                    value={newUserData.name}
+                    onChange={(e) => setNewUserData({ ...newUserData, name: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 p-2.5 placeholder-slate-600 transition-all hover:border-slate-500"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs text-cyan-400 uppercase font-mono">Email Identifier</label>
+                  <input
+                    type="email"
+                    placeholder="user@seatrace.mil"
+                    value={newUserData.email}
+                    onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 p-2.5 placeholder-slate-600 transition-all hover:border-slate-500"
+                    required
+                  />
                 </div>
               </div>
 
-              {/* Mediterranean Heatmap Map */}
-              <MapContainer
-                center={[34.0, 18.0]}
-                zoom={6}
-                style={{ height: '100%', width: '100%', minHeight: '600px' }}
-                className="z-0 bg-slate-900"
-                key={activeTab} // Force re-render on tab switch
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs text-cyan-400 uppercase font-mono">Access Key (Password)</label>
+                  <input
+                    type="password"
+                    placeholder="••••••••••••"
+                    value={newUserData.password}
+                    onChange={(e) => setNewUserData({ ...newUserData, password: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 p-2.5 placeholder-slate-600 transition-all hover:border-slate-500"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs text-cyan-400 uppercase font-mono">Affiliation</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Naval Command"
+                    value={newUserData.company}
+                    onChange={(e) => setNewUserData({ ...newUserData, company: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 p-2.5 placeholder-slate-600 transition-all hover:border-slate-500"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 items-end">
+                <div className="space-y-1">
+                  <label className="text-xs text-cyan-400 uppercase font-mono">Clearance Level</label>
+                  <select
+                    value={newUserData.role}
+                    onChange={(e) => setNewUserData({ ...newUserData, role: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 p-2.5 cursor-pointer hover:border-slate-500"
+                  >
+                    <option value="operator">Operator (Standard)</option>
+                    <option value="viewer">Viewer (Read Only)</option>
+                    <option value="admin">Administrator (Full)</option>
+                  </select>
+                </div>
+                <button
+                  type="submit"
+                  disabled={adminPanelLoading}
+                  className="w-full h-[42px] text-white bg-gradient-to-r from-cyan-700 to-blue-700 hover:from-cyan-600 hover:to-blue-600 font-bold rounded text-sm px-5 transition-all shadow-lg shadow-cyan-900/20 disabled:opacity-50 flex items-center justify-center gap-2 uppercase tracking-wider"
+                >
+                  {adminPanelLoading ? <Loader className="w-4 h-4 animate-spin" /> : <><CheckCircle className="w-4 h-4" /> Grant Access</>}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Users List */}
+          <div className="cyber-panel p-0 overflow-hidden flex flex-col h-[400px]">
+            <div className="p-4 bg-slate-800/80 border-b border-slate-700 flex justify-between items-center backdrop-blur">
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <Users className="w-4 h-4 text-purple-400" /> Active Personnel Registry
+              </h3>
+              <button
+                onClick={fetchAllUsers}
+                className="text-cyan-400 hover:text-white text-xs font-mono bg-cyan-900/30 hover:bg-cyan-800/50 px-3 py-1 rounded transition-all border border-cyan-500/20"
+                disabled={adminPanelLoading}
               >
-                <LayersControl position="topright">
-                  <LayersControl.BaseLayer checked name="Deep Ocean (Dark)">
-                    <TileLayer
-                      url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                    />
-                  </LayersControl.BaseLayer>
-                  <LayersControl.BaseLayer name="Satellite Mode">
-                    <TileLayer
-                      url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                      attribution='Tiles &copy; Esri &mdash; Source: Esri'
-                    />
-                  </LayersControl.BaseLayer>
-                </LayersControl>
-
-                {/* Heatmap Simulation (Mediterranean Density) */}
-                {/* Blue Base (Low Density) */}
-                <Circle center={[34.5, 18.5]} radius={400000} pathOptions={{ color: 'transparent', fillColor: '#0000FF', fillOpacity: 0.2 }} />
-                <Circle center={[36.0, 15.0]} radius={350000} pathOptions={{ color: 'transparent', fillColor: '#0000FF', fillOpacity: 0.2 }} />
-
-                {/* Cyan/Green (Medium Density) */}
-                <Circle center={[34.5, 19.0]} radius={200000} pathOptions={{ color: 'transparent', fillColor: '#00FFFF', fillOpacity: 0.3 }} />
-                <Circle center={[35.5, 16.0]} radius={180000} pathOptions={{ color: 'transparent', fillColor: '#00FF00', fillOpacity: 0.3 }} />
-
-                {/* Yellow (High Density) */}
-                <Circle center={[34.8, 19.5]} radius={100000} pathOptions={{ color: 'transparent', fillColor: '#FFFF00', fillOpacity: 0.4 }} />
-
-                {/* Red (Critical Density - Simulated Hotspots) */}
-                {[
-                  [34.8, 19.5], [35.2, 16.5], [33.5, 20.0], [36.0, 14.5], [34.0, 18.0],
-                  [35.8, 15.2], [33.2, 21.5], [34.5, 17.5], [35.0, 19.0], [33.8, 18.5]
-                ].map((pos, i) => (
-                  <Circle key={i} center={pos} radius={30000} pathOptions={{ color: 'transparent', fillColor: '#FF0000', fillOpacity: 0.5, className: 'animate-pulse' }} />
-                ))}
-
-                {/* Vessels */}
-                {vessels.map(vessel => (
-                  <div key={vessel.imo}>
-                    <Marker position={[vessel.lat, vessel.lon]}>
-                      {/* ... existing marker content ... keeping it simple for now or reusing existing logic if it was cleaner in previous code */}
-                      <Popup className="cyber-popup">
-                        {/* Simplified popup for now to ensure replacement works */}
-                        <div className="p-2 bg-slate-900 text-cyan-400"><strong>{vessel.name}</strong></div>
-                      </Popup>
-                    </Marker>
-                  </div>
-                ))}
-
-              </MapContainer>
+                SYNCHRONIZE DB 🔄
+              </button>
             </div>
-          )}
-          {activeTab === 'mapAnalysis' && userRole === 'viewer' && (
-            <div className="map-container">
-              <h2>🗺️ Map Analysis - Vessel Locations & Status</h2>
-              <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', marginBottom: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-                <p style={{ color: '#666', marginBottom: '10px' }}>View real-time vessel locations and maritime activity in the Indian Ocean region. Download vessel images for analysis.</p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginTop: '15px' }}>
-                  {vessels.slice(0, 5).map(vessel => (
-                    <div key={vessel.imo} style={{
-                      backgroundColor: '#f9fafb',
-                      padding: '15px',
-                      borderRadius: '8px',
-                      border: '1px solid #e5e7eb',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s'
-                    }}>
-                      <div style={{
-                        backgroundImage: `url('${vessel.image}')`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        height: '120px',
-                        borderRadius: '6px',
-                        marginBottom: '10px'
-                      }}></div>
-                      <h4 style={{ marginBottom: '5px', color: '#1f2937' }}>{vessel.name}</h4>
-                      <p style={{ fontSize: '12px', color: '#666', margin: '3px 0' }}>Type: {vessel.type}</p>
-                      <p style={{ fontSize: '12px', color: '#666', margin: '3px 0' }}>Location: {vessel.lat.toFixed(2)}°N, {vessel.lon.toFixed(2)}°E</p>
-                      <p style={{ fontSize: '12px', color: '#666', margin: '3px 0' }}>Speed: {vessel.speed} knots</p>
-                      <button
-                        onClick={() => {
-                          const link = document.createElement('a');
-                          link.href = vessel.image;
-                          link.download = `${vessel.name}-vessel-image.jpg`;
-                          link.click();
-                        }}
-                        style={{
-                          width: '100%',
-                          marginTop: '10px',
-                          padding: '8px',
-                          backgroundColor: '#2563eb',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          transition: 'background 0.3s'
-                        }}
-                        onMouseOver={(e) => e.target.style.backgroundColor = '#1e40af'}
-                        onMouseOut={(e) => e.target.style.backgroundColor = '#2563eb'}
-                      >
-                        📥 Download Image
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
 
-              {/* Read-only Map for Viewers */}
-              <MapContainer center={[20, 78]} zoom={4} style={{ height: '100%', width: '100%' }}>
-                <LayersControl position="topright">
-                  <LayersControl.BaseLayer checked name="OpenStreetMap">
-                    <TileLayer
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    />
-                  </LayersControl.BaseLayer>
-
-                  <LayersControl.BaseLayer name="Satellite (Esri)">
-                    <TileLayer
-                      url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                      attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-                    />
-                  </LayersControl.BaseLayer>
-
-                  <LayersControl.BaseLayer name="Dark Matter">
-                    <TileLayer
-                      url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                    />
-                  </LayersControl.BaseLayer>
-                </LayersControl>
-                {vessels.map(vessel => {
-                  const shipIcon = L.divIcon({
-                    html: `<div style="background: linear-gradient(135deg, #2563eb, #764ba2); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);" title="${vessel.name}">⚓</div>`,
-                    iconSize: [40, 40],
-                    className: 'ship-icon'
-                  });
-
-                  return (
-                    <Marker
-                      key={vessel.imo}
-                      position={[vessel.lat, vessel.lon]}
-                      icon={shipIcon}
-                    >
-                      <Popup>
-                        <div className="popup-content">
-                          <img src={vessel.image} alt={vessel.name} style={{ width: '100%', marginBottom: '10px', borderRadius: '5px' }} />
-                          <h4>{vessel.name}</h4>
-                          <p><strong>Type:</strong> {vessel.type}</p>
-                          <p><strong>Location:</strong> {vessel.lat.toFixed(2)}°N, {vessel.lon.toFixed(2)}°E</p>
-                          <p><strong>Speed:</strong> {vessel.speed} knots</p>
-                          <p><strong>Destination:</strong> {vessel.destination}</p>
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-0">
+              <table className="w-full text-sm text-left">
+                <thead className="text-xs text-slate-400 uppercase bg-slate-900/50 sticky top-0 backdrop-blur z-10">
+                  <tr>
+                    <th className="px-6 py-3 font-mono">Personnel</th>
+                    <th className="px-6 py-3 font-mono">Role</th>
+                    <th className="px-6 py-3 font-mono text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/50">
+                  {allUsers.map((user, idx) => (
+                    <tr key={idx} className="bg-transparent hover:bg-slate-800/40 transition-colors group">
+                      <td className="px-6 py-3">
+                        <div className="font-bold text-white group-hover:text-cyan-400 transition-colors">{user.name}</div>
+                        <div className="text-xs text-slate-500 font-mono">{user.email}</div>
+                        <div className="text-[10px] text-slate-600 uppercase tracking-wide">{user.company}</div>
+                      </td>
+                      <td className="px-6 py-3">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${user.role === 'admin' ? 'bg-purple-900/20 text-purple-400 border-purple-500/30' :
+                          user.role === 'operator' ? 'bg-blue-900/20 text-blue-400 border-blue-500/30' :
+                            'bg-green-900/20 text-green-400 border-green-500/30'
+                          }`}>
+                          {user.role}
+                        </span>
+                      </td>
+                      <td className="px-6 py-3 text-right">
+                        {user.email !== email && (
                           <button
-                            onClick={() => {
-                              const link = document.createElement('a');
-                              link.href = vessel.image;
-                              link.download = `${vessel.name}-vessel-image.jpg`;
-                              link.click();
-                            }}
-                            style={{
-                              width: '100%',
-                              marginTop: '10px',
-                              padding: '8px',
-                              backgroundColor: '#10b981',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '4px',
-                              cursor: 'pointer',
-                              fontSize: '12px',
-                              fontWeight: '600'
-                            }}
+                            onClick={() => handleDeleteUser(user.email)}
+                            disabled={adminPanelLoading}
+                            className="text-red-500/70 hover:text-red-400 hover:bg-red-900/20 p-1.5 rounded transition-all"
+                            title="Revoke Access"
                           >
-                            📥 Download Image
+                            <Trash2 className="w-4 h-4" />
                           </button>
-                        </div>
-                      </Popup>
-                    </Marker>
-                  );
-                })}
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                  {allUsers.length === 0 && (
+                    <tr>
+                      <td colSpan="3" className="px-6 py-8 text-center text-slate-500 italic">No personnel records found in secure database.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
 
-                {/* Oil Spills for Viewers - Read Only */}
-                {oilSpills.map(spill => {
-                  const spillIcon = L.divIcon({
-                    html: `<div style="background: ${getSeverityColor(spill.severity)}; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); border: 2px solid white;" title="${spill.spill_id}">🛢️</div>`,
-                    iconSize: [36, 36],
-                    className: 'oil-spill-icon'
-                  });
+        {/* Audit Logs (Right Col) */}
+        <div className="lg:col-span-5 h-full">
+          <div className="cyber-panel flex flex-col h-full border-t-4 border-t-yellow-500/50">
+            <div className="flex items-center justify-between p-4 border-b border-white/5 bg-slate-800/50">
+              <h3 className="text-sm font-bold text-yellow-400 flex items-center gap-2 uppercase tracking-wider">
+                <Activity className="w-4 h-4" /> System Audit Stream
+              </h3>
+              <button
+                onClick={fetchAuditLogs}
+                className="text-slate-400 hover:text-white text-xs"
+              >
+                <span className="animate-pulse">●</span> LIVE
+              </button>
+            </div>
 
-                  return (
-                    <Marker
-                      key={spill.spill_id}
-                      position={[spill.lat, spill.lon]}
-                      icon={spillIcon}
-                    >
-                      <Popup>
-                        <div className="popup-content">
-                          <img src={spill.image} alt={spill.spill_id} style={{ width: '100%', marginBottom: '12px', borderRadius: '6px', maxHeight: '150px', objectFit: 'cover' }} />
-                          <h4 style={{ marginBottom: '8px', color: '#1f2937' }}>🛢️ {spill.spill_id}</h4>
-                          <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Vessel:</strong> {spill.vessel_name}</p>
-                          <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Severity:</strong> <span style={{
-                            backgroundColor: getSeverityColor(spill.severity),
-                            color: 'white',
-                            padding: '2px 6px',
-                            borderRadius: '3px',
-                            fontSize: '11px'
-                          }}>{spill.severity}</span></p>
-                          <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Size:</strong> {spill.size_tons} tons</p>
-                          <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Area:</strong> {spill.estimated_area_km2} km²</p>
-                        </div>
-                      </Popup>
-                    </Marker>
-                  );
-                })}
-              </MapContainer>
-
-              <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-                <h3>📊 Vessel Analysis Summary</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginTop: '15px' }}>
-                  <div style={{ padding: '15px', backgroundColor: '#f0f9ff', borderRadius: '8px', borderLeft: '4px solid #2563eb' }}>
-                    <p style={{ color: '#666', fontSize: '12px', margin: '0 0 5px 0' }}>Total Vessels Tracked</p>
-                    <h3 style={{ color: '#2563eb', margin: '0', fontSize: '24px' }}>{vessels.length}</h3>
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1 bg-black/20 font-mono text-xs">
+              {auditLogs.length > 0 ? (
+                auditLogs.map((log, idx) => (
+                  <div key={idx} className="p-2.5 rounded border-l-2 border-slate-700 bg-slate-900/40 hover:bg-slate-800 hover:border-cyan-500 transition-all group">
+                    <div className="flex justify-between items-start mb-1">
+                      <span className="text-slate-500">[{new Date(log.timestamp).toLocaleTimeString()}]</span>
+                      <span className={`font-bold px-1.5 rounded ${log.action.includes('DELETE') || log.action.includes('FAIL') ? 'bg-red-900/30 text-red-500' :
+                        log.action.includes('CREATE') || log.action.includes('REGISTER') ? 'bg-green-900/30 text-green-500' :
+                          'bg-blue-900/30 text-blue-400'
+                        }`}>{log.action}</span>
+                    </div>
+                    <div className="text-slate-300 group-hover:text-white transition-colors">{log.user_email}</div>
+                    <div className="text-slate-600 truncate mt-0.5">{log.resource}</div>
                   </div>
-                  <div style={{ padding: '15px', backgroundColor: '#f0fdf4', borderRadius: '8px', borderLeft: '4px solid #10b981' }}>
-                    <p style={{ color: '#666', fontSize: '12px', margin: '0 0 5px 0' }}>Active Vessels</p>
-                    <h3 style={{ color: '#10b981', margin: '0', fontSize: '24px' }}>{vessels.filter(v => v.status === 'Active').length}</h3>
+                ))
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center text-slate-600 opacity-50">
+                  <FileText className="w-12 h-12 mb-2" />
+                  <p>NO AUDIT TRAIL DATA</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  )
+}
+
+{/* Real-Time Analysis - All Users */ }
+{
+  activeTab === 'realtime' && (
+    <div className="realtime-analysis-container">
+      <h2>📡 Real-Time Marine Monitoring Analysis</h2>
+
+      {/* Real-time Status */}
+      <div style={{
+        backgroundColor: connectionStatus === 'connected' ? '#d1fae5' : '#fecaca',
+        border: `2px solid ${connectionStatus === 'connected' ? '#10b981' : '#ef4444'}`,
+        padding: '16px',
+        borderRadius: '8px',
+        marginBottom: '24px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px'
+      }}>
+        <div style={{
+          width: '12px',
+          height: '12px',
+          borderRadius: '50%',
+          backgroundColor: connectionStatus === 'connected' ? '#10b981' : '#ef4444',
+          animation: 'pulse 2s infinite'
+        }}></div>
+        <div>
+          <strong>{connectionStatus === 'connected' ? 'Connected' : 'Disconnected'}</strong>
+          <p style={{ margin: '4px 0', fontSize: '14px', color: '#666' }}>
+            {connectionStatus === 'connected' ? 'Receiving live updates' : 'Attempting to reconnect...'}
+          </p>
+        </div>
+      </div>
+
+      <div className="realtime-grid">
+        {/* Vessels Tracking Section */}
+        <div className="realtime-section">
+          <h3>⚓ Vessel Locations & Movement</h3>
+          <div className="tracking-list">
+            {vessels.map((vessel) => (
+              <div key={vessel.imo} className="tracking-item">
+                <div className="tracking-header">
+                  <h4>{vessel.name}</h4>
+                  <span className="risk-badge" style={{ backgroundColor: getRiskColor(vessel.risk_level) }}>
+                    {vessel.risk_level}
+                  </span>
+                </div>
+                <div className="tracking-data">
+                  <div className="data-row">
+                    <span className="data-label">📍 Location</span>
+                    <span className="data-value">{vessel.lat.toFixed(4)}° N, {vessel.lon.toFixed(4)}° E</span>
                   </div>
-                  <div style={{ padding: '15px', backgroundColor: '#fef3c7', borderRadius: '8px', borderLeft: '4px solid #f59e0b' }}>
-                    <p style={{ color: '#666', fontSize: '12px', margin: '0 0 5px 0' }}>Average Speed (knots)</p>
-                    <h3 style={{ color: '#f59e0b', margin: '0', fontSize: '24px' }}>{(vessels.reduce((sum, v) => sum + v.speed, 0) / vessels.length).toFixed(1)}</h3>
+                  <div className="data-row">
+                    <span className="data-label">⚡ Speed</span>
+                    <span className="data-value">{vessel.speed} knots</span>
+                  </div>
+                  <div className="data-row">
+                    <span className="data-label">🧭 Course</span>
+                    <span className="data-value">{vessel.course}°</span>
+                  </div>
+                  <div className="data-row">
+                    <span className="data-label">🎯 Destination</span>
+                    <span className="data-value">{vessel.destination}</span>
+                  </div>
+                  <div className="data-row">
+                    <span className="data-label">⭐ Compliance</span>
+                    <span className="data-value">{vessel.compliance_rating}/10</span>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            ))}
+          </div>
+        </div>
 
-          {/* Footer */}
-          <footer className="app-footer">
-            <div className="footer-content">
-              <p>&copy; 2025 SeaTrace Maritime Intelligence System. Developed by <strong>Suriya</strong>. All rights reserved.</p>
-              <p style={{ fontSize: '12px', color: 'rgba(100,100,100,0.7)', marginTop: '4px' }}>Advanced Ocean Monitoring | Environmental Protection | Real-Time Analytics</p>
+        {/* Oil Spills Monitoring Section */}
+        <div className="realtime-section">
+          <h3>🛢️ Oil Spill Incidents & Status</h3>
+          <div className="tracking-list">
+            {oilSpills.length > 0 ? (
+              oilSpills.map((spill) => (
+                <div key={spill.spill_id} className="tracking-item spill-item">
+                  <div className="tracking-header">
+                    <h4>{spill.spill_id}</h4>
+                    <span className="severity-badge" style={{ backgroundColor: getSeverityColor(spill.severity) }}>
+                      {spill.severity}
+                    </span>
+                  </div>
+                  <div className="tracking-data">
+                    <div className="data-row">
+                      <span className="data-label">📍 Location</span>
+                      <span className="data-value">{spill.lat.toFixed(4)}° N, {spill.lon.toFixed(4)}° E</span>
+                    </div>
+                    <div className="data-row">
+                      <span className="data-label">🚢 Vessel</span>
+                      <span className="data-value">{spill.vessel_name}</span>
+                    </div>
+                    <div className="data-row">
+                      <span className="data-label">📏 Size</span>
+                      <span className="data-value">{spill.size_tons} tons</span>
+                    </div>
+                    <div className="data-row">
+                      <span className="data-label">📐 Area</span>
+                      <span className="data-value">{spill.estimated_area_km2} km²</span>
+                    </div>
+                    <div className="data-row">
+                      <span className="data-label">🎯 Confidence</span>
+                      <span className="data-value">{spill.confidence}%</span>
+                    </div>
+                    <div className="data-row">
+                      <span className="data-label">📊 Status</span>
+                      <span className="data-value">{spill.status}</span>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div style={{
+                padding: '24px',
+                textAlign: 'center',
+                color: '#10b981',
+                backgroundColor: '#f0fdf4',
+                borderRadius: '8px',
+                border: '1px solid #bbf7d0'
+              }}>
+                <p>✓ No oil spill incidents detected</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Download Real-Time Analysis Report */}
+      <div style={{ marginTop: '24px', padding: '20px', backgroundColor: '#f9fafb', borderRadius: '12px' }}>
+        <h3 style={{ marginBottom: '16px' }}>📥 Export Real-Time Analysis</h3>
+        <button
+          className="download-btn"
+          onClick={() => generateReport('realtime')}
+          disabled={reportLoading}
+          style={{ width: '100%' }}
+        >
+          {reportLoading ? '⏳ Generating PDF Report...' : '📄 Download Real-Time Analysis Report'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+{/* Map - All roles */ }
+{
+  activeTab === 'map' && (
+    <div className="flex-1 flex flex-col h-full cyber-panel p-0 overflow-hidden relative" style={{ height: 'calc(100vh - 100px)' }}>
+      <div className="absolute inset-0 z-0 map-radar-overlay"></div>
+
+      {/* Map Controls Overlay */}
+      <div className="absolute top-4 right-4 z-[500] flex flex-col gap-2">
+        <div className="bg-slate-900/80 backdrop-blur border border-cyan-500/30 p-2 rounded text-cyan-400 text-xs font-mono">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+            MEDITERRANEAN MONITOR
+          </div>
+          <div>LAT: 34.0000 | LON: 18.0000</div>
+        </div>
+      </div>
+
+      {/* Mediterranean Heatmap Map */}
+      <MapContainer
+        center={[34.0, 18.0]}
+        zoom={6}
+        style={{ height: '100%', width: '100%', minHeight: '600px' }}
+        className="z-0 bg-slate-900"
+        key={activeTab} // Force re-render on tab switch
+      >
+        <LayersControl position="topright">
+          <LayersControl.BaseLayer checked name="Deep Ocean (Dark)">
+            <TileLayer
+              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            />
+          </LayersControl.BaseLayer>
+          <LayersControl.BaseLayer name="Satellite Mode">
+            <TileLayer
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+              attribution='Tiles &copy; Esri &mdash; Source: Esri'
+            />
+          </LayersControl.BaseLayer>
+        </LayersControl>
+
+        {/* Heatmap Simulation (Mediterranean Density) */}
+        {/* Blue Base (Low Density) */}
+        <Circle center={[34.5, 18.5]} radius={400000} pathOptions={{ color: 'transparent', fillColor: '#0000FF', fillOpacity: 0.2 }} />
+        <Circle center={[36.0, 15.0]} radius={350000} pathOptions={{ color: 'transparent', fillColor: '#0000FF', fillOpacity: 0.2 }} />
+
+        {/* Cyan/Green (Medium Density) */}
+        <Circle center={[34.5, 19.0]} radius={200000} pathOptions={{ color: 'transparent', fillColor: '#00FFFF', fillOpacity: 0.3 }} />
+        <Circle center={[35.5, 16.0]} radius={180000} pathOptions={{ color: 'transparent', fillColor: '#00FF00', fillOpacity: 0.3 }} />
+
+        {/* Yellow (High Density) */}
+        <Circle center={[34.8, 19.5]} radius={100000} pathOptions={{ color: 'transparent', fillColor: '#FFFF00', fillOpacity: 0.4 }} />
+
+        {/* Red (Critical Density - Simulated Hotspots) */}
+        {[
+          [34.8, 19.5], [35.2, 16.5], [33.5, 20.0], [36.0, 14.5], [34.0, 18.0],
+          [35.8, 15.2], [33.2, 21.5], [34.5, 17.5], [35.0, 19.0], [33.8, 18.5]
+        ].map((pos, i) => (
+          <Circle key={i} center={pos} radius={30000} pathOptions={{ color: 'transparent', fillColor: '#FF0000', fillOpacity: 0.5, className: 'animate-pulse' }} />
+        ))}
+
+        {/* Vessels */}
+        {vessels.map(vessel => (
+          <div key={vessel.imo}>
+            <Marker position={[vessel.lat, vessel.lon]}>
+              {/* ... existing marker content ... keeping it simple for now or reusing existing logic if it was cleaner in previous code */}
+              <Popup className="cyber-popup">
+                {/* Simplified popup for now to ensure replacement works */}
+                <div className="p-2 bg-slate-900 text-cyan-400"><strong>{vessel.name}</strong></div>
+              </Popup>
+            </Marker>
+          </div>
+        ))}
+
+      </MapContainer>
+    </div>
+  )
+}
+{
+  activeTab === 'mapAnalysis' && userRole === 'viewer' && (
+    <div className="map-container">
+      <h2>🗺️ Map Analysis - Vessel Locations & Status</h2>
+      <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', marginBottom: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+        <p style={{ color: '#666', marginBottom: '10px' }}>View real-time vessel locations and maritime activity in the Indian Ocean region. Download vessel images for analysis.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginTop: '15px' }}>
+          {vessels.slice(0, 5).map(vessel => (
+            <div key={vessel.imo} style={{
+              backgroundColor: '#f9fafb',
+              padding: '15px',
+              borderRadius: '8px',
+              border: '1px solid #e5e7eb',
+              cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}>
+              <div style={{
+                backgroundImage: `url('${vessel.image}')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                height: '120px',
+                borderRadius: '6px',
+                marginBottom: '10px'
+              }}></div>
+              <h4 style={{ marginBottom: '5px', color: '#1f2937' }}>{vessel.name}</h4>
+              <p style={{ fontSize: '12px', color: '#666', margin: '3px 0' }}>Type: {vessel.type}</p>
+              <p style={{ fontSize: '12px', color: '#666', margin: '3px 0' }}>Location: {vessel.lat.toFixed(2)}°N, {vessel.lon.toFixed(2)}°E</p>
+              <p style={{ fontSize: '12px', color: '#666', margin: '3px 0' }}>Speed: {vessel.speed} knots</p>
+              <button
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.href = vessel.image;
+                  link.download = `${vessel.name}-vessel-image.jpg`;
+                  link.click();
+                }}
+                style={{
+                  width: '100%',
+                  marginTop: '10px',
+                  padding: '8px',
+                  backgroundColor: '#2563eb',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  transition: 'background 0.3s'
+                }}
+                onMouseOver={(e) => e.target.style.backgroundColor = '#1e40af'}
+                onMouseOut={(e) => e.target.style.backgroundColor = '#2563eb'}
+              >
+                📥 Download Image
+              </button>
             </div>
-          </footer>
-        </main>
+          ))}
+        </div>
+      </div>
+
+      {/* Read-only Map for Viewers */}
+      <MapContainer center={[20, 78]} zoom={4} style={{ height: '100%', width: '100%' }}>
+        <LayersControl position="topright">
+          <LayersControl.BaseLayer checked name="OpenStreetMap">
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
+          </LayersControl.BaseLayer>
+
+          <LayersControl.BaseLayer name="Satellite (Esri)">
+            <TileLayer
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+              attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            />
+          </LayersControl.BaseLayer>
+
+          <LayersControl.BaseLayer name="Dark Matter">
+            <TileLayer
+              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            />
+          </LayersControl.BaseLayer>
+        </LayersControl>
+        {vessels.map(vessel => {
+          const shipIcon = L.divIcon({
+            html: `<div style="background: linear-gradient(135deg, #2563eb, #764ba2); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);" title="${vessel.name}">⚓</div>`,
+            iconSize: [40, 40],
+            className: 'ship-icon'
+          });
+
+          return (
+            <Marker
+              key={vessel.imo}
+              position={[vessel.lat, vessel.lon]}
+              icon={shipIcon}
+            >
+              <Popup>
+                <div className="popup-content">
+                  <img src={vessel.image} alt={vessel.name} style={{ width: '100%', marginBottom: '10px', borderRadius: '5px' }} />
+                  <h4>{vessel.name}</h4>
+                  <p><strong>Type:</strong> {vessel.type}</p>
+                  <p><strong>Location:</strong> {vessel.lat.toFixed(2)}°N, {vessel.lon.toFixed(2)}°E</p>
+                  <p><strong>Speed:</strong> {vessel.speed} knots</p>
+                  <p><strong>Destination:</strong> {vessel.destination}</p>
+                  <button
+                    onClick={() => {
+                      const link = document.createElement('a');
+                      link.href = vessel.image;
+                      link.download = `${vessel.name}-vessel-image.jpg`;
+                      link.click();
+                    }}
+                    style={{
+                      width: '100%',
+                      marginTop: '10px',
+                      padding: '8px',
+                      backgroundColor: '#10b981',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      fontWeight: '600'
+                    }}
+                  >
+                    📥 Download Image
+                  </button>
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
+
+        {/* Oil Spills for Viewers - Read Only */}
+        {oilSpills.map(spill => {
+          const spillIcon = L.divIcon({
+            html: `<div style="background: ${getSeverityColor(spill.severity)}; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); border: 2px solid white;" title="${spill.spill_id}">🛢️</div>`,
+            iconSize: [36, 36],
+            className: 'oil-spill-icon'
+          });
+
+          return (
+            <Marker
+              key={spill.spill_id}
+              position={[spill.lat, spill.lon]}
+              icon={spillIcon}
+            >
+              <Popup>
+                <div className="popup-content">
+                  <img src={spill.image} alt={spill.spill_id} style={{ width: '100%', marginBottom: '12px', borderRadius: '6px', maxHeight: '150px', objectFit: 'cover' }} />
+                  <h4 style={{ marginBottom: '8px', color: '#1f2937' }}>🛢️ {spill.spill_id}</h4>
+                  <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Vessel:</strong> {spill.vessel_name}</p>
+                  <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Severity:</strong> <span style={{
+                    backgroundColor: getSeverityColor(spill.severity),
+                    color: 'white',
+                    padding: '2px 6px',
+                    borderRadius: '3px',
+                    fontSize: '11px'
+                  }}>{spill.severity}</span></p>
+                  <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Size:</strong> {spill.size_tons} tons</p>
+                  <p style={{ margin: '4px 0', fontSize: '12px' }}><strong>Area:</strong> {spill.estimated_area_km2} km²</p>
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
+      </MapContainer>
+
+      <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+        <h3>📊 Vessel Analysis Summary</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginTop: '15px' }}>
+          <div style={{ padding: '15px', backgroundColor: '#f0f9ff', borderRadius: '8px', borderLeft: '4px solid #2563eb' }}>
+            <p style={{ color: '#666', fontSize: '12px', margin: '0 0 5px 0' }}>Total Vessels Tracked</p>
+            <h3 style={{ color: '#2563eb', margin: '0', fontSize: '24px' }}>{vessels.length}</h3>
+          </div>
+          <div style={{ padding: '15px', backgroundColor: '#f0fdf4', borderRadius: '8px', borderLeft: '4px solid #10b981' }}>
+            <p style={{ color: '#666', fontSize: '12px', margin: '0 0 5px 0' }}>Active Vessels</p>
+            <h3 style={{ color: '#10b981', margin: '0', fontSize: '24px' }}>{vessels.filter(v => v.status === 'Active').length}</h3>
+          </div>
+          <div style={{ padding: '15px', backgroundColor: '#fef3c7', borderRadius: '8px', borderLeft: '4px solid #f59e0b' }}>
+            <p style={{ color: '#666', fontSize: '12px', margin: '0 0 5px 0' }}>Average Speed (knots)</p>
+            <h3 style={{ color: '#f59e0b', margin: '0', fontSize: '24px' }}>{(vessels.reduce((sum, v) => sum + v.speed, 0) / vessels.length).toFixed(1)}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+{/* Footer */ }
+<footer className="app-footer">
+  <div className="footer-content">
+    <p>&copy; 2025 SeaTrace Maritime Intelligence System. Developed by <strong>Suriya</strong>. All rights reserved.</p>
+    <p style={{ fontSize: '12px', color: 'rgba(100,100,100,0.7)', marginTop: '4px' }}>Advanced Ocean Monitoring | Environmental Protection | Real-Time Analytics</p>
+  </div>
+</footer>
+    </main >
       </div >
     </div >
   );

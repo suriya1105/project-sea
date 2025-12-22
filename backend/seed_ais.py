@@ -5,31 +5,35 @@ import os
 from pathlib import Path
 from datetime import datetime, timedelta
 
+
 # Realistic Vessel Names and Real IMOs (Indian Ocean / Global Fleet sample)
+# Enhanced with Kattegat Strait & FMCG Cargo Profiles
 REAL_VESSELS = [
-    {"name": "EVER GIVEN", "type": "Container Ship", "flag": "Panama", "imo": "9811000", "length": 400, "width": 59},
-    {"name": "MAERSK ALABAMA", "type": "Container Ship", "flag": "USA", "imo": "9164263", "length": 155, "width": 25},
-    {"name": "MSC GULSUN", "type": "Container Ship", "flag": "Panama", "imo": "9839430", "length": 400, "width": 62},
-    {"name": "FRONTIER JACARANDA", "type": "Bulk Carrier", "flag": "Panama", "imo": "9451666", "length": 292, "width": 45},
-    {"name": "OIL INDIA 1", "type": "Tanker", "flag": "India", "imo": "9211111", "length": 180, "width": 32},
-    {"name": "JAG LEELA", "type": "Tanker", "flag": "India", "imo": "9173666", "length": 244, "width": 42},
-    {"name": "INS VIKRANT", "type": "Naval Vessel", "flag": "India", "imo": "0000001", "length": 262, "width": 62},
-    {"name": "CHENNAL SELVAM", "type": "Fishing", "flag": "India", "imo": "8888881", "length": 24, "width": 7},
-    {"name": "SRI LANKA GLORY", "type": "Cargo", "flag": "Sri Lanka", "imo": "9166666", "length": 120, "width": 20},
-    {"name": "GLOBAL MERCURY", "type": "Tanker", "flag": "Liberia", "imo": "9222222", "length": 190, "width": 32},
-    {"name": "CMA CGM MARCO POLO", "type": "Container Ship", "flag": "Bahamas", "imo": "9454436", "length": 396, "width": 54},
-    {"name": "HMM ALGECIRAS", "type": "Container Ship", "flag": "Panama", "imo": "9863297", "length": 400, "width": 61},
-    {"name": "OOCL HONG KONG", "type": "Container Ship", "flag": "Hong Kong", "imo": "9776171", "length": 399, "width": 58},
-    {"name": "TI CLASS", "type": "Tanker", "flag": "Marshall Islands", "imo": "9239496", "length": 380, "width": 68},
-    {"name": "SEAWISE GIANT", "type": "Tanker", "flag": "India", "imo": "Retired", "length": 458, "width": 69} 
+    # Global / Indian Ocean Fleet
+    {"name": "EVER GIVEN", "type": "Container Ship", "flag": "Panama", "imo": "9811000", "length": 400, "width": 59, "cargo_type": "FMCG", "cargo_owner": "Walmart/IKEA"},
+    {"name": "MAERSK ALABAMA", "type": "Container Ship", "flag": "USA", "imo": "9164263", "length": 155, "width": 25, "cargo_type": "FMCG", "cargo_owner": "Procter & Gamble"},
+    {"name": "MSC GULSUN", "type": "Container Ship", "flag": "Panama", "imo": "9839430", "length": 400, "width": 62, "cargo_type": "Electronics", "cargo_owner": "Samsung"},
+    {"name": "FRONTIER JACARANDA", "type": "Bulk Carrier", "flag": "Panama", "imo": "9451666", "length": 292, "width": 45, "cargo_type": "Raw Materials", "cargo_owner": "Tata Steel"},
+    {"name": "OIL INDIA 1", "type": "Tanker", "flag": "India", "imo": "9211111", "length": 180, "width": 32, "cargo_type": "Crude Oil", "cargo_owner": "ONGC"},
+    {"name": "JAG LEELA", "type": "Tanker", "flag": "India", "imo": "9173666", "length": 244, "width": 42, "cargo_type": "Crude Oil", "cargo_owner": "Reliance"},
+
+    # Kattegat Strait / North Sea Profiles (Integrated from AIS Dataset)
+    {"name": "STENA DANICA", "type": "Passenger", "flag": "Sweden", "imo": "7907245", "length": 154, "width": 28, "cargo_type": "Passengers/Cars", "cargo_owner": "Stena Line"},
+    {"name": "PEARL SEAWAYS", "type": "Passenger", "flag": "Denmark", "imo": "8701480", "length": 178, "width": 33, "cargo_type": "Passengers", "cargo_owner": "DFDS"},
+    {"name": "COLOR MAGIC", "type": "Passenger", "flag": "Norway", "imo": "9349863", "length": 223, "width": 35, "cargo_type": "Passengers", "cargo_owner": "Color Line"},
+    {"name": "MAERSK MC-KINNEY MOLLER", "type": "Container Ship", "flag": "Denmark", "imo": "9619907", "length": 399, "width": 59, "cargo_type": "FMCG", "cargo_owner": "Nestle/Unilever"},
 ]
+
+# FMCG Dataset Simulation
+FMCG_BRANDS = ["Nestle", "Procter & Gamble", "Unilever", "Coca-Cola", "PepsiCo", "Danone", "Mars", "Mondelez", "L'Oreal", "Colgate-Palmolive"]
+FMCG_PRODUCTS = ["Food Stuffs", "Personal Care", "Beverages", "Dairy Products", "Confectionery", "Household Goods", "Cosmetics"]
 
 # Generate more synthetic vessels to fill the map
 TYPES = ["Container Ship", "Tanker", "Bulk Carrier", "Fishing", "Cargo"]
-FLAGS = ["India", "Panama", "Liberia", "Marshall Islands", "Singapore", "China"]
-COMPANIES = ["Maersk", "MSC", "COSCO", "Evergreen", "Hapag-Lloyd", "ONE"]
+FLAGS = ["India", "Panama", "Liberia", "Marshall Islands", "Singapore", "China", "Denmark", "Norway"]
+COMPANIES = ["Maersk", "MSC", "COSCO", "Evergreen", "Hapag-Lloyd", "ONE", "Stena Bulk"]
 
-def generate_vessels(count=50):
+def generate_vessels(count=60):
     vessels = {}
     
     # 1. Add Real Vessels
@@ -50,15 +54,26 @@ def generate_vessels(count=50):
             "length": v['length'],
             "width": v['width'],
             "dwt": v['length'] * v['width'] * 1.5, # Rough estimate
-            "company_name": random.choice(COMPANIES),
-            "destination": random.choice(["Colombo", "Mumbai", "Chennai", "Singapore", "Dubai"]),
+            "company_name": v.get('cargo_owner') if v.get('cargo_owner') else random.choice(COMPANIES),
+            "destination": random.choice(["Colombo", "Mumbai", "Chennai", "Singapore", "Dubai", "Rotterdam", "Gothenburg"]),
             "eta": (datetime.now() + timedelta(days=random.randint(1, 10))).strftime("%Y-%m-%d %H:%M"),
-            "risk_level": "Low"
+            "risk_level": "Low",
+            # New FMCG Data Fields
+            "cargo_manifest": {
+                "category": v.get('cargo_type', 'General Cargo'),
+                "major_brand": v.get('cargo_owner', 'Various'),
+                "weight_tons": int(v['length'] * v['width'] * 0.8),
+                "value_est_usd": f"${random.randint(1, 100)} Million"
+            },
+            "image": f"https://source.unsplash.com/400x300/?ship,{v['type'].replace(' ', '')}" # Placeholder dynamic image
         }
 
     # 2. Fill the rest
     for i in range(count - len(REAL_VESSELS)):
         v_type = random.choice(TYPES)
+        # 30% chance of being an FMCG carrier
+        is_fmcg = random.random() < 0.3 and v_type == "Container Ship"
+        
         imo = f"9{random.randint(100000, 999999)}"
         name = f"{random.choice(COMPANIES).upper()} {random.choice(['EAGLE', 'HOPE', 'STAR', 'TITAN', 'OCEAN', 'WAVE', 'PEARL'])}"
         
@@ -79,9 +94,16 @@ def generate_vessels(count=50):
             "width": random.randint(20, 50),
             "dwt": random.randint(10000, 150000),
             "company_name": name.split()[0],
-            "destination": random.choice(["Colombo", "Mumbai", "Chennai", "Singapore", "Dubai"]),
+            "destination": random.choice(["Colombo", "Mumbai", "Chennai", "Singapore", "Dubai", "Aarhus", "Skagen"]),
             "eta": (datetime.now() + timedelta(days=random.randint(1, 10))).strftime("%Y-%m-%d %H:%M"),
-             "risk_level": "Low" if random.random() > 0.1 else "Medium"
+             "risk_level": "Low" if random.random() > 0.1 else "Medium",
+             "cargo_manifest": {
+                "category": random.choice(FMCG_PRODUCTS) if is_fmcg else "Bulk Commodities",
+                "major_brand": random.choice(FMCG_BRANDS) if is_fmcg else "Global Trading Co",
+                "weight_tons": random.randint(5000, 50000),
+                "value_est_usd": f"${random.randint(5, 50)} Million"
+            },
+            "image": f"https://source.unsplash.com/400x300/?ship,{v_type.replace(' ', '')}"
         }
 
     return vessels
