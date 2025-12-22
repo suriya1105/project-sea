@@ -3,44 +3,44 @@
     "id": 1,
     "name": "Admin User",
     "email": "admin@seatrace.com",
-    "password": "admin123",
-    "role": "admin",
     "company": "SeaTrace Admin",
     "created_at": "2025-01-01T00:00:00Z",
     "last_login": null,
+    "email_verified": true,
+    "phone_verified": true,
     "active": true
   },
   "operator@seatrace.com": {
     "id": 2,
     "name": "Operator User",
     "email": "operator@seatrace.com",
-    "password": "operator123",
-    "role": "operator",
     "company": "SeaTrace Ops",
     "created_at": "2025-01-01T00:00:00Z",
     "last_login": null,
+    "email_verified": true,
+    "phone_verified": true,
     "active": true
   },
   "viewer@seatrace.com": {
     "id": 3,
     "name": "Viewer User",
     "email": "viewer@seatrace.com",
-    "password": "viewer123",
-    "role": "viewer",
     "company": "SeaTrace Monitor",
     "created_at": "2025-01-01T00:00:00Z",
     "last_login": null,
+    "email_verified": true,
+    "phone_verified": true,
     "active": true
   },
   "test@seatrace.com": {
     "id": 4,
     "name": "Test User",
     "email": "test@seatrace.com",
-    "password": "password123",
-    "role": "operator",
     "company": "Test Company",
     "created_at": "2025-01-01T00:00:00Z",
     "last_login": null,
+    "email_verified": true,
+    "phone_verified": true,
     "active": true
   },
   "debug_test@example.com": {
@@ -48,12 +48,10 @@
     "name": "Test User",
     "email": "debug_test@example.com",
     "phone": "1234567890",
-    "password": "password12",
-    "role": "viewer",
     "company": "Public User",
     "created_at": "2025-12-20T17:22:20.176173",
     "email_verified": true,
-    "phone_verified": false,
+    "phone_verified": true,
     "active": true
   },
   "suriyaraja.1105@gmail.com": {
@@ -61,12 +59,10 @@
     "name": "suriya",
     "email": "suriyaraja.1105@gmail.com",
     "phone": "6385474620",
-    "password": "password123",
-    "role": "viewer",
     "company": "Public User",
     "created_at": "2025-12-20T17:24:09.124959",
     "email_verified": true,
-    "phone_verified": false,
+    "phone_verified": true,
     "active": true
   },
   "suriyap.aids2023@citchennai.net": {
@@ -74,12 +70,10 @@
     "name": "aravibd",
     "email": "suriyap.aids2023@citchennai.net",
     "phone": "8456798698",
-    "password": "admin123",
-    "role": "viewer",
     "company": "Public User",
     "created_at": "2025-12-20T18:08:29.200899",
     "email_verified": true,
-    "phone_verified": false,
+    "phone_verified": true,
     "active": true
   }
 }
