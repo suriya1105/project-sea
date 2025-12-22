@@ -20,6 +20,7 @@ import 'leaflet/dist/leaflet.css';
 
 import AuthPage from './components/AuthPage';
 import UsersPage from './components/UsersPage';
+import AIAnalysisPanel from './components/AIAnalysisPanel';
 import { API_BASE_URL, SOCKET_URL } from './config';
 
 // Fix leaflet icon issue
@@ -736,6 +737,9 @@ function App() {
           {/* Dashboard - Visible to all roles */}
           {activeTab === 'dashboard' && dashboardData && (
             <div className="space-y-6">
+              {/* Advanced AI Analysis Section */}
+              <AIAnalysisPanel token={token} userRole={userRole} />
+
               {/* Stats Overview Grid */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="cyber-panel flex items-center justify-between group hover:border-cyan-400 transition-colors">

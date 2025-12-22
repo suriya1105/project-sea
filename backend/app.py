@@ -798,6 +798,125 @@ def send_secure_alert(subject, body, recipient="confidential@seatrace.gov"):
 
 @app.route('/api/alerts/secure-history', methods=['GET'])
 @token_required
+def get_secure_alerts():
+    """Get history of secure alerts"""
+    if request.user.get('role') != 'admin':
+        return jsonify({'error': 'Admin access required'}), 403
+    return jsonify(secure_alerts), 200
+
+# Advanced AI Simulation Endpoints
+
+@app.route('/api/analysis/realtime', methods=['GET'])
+@token_required
+def get_ai_analysis():
+    """
+    Get real-time AI analysis of the current maritime situation.
+    Simulates multi-modal detection (SAR + Optical) and false positive reduction.
+    """
+    # Simulate processing time for "heavy AI models"
+    # time.sleep(0.5) 
+    
+    # 1. Oil Spill Analysis (Simulated)
+    # Get active spills or simulate a "clean" state
+    spills = list(data_manager.get_oil_spills().values())
+    active_spill = spills[-1] if spills else None
+    
+    if active_spill and active_spill['status'] == 'Active':
+        analysis = {
+            'status': 'CRITICAL_DETECTION',
+            'timestamp': datetime.utcnow().isoformat(),
+            'detection_source': 'Sentinel-1B (SAR) + Sentinel-2A (Optical)',
+            'confidence_score': active_spill.get('confidence', 88),
+            'false_positive_check': {
+                'passed': True,
+                'algae_bloom_probability': 12, # Low propability
+                'wind_shadow_probability': 5,
+                'details': 'Texture analysis confirms non-biogenic substance. Spectral index negative for chlorophyll-a.'
+            },
+            'source_identification': {
+                'likely_source': active_spill.get('vessel_name', 'Unknown Vessel'),
+                'probability': 92,
+                'reasoning': 'Vessel trajectory intersects with spill origin at estimated release time (-2h).'
+            },
+            'weather_context': {
+                'wind_speed': f"{random.uniform(5, 12):.1f} kts",
+                'sea_state': 'Moderate',
+                'visibility': 'Good'
+            },
+            'imagery': {
+                'sar_url': 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=500&q=80', # Placeholder Space/Radar look
+                'optical_url': 'https://images.unsplash.com/photo-1547623641-d2c56c03e2a7?w=500&q=80' # Placeholder Ocean
+            },
+            'ai_summary': (
+                f"ALERT: High-confidence oil spill detected at {active_spill['lat']:.2f}, {active_spill['lon']:.2f}. "
+                f"Multi-modal analysis confirms substance with {active_spill.get('confidence', 88)}% certainty. "
+                "Deep learning models rule out algae bloom. "
+                f"Drift prediction indicates movement towards NE at 0.5kts."
+            )
+        }
+    else:
+        analysis = {
+            'status': 'CLEAR',
+            'timestamp': datetime.utcnow().isoformat(),
+            'detection_source': 'Sentinel-1B (SAR)',
+            'confidence_score': 99,
+            'summary': 'No anomalies detected in the current scan sector.'
+        }
+        
+    return jsonify(analysis), 200
+
+@app.route('/api/prediction/spread', methods=['POST'])
+@token_required
+def predict_spread():
+    """
+    Generate predicted oil spill spread polygons for 24h, 48h, 72h.
+    """
+    data = request.json
+    start_lat = data.get('lat')
+    start_lon = data.get('lon')
+    
+    if not start_lat or not start_lon:
+        return jsonify({'error': 'Location required'}), 400
+        
+    # Simulate Lagrangian Particle Tracking results
+    # Generate simple polygons (circles/ellipses) expanding over time
+    predictions = []
+    
+    # Drift direction (randomized but consistent for the call)
+    drift_lat = random.uniform(0.01, 0.05)
+    drift_lon = random.uniform(0.01, 0.05)
+    
+    periods = [24, 48, 72]
+    for hours in periods:
+        # Move center point based on drift
+        center_lat = start_lat + (drift_lat * (hours/24))
+        center_lon = start_lon + (drift_lon * (hours/24))
+        
+        # Increase radius
+        radius = 0.02 + (0.01 * (hours/24))
+        
+        # Create a simple polygon approximation (diamond shape for simplicity)
+        polygon = [
+            [center_lat + radius, center_lon],
+            [center_lat, center_lon + radius],
+            [center_lat - radius, center_lon],
+            [center_lat, center_lon - radius],
+            [center_lat + radius, center_lon] # Close loop
+        ]
+        
+        predictions.append({
+            'time_horizon_hours': hours,
+            'predicted_at': (datetime.utcnow() + timedelta(hours=hours)).isoformat(),
+            'impact_risk': 'High' if hours == 72 else 'Medium',
+            'sensitive_areas_at_risk': ['Coral Reef Alpha'] if hours > 24 else [],
+            'polygon': polygon
+        })
+        
+    return jsonify({
+        'incident_location': {'lat': start_lat, 'lon': start_lon},
+        'predictions': predictions
+    }), 200
+
 def get_secure_history():
     """View sent confidential alerts (Admin/Operator only)"""
     current_user = request.user
