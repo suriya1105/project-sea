@@ -1,49 +1,51 @@
-# Future Roadmap: Advanced AI & Maritime Intelligence
+# Future Roadmap: SeaTrace AI Vision
 
-This document outlines the next phase of "SeaTrace", focusing on cutting-edge AI, real-world operational value, and "resume-worthy" technical complexity.
+This document outlines the strategic roadmap for transforming SeaTrace into a complete, AI-driven marine intelligence platform.
 
-## 1. "Dark Fleet" & Anomaly Detection (Surveillance)
-**Concept**: Identify vessels that have disabled their AIS transponders to hide illegal activities (illegal fishing, oil dumping, sanction evasion).
-- **Technique**: **Cross-Modal Discrepancy Analysis**.
-    - Compare **Satellite SAR Detections** (Object Detection) vs. **AIS Position Reports**.
-    - If a vessel is detected visually/radar but has no corresponding AIS signal within a calibrated radius, flag as a "Dark Target".
-- **AI Model**: YOLOv8 (for SAR ship detection) + Spatial Clustering (DBSCAN) for signal matching.
-- **Value**: Critical for Coast Guards and Defense agencies.
+## 1. AI Simulation & Predictive Modeling
+- **AI "What-If" Simulation Mode**: 
+    - **Goal**: Analyze how oil spills evolve under different wind, weather, ocean current, and response conditions.
+    - **Tech**: Monte Carlo simulations integrated with real-time fluid dynamics models.
+- **Training & Simulation Mode**: 
+    - **Goal**: Synthetic spill scenarios for emergency response practice.
+    - **Tech**: Augmented Reality (AR) overlays on the dashboard for "War Room" exercises.
 
-## 2. Ship-to-Ship (STS) Transfer Detection
-**Concept**: Detect illicit oil transfers at sea, often used to obscure the origin of sanctioned oil.
-- **Technique**: **Behavioral Time-Series Analysis**.
-    - Analyze AIS trajectories for two vessels loitering in close proximity (<500m) at low speeds (<1 knot) for extended periods (>2 hours) in non-port areas.
-- **AI Model**: **LSTM (Long Short-Term Memory)** or **Transformer** networks trained on vessel trajectory sequences to classify behaviors like "loitering", "cruising", or "rendezvous".
-- **Value**: High-value feature for regulatory bodies (OFAC, IMO).
+## 2. Advanced Intelligence & Profiling
+- **AI Investigator Mode**:
+    - **Goal**: Automatically build spill timelines by correlating satellite imagery, vessel tracks, and environmental timestamps.
+    - **Tech**: Temporal Knowledge Graphs to link disparate events into a coherent narrative.
+- **Repeat-Offender Vessel Tracker**:
+    - **Goal**: Profile ships based on historical suspicious behavior (e.g., frequent AIS disabling, loitering in high-risk zones).
+    - **Tech**: Anomaly detection on long-term vessel trajectory databases.
 
-## 3. Ecological Vulnerability Indexing (EVI)
-**Concept**: Dynamic risk assessment that overlays spill predictions with real-time biological data.
-- **Technique**: **Geospatial Risk Layering**.
-    - Integrate static data (Marine Protected Areas, Coral Reefs) with dynamic data (Migratory paths of whales/turtles, seasonal algae blooms).
-    - Provide a "Threat Score" for specific biological assets if a spill occurs.
-- **AI Model**: Graph Neural Networks (GNN) to model the connectivity between different ecosystem nodes.
-- **Value**: Essential for environmental impact mitigation and cleanup prioritization.
+## 3. Impact Assessment & Economics
+- **Economic Loss Estimator**:
+    - **Goal**: Predict cleanup costs and economic impacts on local fishing and tourism industries.
+    - **Tech**: Econometric models trained on historical spill cost data.
+- **Spill Severity Classification**:
+    - **Goal**: AI-driven categorization of spills (Tier 1/2/3) to automate resource allocation.
+    - **Tech**: Computer Vision classification of spill thickness and extent.
 
-## 4. Reinforcement Learning for Cleanup Optimization
-**Concept**: AI that doesn't just *detect* spills, but tells you *how* to clean them.
-- **Technique**: **Multi-Agent Reinforcement Learning (MARL)**.
-    - Simulate a fleet of skimmer vessels and containment booms.
-    - Train agents to maximize "oil recovered" while minimizing "fuel usage" and "time", adapting to changing wind/currents.
-- **AI Model**: PPO (Proximal Policy Optimization) or DQN (Deep Q-Network).
-- **Value**: Direct operational decision support.
+## 4. Legal & Compliance
+- **Legal-Evidence Mode**:
+    - **Goal**: Securely store time-stamped satellite data and AI inference logs for investigations in court.
+    - **Tech**: Blockchain immutability (hashing data to a ledger) to ensure chain-of-custody.
+- **Smart Geo-Fencing**:
+    - **Goal**: Proactive alerts when spills or suspect vessels approach sensitive zones (Marine Sanctuaries, Desalination Plants).
 
-## 5. Blockchain Evidence Locker
-**Concept**: Ensure ensuring that AI detections can be used in court.
-- **Technique**: **Immutable Ledgering**.
-    - When the AI detects a spill with >90% confidence, hash the raw satellite data + detection metadata + timestamp.
-    - Write this hash to a public blockchain (e.g., Ethereum Testnet) to prove data integrity was not tampered with.
-- **Value**: Legal admissibility for environmental prosecution.
+## 5. User Engagement & Transparency
+- **Interactive "Ask SeaTrace" Interface**:
+    - **Goal**: Natural-language query interface (e.g., "Show me the predicted impact on the Mumbai coast in 24 hours").
+    - **Tech**: RAG (Retrieval Augmented Generation) LLM pipeline connected to geospatial databases.
+- **Crowd-Assisted Verification**:
+    - **Goal**: Allow verified coastal observers to upload geotagged photos to refine satellite detections.
+- **Public Transparency Dashboard**:
+    - **Goal**: A sanitized, public-facing view to build trust and community awareness.
 
-## 6. Natural Language "Commander Interface"
-**Concept**: Talk to the system instead of filtering dashboards.
-- **Technique**: **RAG (Retrieval-Augmented Generation)**.
-    - "Show me all tankers near the Mumbai High rig that changed course in the last 4 hours."
-    - AI converts NLP -> SQL/GeoSpatial Query -> Returns Visual Map Result.
-- **AI Model**: Fine-tuned LLM (Llama 3 / GPT-4) connected to the PostGIS database.
-- **Value**: Drastically lowers the barrier to entry for non-technical operators.
+## 6. Operational Excellence
+- **Recovery Progress Tracking**: 
+    - **Goal**: Monitor the effectiveness of cleanup operations over time using differencing imagery.
+- **AI Model Health Monitoring**:
+    - **Goal**: Real-time dashboards for model accuracy, drift detection, and latency.
+- **Plugin-Based Architecture**:
+    - **Goal**: Allow third-party datasets (e.g., drone feeds, buoy sensors) to be easily ingested.
