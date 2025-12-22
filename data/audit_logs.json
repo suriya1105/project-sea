@@ -7,5 +7,80 @@
     "details": {
       "name": "Test User"
     }
+  },
+  {
+    "timestamp": "2025-12-22T08:31:09.602569",
+    "user_email": "admin@seatrace.com",
+    "action": "LOGIN_FAILED",
+    "resource": "authentication",
+    "details": {
+      "success": false
+    }
+  },
+  {
+    "timestamp": "2025-12-22T08:31:22.610868",
+    "user_email": "admin@seatrace.com",
+    "action": "LOGIN_FAILED",
+    "resource": "authentication",
+    "details": {
+      "success": false
+    }
+  },
+  {
+    "timestamp": "2025-12-22T08:31:38.564523",
+    "user_email": "admin@seatrace.com",
+    "action": "REGISTER",
+    "resource": "authentication",
+    "details": {
+      "name": "suirya"
+    }
+  },
+  {
+    "timestamp": "2025-12-22T08:31:42.021648",
+    "user_email": "admin@seatrace.com",
+    "action": "LOGIN",
+    "resource": "authentication",
+    "details": {
+      "success": true
+    }
+  },
+  {
+    "timestamp": "2025-12-22T08:31:42.552597",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-22T08:32:17.115290",
+    "user_email": "admin@seatrace.com",
+    "action": "LOGIN",
+    "resource": "authentication",
+    "details": {
+      "success": true
+    }
+  },
+  {
+    "timestamp": "2025-12-22T08:32:17.278175",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-22T08:33:24.919953",
+    "user_email": "admin@seatrace.com",
+    "action": "LOGIN",
+    "resource": "authentication",
+    "details": {
+      "success": true
+    }
+  },
+  {
+    "timestamp": "2025-12-22T08:33:25.019923",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
   }
 ]

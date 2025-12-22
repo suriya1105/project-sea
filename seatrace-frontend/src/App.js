@@ -163,10 +163,13 @@ function App() {
 
     const updateInterval = setInterval(() => {
       updateMovementData();
-    }, 300000); // Update every 5 minutes
+    }, 10000); // Update every 10 seconds for real-time effect
+
+    // Initial update
+    updateMovementData();
 
     return () => clearInterval(updateInterval);
-  }, [isLoggedIn, vessels, oilSpills]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isLoggedIn, vessels]); // Removed oilSpills dependency to prevent constant resetting
 
   // Initialize WebSocket connection
   const initializeSocket = (authToken) => {
@@ -782,6 +785,44 @@ function App() {
                       <div className="text-center text-gray-500 py-10 italic">No recent alerts</div>
                     )}
                   </div>
+                </div>
+              </div>
+
+              {/* NEW: Live Fleet Status Table */}
+              <div className="cyber-panel overflow-hidden">
+                <h3 className="text-cyan-400 font-orbitron mb-4 flex items-center gap-2 text-sm border-b border-cyan-500/30 pb-2">
+                  <Activity className="w-4 h-4" /> LIVE FLEET TELEMETRY
+                </h3>
+                <div className="overflow-x-auto custom-scrollbar">
+                  <table className="w-full text-left text-xs font-mono">
+                    <thead className="bg-slate-900/50 text-cyan-500 uppercase">
+                      <tr>
+                        <th className="p-2">Timestamp</th>
+                        <th className="p-2">Vessel Name</th>
+                        <th className="p-2">Coordinates (Lat / Lon)</th>
+                        <th className="p-2">Speed</th>
+                        <th className="p-2">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800">
+                      {vessels.slice(0, 5).map(v => (
+                        <tr key={v.imo} className="hover:bg-slate-800/30 transition-colors">
+                          <td className="p-2 text-slate-400">{new Date().toLocaleTimeString()}</td>
+                          <td className="p-2 font-bold text-white">{v.name}</td>
+                          <td className="p-2 text-cyan-300">
+                            {v.lat.toFixed(4)}° N / {v.lon.toFixed(4)}° E
+                          </td>
+                          <td className="p-2 text-yellow-400">{v.speed.toFixed(1)} kts</td>
+                          <td className="p-2">
+                            <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold ${v.status === 'Active' ? 'bg-green-900/30 text-green-400 border border-green-500/30' : 'bg-slate-700 text-slate-400'
+                              }`}>
+                              {v.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
 
