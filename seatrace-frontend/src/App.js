@@ -7,11 +7,12 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Zap, Activity, Globe, Anchor, Shield, Lock, User, CheckCircle, Trash2, FileText, AlertTriangle, Download } from 'lucide-react';
-import { MapContainer, TileLayer, Marker, Popup, Circle, LayersControl } from 'react-leaflet';
+import { Menu, X, Zap, Activity, Globe, Anchor, Shield, Lock, User, CheckCircle, Trash2, FileText, AlertTriangle, Download, Clipboard, Loader, UserPlus, Users } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Popup, Circle, LayersControl, GeoJSON, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import io from 'socket.io-client';
 import axios from 'axios';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import './App.css';
 import 'leaflet/dist/leaflet.css';
 
