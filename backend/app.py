@@ -706,12 +706,63 @@ def predict_spill_spread():
             'radius': radius_deg
         })
         
+    final_area = 3.14159 * (radius_km ** 2)
+    
+    # Economic Impact Estimator
+    # Base rates per km2
+    cleanup_rate = 50000 
+    rehab_rate = 35000
+    econ_rate = 25000
+    
+    impact = {
+        'cleanup_cost': final_area * cleanup_rate,
+        'marine_rehab': final_area * rehab_rate,
+        'tourism_fisheries_loss': final_area * econ_rate,
+        'total_estimated_cost': final_area * (cleanup_rate + rehab_rate + econ_rate)
+    }
+
     return jsonify({
         'spill_id': spill_id,
         'prediction': predicted_path,
-        'final_area_km2': 3.14159 * (radius_km ** 2)
+        'final_area_km2': final_area,
+        'economic_impact': impact
     }), 200
 
+
+@app.route('/api/chat', methods=['POST'])
+@token_required
+def chat_bot():
+    """Natural Language Interface 'Ask SeaTrace'"""
+    data = request.json or {}
+    message = data.get('message', '').lower()
+    
+    # Simple Intent Recognition Logic
+    response_text = "I didn't understand that query. Try asking about 'active spills', 'tanker status', or 'weather'."
+    
+    if 'spill' in message or 'leak' in message:
+        spills = data_manager.get_oil_spills()
+        active_count = sum(1 for s in spills.values() if s['status'] == 'Active')
+        if active_count > 0:
+            details = ", ".join([f"Spill {s['spill_id']} ({s['severity']})" for s in spills.values() if s['status'] == 'Active'])
+            response_text = f"There are currently {active_count} active oil spills detected: {details}. Check the Incidents tab for more."
+        else:
+            response_text = "No active oil spills detected at this moment. The ocean is clear."
+            
+    elif 'tanker' in message or 'vessel' in message or 'ship' in message:
+        vessels = data_manager.get_vessels()
+        high_risk = sum(1 for v in vessels.values() if v.get('risk_level') == 'High')
+        response_text = f"Tracking {len(vessels)} vessels in the sector. {high_risk} are classified as High Risk. Top vessel: {list(vessels.values())[0]['name']}."
+        
+    elif 'weather' in message or 'wind' in message:
+        response_text = "Current conditions: Wind 12kts NW, Sea State Moderate. Visibility Good."
+        
+    elif 'cost' in message or 'economic' in message:
+        response_text = "Economic Impact models estimate potential ecosystem services loss at $50k/km² for current anomalies."
+        
+    return jsonify({
+        'response': response_text,
+        'timestamp': datetime.utcnow().isoformat()
+    }), 200
 
 @app.route('/api/reports/generate', methods=['POST'])
 @token_required

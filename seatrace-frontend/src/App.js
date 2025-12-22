@@ -80,6 +80,7 @@ function App() {
 
   // AI Simulation Mode State
   const [predictionData, setPredictionData] = useState(null);
+  const [predictionStats, setPredictionStats] = useState(null); // Stores costs/area
   const [simParams, setSimParams] = useState({
     wind_speed: 15,
     wind_direction: 45,
@@ -102,6 +103,7 @@ function App() {
       });
 
       setPredictionData(response.data.prediction);
+      setPredictionStats(response.data);
       // Show success toast or notification here
     } catch (error) {
       console.error("Simulation failed:", error);
@@ -110,6 +112,27 @@ function App() {
 
   const [notifications, setNotifications] = useState([]);
 
+
+  // Chat State
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState([]);
+  const chatEndRef = React.useRef(null);
+
+  const handleSendMessage = async (text) => {
+    if (!text.trim()) return;
+    const newMessages = [...chatMessages, { text, isUser: true }];
+    setChatMessages(newMessages);
+
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/chat`, { message: text }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setChatMessages([...newMessages, { text: response.data.response, isUser: false }]);
+      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    } catch (err) {
+      setChatMessages([...newMessages, { text: "Error connecting to AI Command.", isUser: false }]);
+    }
+  };
 
   // Country boundaries for India region (simplified)
   const countryBoundaries = {
@@ -1127,6 +1150,29 @@ function App() {
                     >
                       {predictionData ? 'Update Prediction' : 'Run Scenario'}
                     </button>
+
+                    {predictionStats && predictionStats.economic_impact && (
+                      <div className="mt-4 pt-3 border-t border-slate-700/50">
+                        <h4 className="text-xs text-slate-400 font-bold mb-2">ECONOMIC IMPACT ESTIMATE</h4>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="bg-slate-800/80 p-1.5 rounded border border-red-500/30">
+                            <span className="block text-slate-500 text-[10px]">TOTAL LOSS</span>
+                            <span className="text-red-400 font-mono font-bold">
+                              ${(predictionStats.economic_impact.total_estimated_cost / 1000000).toFixed(2)}M
+                            </span>
+                          </div>
+                          <div className="bg-slate-800/80 p-1.5 rounded border border-cyan-500/30">
+                            <span className="block text-slate-500 text-[10px]">CLEANUP</span>
+                            <span className="text-cyan-400 font-mono font-bold">
+                              ${(predictionStats.economic_impact.cleanup_cost / 1000000).toFixed(2)}M
+                            </span>
+                          </div>
+                        </div>
+                        <div className="mt-2 text-[10px] text-slate-500 italic text-center">
+                          *Based on {predictionStats.final_area_km2.toFixed(1)} km² spread
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -1969,6 +2015,56 @@ function App() {
           </footer>
         </main >
       </div >
+      <button
+        onClick={() => setIsChatOpen(!isChatOpen)}
+        className="fixed bottom-6 right-6 z-[1000] p-4 bg-cyan-600 hover:bg-cyan-500 rounded-full shadow-lg shadow-cyan-500/30 transition-all hover:scale-110"
+      >
+        <Zap className="w-6 h-6 text-white" fill="currentColor" />
+      </button>
+
+      {/* Chat Window */}
+      {isChatOpen && (
+        <div className="fixed bottom-24 right-6 z-[1000] w-80 h-96 cyber-panel bg-slate-900/95 backdrop-blur flex flex-col font-mono text-xs">
+          <div className="p-3 border-b border-cyan-500/30 flex justify-between items-center bg-slate-800/50">
+            <span className="font-bold text-cyan-400 flex items-center gap-2">
+              <Activity className="w-3 h-3" /> ASK SEATRACE AI
+            </span>
+            <button onClick={() => setIsChatOpen(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-3 space-y-3">
+            <div className="bg-slate-800 p-2 rounded rounded-tl-none border border-slate-700 max-w-[85%]">
+              <p className="text-slate-300">System Online. Accessing Satellite Feeds... How can I assist you today?</p>
+            </div>
+            {chatMessages.map((msg, i) => (
+              <div key={i} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
+                <div className={`p-2 rounded max-w-[85%] ${msg.isUser ? 'bg-cyan-900/50 border border-cyan-500/30 rounded-tr-none text-cyan-100' : 'bg-slate-800 border border-slate-700 rounded-tl-none text-slate-300'}`}>
+                  <p>{msg.text}</p>
+                </div>
+              </div>
+            ))}
+            <div ref={chatEndRef} />
+          </div>
+
+          <div className="p-3 border-t border-cyan-500/30 bg-slate-800/50">
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              handleSendMessage(e.target.chatInput.value);
+              e.target.chatInput.value = '';
+            }} className="flex gap-2">
+              <input
+                name="chatInput"
+                type="text"
+                placeholder="Query vessel status..."
+                className="flex-1 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white focus:border-cyan-500 outline-none"
+              />
+              <button type="submit" className="bg-cyan-600 hover:bg-cyan-500 px-3 py-1 rounded text-white">
+                <Zap className="w-3 h-3" />
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div >
   );
 }
