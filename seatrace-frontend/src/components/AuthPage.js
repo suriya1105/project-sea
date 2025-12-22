@@ -15,6 +15,32 @@ const AuthPage = ({ onLogin, onAuthSuccess }) => {
 
     const [error, setError] = useState('');
 
+    const validateForm = () => {
+        // Name Validation (Letters and spaces only)
+        const nameRegex = /^[A-Za-z\s]+$/;
+        if (!isLoginMode && !nameRegex.test(name)) {
+            throw new Error("Name must contain only letters.");
+        }
+
+        // Phone Validation (Exactly 10 digits)
+        const phoneRegex = /^\d{10}$/;
+        if (!isLoginMode && !phoneRegex.test(phone)) {
+            throw new Error("Phone number must be exactly 10 digits.");
+        }
+
+        // Email Validation (@gmail.com mandatory)
+        if (!isLoginMode && !email.endsWith('@gmail.com')) {
+            throw new Error("Only @gmail.com addresses are allowed.");
+        }
+
+        // Password Validation (8 chars, letters, symbols, numbers)
+        // At least one letter, one number, one special char, min 8 chars
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+        if (!isLoginMode && !passwordRegex.test(password)) {
+            throw new Error("Password must be at least 8 characters and include letters, numbers, and symbols.");
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -26,11 +52,17 @@ const AuthPage = ({ onLogin, onAuthSuccess }) => {
             if (isLoginMode) {
                 await onLogin(email, password);
             } else {
+                // Run Validation
+                validateForm();
+
                 // Sign Up Logic
+                // Auto-add country code (+91) for now as requested
+                const formattedPhone = `+91${phone}`;
+
                 const response = await fetch(`${API_BASE_URL}/auth/register-public`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, phone, password }),
+                    body: JSON.stringify({ name, email, phone: formattedPhone, password }),
                 });
 
                 if (!response.ok) {
