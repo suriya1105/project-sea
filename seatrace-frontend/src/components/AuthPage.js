@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Lock, ArrowRight, Activity, Shield, Eye, EyeOff, Anchor, Mail, Phone } from 'lucide-react';
+import { User, Lock, ArrowRight, Activity, Shield, Eye, EyeOff, Anchor, Mail, Phone, Info } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
 const AuthPage = ({ onLogin, onAuthSuccess }) => {
@@ -12,6 +12,27 @@ const AuthPage = ({ onLogin, onAuthSuccess }) => {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+
+    // Marine Facts State
+    const [currentFactIndex, setCurrentFactIndex] = useState(0);
+
+    const marineFacts = [
+        "AI satellites can detect oil spills as small as 10 square meters from space.",
+        "90% of world trade is carried by the international shipping industry.",
+        "Ghost ships (vessels with disabled AIS) account for 15% of illegal fishing globally.",
+        "Machine learning models can predict ocean currents with 85% accuracy using thermal imagery.",
+        "A single quart of oil can contaminate up to 2 million gallons of drinking water.",
+        "Satellite SAR radar can see through clouds and darkness to track vessels 24/7.",
+        "The Great Pacific Garbage Patch is three times the size of France."
+    ];
+
+    // Auto-rotate facts
+    React.useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentFactIndex((prev) => (prev + 1) % marineFacts.length);
+        }, 5000);
+        return () => clearInterval(interval);
+    }, []);
 
     const [error, setError] = useState('');
 
@@ -162,7 +183,25 @@ const AuthPage = ({ onLogin, onAuthSuccess }) => {
                             SeaTrace
                         </h2>
                         <div className="h-0.5 w-24 bg-gradient-to-r from-transparent via-cyan-500 to-transparent mx-auto my-4"></div>
-                        <p className="font-mono text-sm tracking-widest text-cyan-400/60">NEXT GEN MARITIME INTELLIGENCE</p>
+                        <p className="font-mono text-sm tracking-widest text-cyan-400/60 mb-8">NEXT GEN MARITIME INTELLIGENCE</p>
+
+                        {/* Marine Fact Ticker */}
+                        <div className="max-w-sm mx-auto bg-slate-800/50 border border-cyan-500/20 rounded-lg p-4 backdrop-blur-sm relative overflow-hidden group">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-cyan-500/50"></div>
+                            <div className="flex items-start gap-3">
+                                <Info className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
+                                <div className="text-left">
+                                    <div className="text-[10px] font-bold text-cyan-500 uppercase tracking-wider mb-1">Did You Know?</div>
+                                    <div className="text-xs text-slate-300 font-mono leading-relaxed h-12 flex items-center transition-all duration-500">
+                                        {marineFacts[currentFactIndex]}
+                                    </div>
+                                </div>
+                            </div>
+                            {/* Progress Bar */}
+                            <div className="absolute bottom-0 left-0 h-0.5 bg-cyan-500/30 w-full">
+                                <div className="h-full bg-cyan-400 animate-[progress_5s_linear_infinite] origin-left"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -307,6 +346,10 @@ const AuthPage = ({ onLogin, onAuthSuccess }) => {
                 }
                 .transform-style-3d {
                     transform-style: preserve-3d;
+                }
+                @keyframes progress {
+                    0% { transform: scaleX(0); }
+                    100% { transform: scaleX(1); }
                 }
             `}</style>
         </div>
