@@ -130,7 +130,10 @@ function App() {
       setChatMessages([...newMessages, { text: response.data.response, isUser: false }]);
       chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     } catch (err) {
-      setChatMessages([...newMessages, { text: "Error connecting to AI Command.", isUser: false }]);
+      console.error(err);
+      const statuses = { 404: "AI Service Offline (Backend not updated)", 401: "Authorization Failed", 500: "Internal System Error" };
+      const msg = statuses[err.response?.status] || "Error connecting to AI Command.";
+      setChatMessages([...newMessages, { text: `⚠️ ${msg}`, isUser: false }]);
     }
   };
 
