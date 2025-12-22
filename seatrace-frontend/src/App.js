@@ -557,6 +557,7 @@ function App() {
             { id: 'map', icon: Globe, label: 'Global Map' },
             { id: 'vessels', icon: Anchor, label: 'Vessels' },
             { id: 'spills', icon: Shield, label: 'Hazards' },
+            { id: 'reports', icon: FileText, label: 'Reports' },
             ...(userRole === 'admin' ? [{ id: 'admin', icon: Lock, label: 'Command' }] : [])
           ].map((item) => (
             <button
@@ -1174,45 +1175,100 @@ function App() {
             </div>
           )}
 
-          {/* Reports Tab - Operator/Admin only */}
-          {activeTab === 'reports' && userRole !== 'viewer' && (
-            <div className="reports-container">
-              <h2>Report Generator</h2>
-              <div className="reports-grid">
-                <div className="report-card">
-                  <h3>📋 Vessels Report</h3>
-                  <p>Download comprehensive report of all vessels, their compliance ratings, and risk assessments.</p>
+          {/* Reports Tab - Available to All Roles */}
+          {activeTab === 'reports' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-2xl font-bold font-orbitron text-white flex items-center gap-2">
+                  <FileText className="w-6 h-6 text-cyan-500" />
+                  MISSION REPORTS GENERATOR
+                </h2>
+                <div className="text-sm text-cyan-400/70 font-mono border border-cyan-500/30 px-3 py-1 rounded bg-slate-900/50">
+                  SECURE ARCHIVE ACCESS
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Vessels Report Card */}
+                <div className="cyber-panel group hover:border-cyan-400/50 transition-all duration-300 flex flex-col relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <Anchor className="w-32 h-32 text-cyan-500" />
+                  </div>
+                  <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-3 z-10">
+                    <span className="bg-cyan-900/30 p-1.5 rounded text-cyan-400"><Clipboard className="w-5 h-5" /></span>
+                    FLEET REGISTRY
+                  </h3>
+                  <p className="text-slate-400 text-sm mb-6 flex-1 z-10">
+                    Generate comprehensive manifest of all active vessels, including compliance ratings, risk assessments, and current operational status.
+                  </p>
                   <button
-                    className="download-btn"
+                    className="w-full py-3 bg-gradient-to-r from-cyan-900/40 to-blue-900/40 border border-cyan-500/30 hover:border-cyan-400 text-cyan-400 font-bold uppercase tracking-wider rounded transition-all flex items-center justify-center gap-2 group-hover:shadow-[0_0_15px_rgba(34,211,238,0.2)] z-10"
                     onClick={() => generateReport('vessels')}
                     disabled={reportLoading}
                   >
-                    {reportLoading ? '⏳ Generating...' : '⬇️ Download PDF'}
+                    {reportLoading ? <Loader className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                    {reportLoading ? 'COMPILING DATA...' : 'EXPORT DOSSIER (PDF)'}
                   </button>
                 </div>
 
-                <div className="report-card">
-                  <h3>⚠️ Oil Spills Report</h3>
-                  <p>Download detailed report of all oil spill incidents, locations, and status updates.</p>
+                {/* Oil Spills Report Card */}
+                <div className="cyber-panel group hover:border-red-500/50 transition-all duration-300 flex flex-col relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <Shield className="w-32 h-32 text-red-500" />
+                  </div>
+                  <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-3 z-10">
+                    <span className="bg-red-900/30 p-1.5 rounded text-red-400"><AlertTriangle className="w-5 h-5" /></span>
+                    INCIDENT LOGS
+                  </h3>
+                  <p className="text-slate-400 text-sm mb-6 flex-1 z-10">
+                    Retrieve detailed analysis of environmental hazards, oil spill tracking data, severity classifications, and cleanup protocol status.
+                  </p>
                   <button
-                    className="download-btn"
+                    className="w-full py-3 bg-gradient-to-r from-red-900/40 to-orange-900/40 border border-red-500/30 hover:border-red-400 text-red-400 font-bold uppercase tracking-wider rounded transition-all flex items-center justify-center gap-2 group-hover:shadow-[0_0_15px_rgba(248,113,113,0.2)] z-10"
                     onClick={() => generateReport('spills')}
                     disabled={reportLoading}
                   >
-                    {reportLoading ? '⏳ Generating...' : '⬇️ Download PDF'}
+                    {reportLoading ? <Loader className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                    {reportLoading ? 'COMPILING DATA...' : 'EXPORT INCIDENT REPORT (PDF)'}
                   </button>
                 </div>
 
-                <div className="report-card">
-                  <h3>📊 Comprehensive Report</h3>
-                  <p>Download complete marine monitoring report with vessels, spills, and all analytics.</p>
+                {/* Comprehensive Report Card */}
+                <div className="cyber-panel group hover:border-purple-500/50 transition-all duration-300 flex flex-col relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <Activity className="w-32 h-32 text-purple-500" />
+                  </div>
+                  <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-3 z-10">
+                    <span className="bg-purple-900/30 p-1.5 rounded text-purple-400"><FileText className="w-5 h-5" /></span>
+                    FULL DISPOSAL
+                  </h3>
+                  <p className="text-slate-400 text-sm mb-6 flex-1 z-10">
+                    Complete strategic overview combining fleet telemetry, environmental hazards, and system analytics into a single command viewing document.
+                  </p>
                   <button
-                    className="download-btn"
+                    className="w-full py-3 bg-gradient-to-r from-purple-900/40 to-indigo-900/40 border border-purple-500/30 hover:border-purple-400 text-purple-400 font-bold uppercase tracking-wider rounded transition-all flex items-center justify-center gap-2 group-hover:shadow-[0_0_15px_rgba(192,132,252,0.2)] z-10"
                     onClick={() => generateReport('comprehensive')}
                     disabled={reportLoading}
                   >
-                    {reportLoading ? '⏳ Generating...' : '⬇️ Download PDF'}
+                    {reportLoading ? <Loader className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                    {reportLoading ? 'COMPILING DATA...' : 'EXPORT FULL BRIEF (PDF)'}
                   </button>
+                </div>
+              </div>
+
+              {/* Recent Generated Reports (Placeholder / Visual Filler) */}
+              <div className="cyber-panel opacity-60 pointer-events-none">
+                <h3 className="text-slate-500 font-bold mb-2 text-xs uppercase tracking-wider">ARCHIVED TRANSMISSIONS (ENCRYPTED)</h3>
+                <div className="space-y-2">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="flex items-center justify-between p-2 border-b border-slate-800">
+                      <div className="flex items-center gap-3">
+                        <FileText className="w-4 h-4 text-slate-600" />
+                        <span className="text-xs text-slate-500 font-mono">SEATRACE_LOG_{20250000 + i}.enc</span>
+                      </div>
+                      <div className="text-[10px] text-slate-600">ARCHIVED</div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

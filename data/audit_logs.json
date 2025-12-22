@@ -82,5 +82,30 @@
     "action": "VIEW",
     "resource": "vessels_list",
     "details": {}
+  },
+  {
+    "timestamp": "2025-12-22T09:27:49.609263",
+    "user_email": "suriyap.aids2023@citchennai.net",
+    "action": "LOGIN_FAILED",
+    "resource": "authentication",
+    "details": {
+      "success": false
+    }
+  },
+  {
+    "timestamp": "2025-12-22T09:28:01.504094",
+    "user_email": "admin@seatrace.com",
+    "action": "LOGIN",
+    "resource": "authentication",
+    "details": {
+      "success": true
+    }
+  },
+  {
+    "timestamp": "2025-12-22T09:28:01.944192",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
   }
 ]
