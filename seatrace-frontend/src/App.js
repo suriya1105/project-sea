@@ -94,7 +94,7 @@ function App() {
     setSelectedSpillId(spillId);
 
     try {
-      const response = await axios.post(`${API_URL}/api/simulate/predict`, {
+      const response = await axios.post(`${API_BASE_URL}/api/simulate/predict`, {
         spill_id: spillId,
         ...simParams
       }, {
