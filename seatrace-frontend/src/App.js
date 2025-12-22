@@ -78,6 +78,36 @@ function App() {
   // Real-time movement tracking state
   const [vesselMovementData, setVesselMovementData] = useState({});
 
+  // AI Simulation Mode State
+  const [predictionData, setPredictionData] = useState(null);
+  const [simParams, setSimParams] = useState({
+    wind_speed: 15,
+    wind_direction: 45,
+    current_speed: 2,
+    current_direction: 90,
+    hours: 24
+  });
+  const [selectedSpillId, setSelectedSpillId] = useState(null);
+
+  const runSimulation = async (spillId) => {
+    if (!spillId) return;
+    setSelectedSpillId(spillId);
+
+    try {
+      const response = await axios.post(`${API_URL}/api/simulate/predict`, {
+        spill_id: spillId,
+        ...simParams
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setPredictionData(response.data.prediction);
+      // Show success toast or notification here
+    } catch (error) {
+      console.error("Simulation failed:", error);
+    }
+  };
+
   const [notifications, setNotifications] = useState([]);
 
 
@@ -1038,19 +1068,76 @@ function App() {
                           [vessels.find(v => v.name === spill.vessel_name).lat, vessels.find(v => v.name === spill.vessel_name).lon]
                         ]}
                         pathOptions={{ color: '#ef4444', weight: 2, dashArray: '10, 10', className: 'animate-pulse' }}
-                      >
-                        <Popup>Calculated Trajectory Link</Popup>
-                      </Polyline>
+                      />
                     )}
                   </div>
                 ))}
+
+                {/* Prediction Layer (AI Simulation) */}
+                {predictionData && predictionData.map((point, i) => (
+                  <Circle
+                    key={i}
+                    center={[point.lat, point.lon]}
+                    radius={point.radius * 111000} // deg to meters
+                    pathOptions={{
+                      color: '#a855f7', // Purple
+                      fillColor: '#a855f7',
+                      fillOpacity: 0.1 + (i / 24) * 0.2, // Fade in
+                      weight: 1
+                    }}
+                  />
+                ))}
               </MapContainer>
+
+              {/* Simulation Control Panel Overlay */}
+              {activeTab === 'map' && (
+                <div className="absolute bottom-4 left-4 z-[500] cyber-panel w-72 bg-slate-900/90 backdrop-blur">
+                  <h3 className="text-cyan-400 font-orbitron text-sm mb-3 flex items-center gap-2">
+                    <Activity className="w-4 h-4" /> AI SIMULATION MODE
+                  </h3>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs text-slate-400 block mb-1">Wind Speed: {simParams?.wind_speed || 10} kts</label>
+                      <input
+                        type="range" min="0" max="50"
+                        value={simParams?.wind_speed || 10}
+                        onChange={(e) => {
+                          setSimParams({ ...simParams, wind_speed: e.target.value });
+                          if (selectedSpillId) runSimulation(selectedSpillId);
+                        }}
+                        className="w-full accent-cyan-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-slate-400 block mb-1">Current Dir: {simParams?.current_direction || 90}°</label>
+                      <input
+                        type="range" min="0" max="360"
+                        value={simParams?.current_direction || 90}
+                        onChange={(e) => {
+                          setSimParams({ ...simParams, current_direction: e.target.value });
+                          if (selectedSpillId) runSimulation(selectedSpillId);
+                        }}
+                        className="w-full accent-cyan-500"
+                      />
+                    </div>
+                    <button
+                      onClick={() => runSimulation(oilSpills[0]?.spill_id)}
+                      className="w-full py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded uppercase transition-colors"
+                    >
+                      {predictionData ? 'Update Prediction' : 'Run Scenario'}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {activeTab === 'vessels' && (
-            <VesselsPage vessels={vessels} />
-          )}
+          {
+            activeTab === 'vessels' && (
+              <VesselsPage vessels={vessels} />
+            )
+          }
 
           {/* Oil Spills Tab - Operator/Admin only */}
           {

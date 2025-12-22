@@ -639,8 +639,78 @@ def simulate_oil_spill():
     socketio.emit('alert', {'type': 'oil_spill', 'message': f"New high severity oil spill detected near {vessel['name']}!"}, room='alerts')
     broadcast_realtime_analysis() # Update analysis dashboard
     
+
     log_access(request.user['email'], 'SIMULATE_OIL_SPILL', 'oil_spills', {'spill_id': spill_id, 'imo': imo})
     return jsonify({'message': 'Oil spill simulated and alert sent', 'spill_id': spill_id}), 200
+
+@app.route('/api/simulate/predict', methods=['POST'])
+@token_required
+def predict_spill_spread():
+    """AI 'What-If' Simulation: Predict spill spread based on weather parameters"""
+    data = request.json or {}
+    spill_id = data.get('spill_id')
+    wind_speed = float(data.get('wind_speed', 10)) # kts
+    wind_direction = float(data.get('wind_direction', 0)) # degrees
+    current_speed = float(data.get('current_speed', 1)) # kts
+    current_direction = float(data.get('current_direction', 90)) # degrees
+    hours = float(data.get('hours', 24))
+    
+    # Get initial spill location
+    spill = data_manager.get_oil_spill(spill_id)
+    if not spill:
+        return jsonify({'error': 'Spill ID not found'}), 404
+        
+    start_lat = spill['lat']
+    start_lon = spill['lon']
+    
+    # Physics Model (Simplified Fay's + Vector Addition)
+    # Wind Drift Factor: ~3% of wind speed
+    # Current Drift Factor: ~100% of current speed
+    
+    from math import cos, sin, radians
+    
+    predicted_path = []
+    
+    # Calculate hourly drift vector (in degrees approx)
+    # 1 kt approx 0.5 m/s. 1 deg lat approx 111km -> 111,000m
+    # 1 kt * 1 hr = 1.852 km approx 0.016 degrees
+    kt_to_deg = 0.016 
+    
+    wind_vec_x = (wind_speed * 0.03 * kt_to_deg) * sin(radians(wind_direction))
+    wind_vec_y = (wind_speed * 0.03 * kt_to_deg) * cos(radians(wind_direction))
+    
+    curr_vec_x = (current_speed * 1.0 * kt_to_deg) * sin(radians(current_direction))
+    curr_vec_y = (current_speed * 1.0 * kt_to_deg) * cos(radians(current_direction))
+    
+    total_drift_x = wind_vec_x + curr_vec_x
+    total_drift_y = wind_vec_y + curr_vec_y
+    
+    # Spread Calculation over time
+    current_lat = start_lat
+    current_lon = start_lon
+    
+    for h in range(int(hours) + 1):
+        # Drift center point
+        current_lat += total_drift_y
+        current_lon += total_drift_x
+        
+        # Spread radius increases with sqrt(time) (Fay's algorithm simplified)
+        # Initial radius ~ 0.5km. Growth factor.
+        radius_km = 0.5 + (0.1 * (h ** 0.5))
+        radius_deg = radius_km / 111.0
+        
+        predicted_path.append({
+            'time': h,
+            'lat': current_lat,
+            'lon': current_lon,
+            'radius': radius_deg
+        })
+        
+    return jsonify({
+        'spill_id': spill_id,
+        'prediction': predicted_path,
+        'final_area_km2': 3.14159 * (radius_km ** 2)
+    }), 200
 
 
 @app.route('/api/reports/generate', methods=['POST'])
