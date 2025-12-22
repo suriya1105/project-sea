@@ -543,7 +543,7 @@ function App() {
       <div className="grid-overlay"></div>
 
       {/* Cyber Sidebar */}
-      <div className={`cyber-sidebar flex flex-col ${isMobileMenuOpen ? 'w-64' : 'w-20'} transition-all duration-300 relative z-50 h-full border-r border-cyan-500/30`}>
+      <div className={`cyber-sidebar flex flex-col ${isMobileMenuOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 w-20'} md:relative fixed inset-y-0 left-0 transition-all duration-300 z-50 h-full border-r border-cyan-500/30 bg-slate-900/95 md:bg-transparent`}>
         {/* Logo Area */}
         <div className="h-16 flex items-center justify-center border-b border-cyan-500/20">
           <Zap className={`text-cyan-400 w-8 h-8 ${isMobileMenuOpen ? 'mr-2' : ''} animate-pulse`} />
@@ -585,12 +585,21 @@ function App() {
 
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="absolute -right-3 top-1/2 -translate-y-1/2 bg-cyan-900 border border-cyan-500 text-cyan-400 rounded-full p-1 hover:scale-110 transition-transform md:flex hidden"
+            className="absolute -right-3 top-1/2 -translate-y-1/2 bg-cyan-900 border border-cyan-500 text-cyan-400 rounded-full p-1 hover:scale-110 transition-transform hidden md:flex"
+            title="Toggle Sidebar"
           >
             {isMobileMenuOpen ? <X size={12} /> : <Menu size={12} />}
           </button>
         </div>
       </div>
+
+      {/* Mobile Sidebar Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-slate-900/80 z-40 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        ></div>
+      )}
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col relative z-10 overflow-hidden">
@@ -598,10 +607,18 @@ function App() {
         {/* Top Status Bar */}
         <header className="h-16 flex items-center justify-between px-6 border-b border-cyan-500/20 bg-slate-900/50 backdrop-blur-md">
           <div className="flex items-center gap-4">
+            {/* Mobile Menu Trigger */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden text-cyan-400 hover:text-white transition-colors"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+
             <h1 className="text-2xl font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 font-bold uppercase tracking-widest shadow-cyan-500/50 drop-shadow-sm">
               {activeTab === 'dashboard' ? 'Real-Time Operations' : activeTab.toUpperCase()}
             </h1>
-            {activeTab === 'dashboard' && <span className="flex items-center gap-2 text-xs font-mono text-cyan-500/70 border border-cyan-500/20 px-2 py-0.5 rounded bg-cyan-900/10"><span className="animate-ping w-1.5 h-1.5 bg-cyan-400 rounded-full"></span> LIVE FEED</span>}
+            {activeTab === 'dashboard' && <span className="hidden md:flex items-center gap-2 text-xs font-mono text-cyan-500/70 border border-cyan-500/20 px-2 py-0.5 rounded bg-cyan-900/10"><span className="animate-ping w-1.5 h-1.5 bg-cyan-400 rounded-full"></span> LIVE FEED</span>}
           </div>
 
           <div className="flex items-center gap-6">
