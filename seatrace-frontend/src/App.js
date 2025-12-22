@@ -943,36 +943,68 @@ function App() {
                   />
                 ))}
 
-                {/* Vessels */}
-                {vessels.map(vessel => (
-                  <div key={vessel.imo}>
-                    <Marker position={[vessel.lat, vessel.lon]}>
-                      <Popup className="cyber-popup">
-                        <div className="p-2 bg-slate-900 text-cyan-400 border border-cyan-500/50 rounded text-xs font-mono">
-                          <strong className="text-sm block mb-1 border-b border-cyan-500/30 pb-1">{vessel.name}</strong>
-                          <div>IMO: {vessel.imo}</div>
-                          <div>Type: {vessel.type}</div>
-                          <div>Speed: {vessel.speed} kts</div>
-                          <div className="text-green-400 mt-1">STATUS: ACTIVE</div>
-                        </div>
-                      </Popup>
-                    </Marker>
-                    {/* Vessel Trail */}
-                    {vesselMovementData[vessel.imo] && (
-                      <Polyline
-                        positions={vesselMovementData[vessel.imo].map(d => [d.lat, d.lon])}
-                        pathOptions={{ color: '#00f3ff', weight: 1, opacity: 0.4 }}
-                      />
-                    )}
-                  </div>
-                ))}
+                {/* Vessels with Unique Directional Icons */}
+                {vessels.map(vessel => {
+                  // Custom Icon Logic
+                  const getIconColor = (type) => {
+                    if (type.includes('Tanker')) return '#ef4444'; // Red
+                    if (type.includes('Container')) return '#06b6d4'; // Cyan
+                    if (type.includes('Fishing')) return '#22c55e'; // Green
+                    return '#f59e0b'; // Amber default
+                  };
+
+                  const color = getIconColor(vessel.type);
+
+                  const customIcon = L.divIcon({
+                    className: 'custom-vessel-icon',
+                    html: `
+                      <div style="transform: rotate(${vessel.course}deg); width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
+                        <svg viewBox="0 0 24 24" fill="${color}" stroke="white" stroke-width="1" width="24" height="24" style="filter: drop-shadow(0 0 4px ${color});">
+                          ${vessel.type.includes('Tanker')
+                        ? '<path d="M12 2L20 8V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V8L12 2Z" />' // Hull shape
+                        : vessel.type.includes('Container')
+                          ? '<path d="M4 6H20V20H4V6ZM12 2L20 6H4L12 2Z" />' // Boxy shape
+                          : '<path d="M12 2L2 22L12 18L22 22L12 2Z" />' // Arrow shape
+                      }
+                        </svg>
+                      </div>
+                    `,
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                  });
+
+                  return (
+                    <div key={vessel.imo}>
+                      <Marker position={[vessel.lat, vessel.lon]} icon={customIcon}>
+                        <Popup className="cyber-popup">
+                          <div className="p-2 bg-slate-900 text-cyan-400 border border-cyan-500/50 rounded text-xs font-mono">
+                            <strong className="text-sm block mb-1 border-b border-cyan-500/30 pb-1">{vessel.name}</strong>
+                            <div>TYPE: {vessel.type}</div>
+                            <div>COURSE: {vessel.course.toFixed(0)}°</div>
+                            <div>SPEED: {vessel.speed} kts</div>
+                            <div className={`mt-1 font-bold ${vessel.risk_level === 'High' ? 'text-red-500' : 'text-green-500'}`}>
+                              RISK: {vessel.risk_level}
+                            </div>
+                          </div>
+                        </Popup>
+                      </Marker>
+                      {/* Vessel Trail */}
+                      {vesselMovementData[vessel.imo] && (
+                        <Polyline
+                          positions={vesselMovementData[vessel.imo].map(d => [d.lat, d.lon])}
+                          pathOptions={{ color: color, weight: 1, opacity: 0.4 }}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
 
                 {/* Oil Spills */}
                 {oilSpills.map(spill => (
                   <div key={spill.spill_id}>
                     <Circle
                       center={[spill.lat, spill.lon]}
-                      radius={spill.radius * 2 || 5000}
+                      radius={(spill.size_tons || 100) * 50}// approximate radius from tons
                       pathOptions={{
                         color: '#ef4444',
                         fillColor: '#ef4444',
@@ -985,7 +1017,7 @@ function App() {
                           <strong className="text-sm block mb-1">⚠️ SPILL DETECTED</strong>
                           <div>ID: {spill.spill_id}</div>
                           <div>Severtiy: {spill.severity}</div>
-                          <div>Area: {spill.estimated_area_km2} km²</div>
+                          <div>Size: {spill.size_tons}t</div>
                         </div>
                       </Popup>
                     </Circle>

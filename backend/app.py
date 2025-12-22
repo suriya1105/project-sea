@@ -68,7 +68,57 @@ else:
     cors_origins = '*'
 
 CORS(app, origins=cors_origins)
-socketio = SocketIO(app, cors_allowed_origins=cors_origins)
+socketio = SocketIO(app, cors_allowed_origins=cors_origins, async_mode='eventlet')
+
+# Global Simulation Thread
+simulation_thread = None
+simulation_active = True
+
+def simulate_vessel_movement():
+    """Background thread to update vessel positions based on course/speed"""
+    from math import cos, sin, radians
+    print("Starting Vessel Movement Simulation...")
+    while simulation_active:
+        vessels = data_manager.get_vessels()
+        
+        for imo, v in vessels.items():
+            # Move ~0.0005 deg per tick per 10kts (approx visual movement)
+            speed_factor = 0.0005 * (float(v.get('speed', 10)) / 10.0)
+            course_rad = radians(float(v.get('course', 0)))
+            
+            # Update lat/lon
+            new_lat = v['lat'] + (speed_factor * cos(course_rad))
+            new_lon = v['lon'] + (speed_factor * sin(course_rad))
+            
+            # Simple boundary bounce logic (Indian Ocean bounds)
+            if not (5 <= new_lat <= 30): 
+                v['course'] = (v['course'] + 180 + random.uniform(-20, 20)) % 360
+                new_lat = max(5, min(30, new_lat))
+            if not (50 <= new_lon <= 100): 
+                v['course'] = (v['course'] + 180 + random.uniform(-20, 20)) % 360
+                new_lon = max(50, min(100, new_lon))
+            
+            v['lat'] = new_lat
+            v['lon'] = new_lon
+            
+            # Random course adjustment for realism
+            if random.random() < 0.05:
+                v['course'] = (v['course'] + random.uniform(-5, 5)) % 360
+                
+            data_manager.update_vessel(imo, v)
+        
+        # Broadcast updates
+        broadcast_realtime_analysis()
+        socketio.sleep(1) # 1Hz update rate
+
+# Start simulation on first request (handled by app startup)
+@app.before_request
+def start_simulation():
+    global simulation_thread
+    if not simulation_thread:
+        # Check if we are in the main process to avoid duplicate threads in reloader
+        if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+            simulation_thread = socketio.start_background_task(simulate_vessel_movement)
 
 def log_access(user_email, action, resource, details=None):
     """Log user access for audit trail"""
