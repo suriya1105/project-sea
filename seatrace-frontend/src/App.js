@@ -42,6 +42,7 @@ function App() {
   const [userName, setUserName] = useState('');
   const [userRole, setUserRole] = useState('viewer');
   const [token, setToken] = useState(localStorage.getItem('token') || '');
+  console.log("SeaTrace API Target:", API_BASE_URL); // Debug connection
   const [vessels, setVessels] = useState([]);
   const [oilSpills, setOilSpills] = useState([]);
   const [dashboardData, setDashboardData] = useState(null);
@@ -95,7 +96,7 @@ function App() {
     setSelectedSpillId(spillId);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/simulate/predict`, {
+      const response = await axios.post(`${API_BASE_URL}/simulate/predict`, {
         spill_id: spillId,
         ...simParams
       }, {
@@ -124,7 +125,7 @@ function App() {
     setChatMessages(newMessages);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/chat`, { message: text }, {
+      const response = await axios.post(`${API_BASE_URL}/chat`, { message: text }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setChatMessages([...newMessages, { text: response.data.response, isUser: false }]);
