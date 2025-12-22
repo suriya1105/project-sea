@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
 import { Zap, Shield, AlertTriangle, Wind, Eye, Activity, Cpu } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+
 
 // Cyber-themed component for AI Analysis
 const AIAnalysisPanel = ({ token, userRole }) => {
