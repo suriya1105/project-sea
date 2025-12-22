@@ -79,31 +79,16 @@ const AIAnalysisPanel = ({ token, userRole }) => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
                 {/* Left Col: Status & Confidence */}
                 <div className="space-y-4">
-                    <div className="p-4 bg-slate-900/50 border border-cyan-500/20 rounded-lg relative overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/5 to-transparent animate-scan"></div>
-                        <div className="text-xs text-cyan-500 font-bold uppercase tracking-wider mb-1">THREAT LEVEL</div>
-                        <div className="text-2xl font-rajdhani font-bold flex items-center gap-2" style={{ color: statusColor }}>
-                            {analysis?.status === 'CRITICAL_DETECTION' ? <AlertTriangle className="w-6 h-6" /> : <Shield className="w-6 h-6" />}
-                            {analysis?.status.replace('_', ' ')}
-                        </div>
-                    </div>
-
-                    <div className="p-4 bg-slate-900/50 border border-cyan-500/20 rounded-lg flex items-center justify-between">
-                        <div>
-                            <div className="text-xs text-cyan-500 font-bold uppercase tracking-wider mb-1">CONFIDENCE SCORE</div>
-                            <div className="text-3xl font-orbitron font-bold text-white">
-                                {analysis?.confidence_score}<span className="text-sm text-cyan-600">%</span>
+                    <div>
+                        <div className="p-4 bg-slate-900/50 border border-cyan-500/20 rounded-lg relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/5 to-transparent animate-scan"></div>
+                            <div className="text-xs text-cyan-500 font-bold uppercase tracking-wider mb-1">THREAT LEVEL</div>
+                            <div className="text-2xl font-rajdhani font-bold flex items-center gap-2" style={{ color: statusColor }}>
+                                {analysis?.status === 'CRITICAL_DETECTION' ? <AlertTriangle className="w-6 h-6" /> : <Shield className="w-6 h-6" />}
+                                {analysis?.status.replace('_', ' ')}
                             </div>
-                        </div>
-                        {/* Simple Confidence Gauge Visualization */}
-                        <div className="w-16 h-16 relative flex items-center justify-center">
-                            <svg className="w-full h-full transform -rotate-90">
-                                <circle cx="32" cy="32" r="28" stroke="#1e293b" strokeWidth="4" fill="none" />
-                                <circle cx="32" cy="32" r="28" stroke={statusColor} strokeWidth="4" fill="none" strokeDasharray={`${analysis?.confidence_score * 1.75} 1000`} />
-                            </svg>
                         </div>
                     </div>
                 </div>
