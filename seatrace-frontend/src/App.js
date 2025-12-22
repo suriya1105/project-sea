@@ -988,12 +988,15 @@ function App() {
                           </div>
                         </Popup>
                       </Marker>
-                      {/* Vessel Trail */}
-                      {vesselMovementData[vessel.imo] && (
+
+                      {/* Vessel Historic Track (Breadcrumbs) */}
+                      {vessel.history && vessel.history.length > 2 && (
                         <Polyline
-                          positions={vesselMovementData[vessel.imo].map(d => [d.lat, d.lon])}
-                          pathOptions={{ color: color, weight: 1, opacity: 0.4 }}
-                        />
+                          positions={vessel.history.map(h => [h.lat, h.lon])}
+                          pathOptions={{ color: color, weight: 2, opacity: 0.3, dashArray: '5, 10' }}
+                        >
+                          <Popup>Track History: {vessel.name}</Popup>
+                        </Polyline>
                       )}
                     </div>
                   );
@@ -1018,9 +1021,27 @@ function App() {
                           <div>ID: {spill.spill_id}</div>
                           <div>Severtiy: {spill.severity}</div>
                           <div>Size: {spill.size_tons}t</div>
+                          {spill.vessel_name && (
+                            <div className="mt-2 pt-2 border-t border-red-500/50 text-yellow-300 animate-pulse">
+                              SOURCE CONFIRMED: <br />{spill.vessel_name}
+                            </div>
+                          )}
                         </div>
                       </Popup>
                     </Circle>
+
+                    {/* Source Identification Link Line */}
+                    {spill.vessel_name && vessels.find(v => v.name === spill.vessel_name) && (
+                      <Polyline
+                        positions={[
+                          [spill.lat, spill.lon],
+                          [vessels.find(v => v.name === spill.vessel_name).lat, vessels.find(v => v.name === spill.vessel_name).lon]
+                        ]}
+                        pathOptions={{ color: '#ef4444', weight: 2, dashArray: '10, 10', className: 'animate-pulse' }}
+                      >
+                        <Popup>Calculated Trajectory Link</Popup>
+                      </Polyline>
+                    )}
                   </div>
                 ))}
               </MapContainer>

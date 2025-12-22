@@ -78,10 +78,14 @@ def simulate_vessel_movement():
     """Background thread to update vessel positions based on course/speed"""
     from math import cos, sin, radians
     print("Starting Vessel Movement Simulation...")
+    tick_count = 0
     while simulation_active:
         vessels = data_manager.get_vessels()
         
         for imo, v in vessels.items():
+            # Initialize history if missing
+            if 'history' not in v: v['history'] = []
+            
             # Move ~0.0005 deg per tick per 10kts (approx visual movement)
             speed_factor = 0.0005 * (float(v.get('speed', 10)) / 10.0)
             course_rad = radians(float(v.get('course', 0)))
@@ -104,11 +108,39 @@ def simulate_vessel_movement():
             # Random course adjustment for realism
             if random.random() < 0.05:
                 v['course'] = (v['course'] + random.uniform(-5, 5)) % 360
+            
+            # Store history breadcrumb every 5 ticks (approx 5 secs)
+            if tick_count % 5 == 0:
+                v['history'].append({'lat': new_lat, 'lon': new_lon, 'timestamp': datetime.utcnow().isoformat()})
+                # Keep last 50 points
+                if len(v['history']) > 50: v['history'].pop(0)
                 
-            data_manager.update_vessel(imo, v)
-        
+            # Check for Oil Spill Source Linkage (MarineTraffic-style Intelligence)
+            # If a vessel passes near a spill, flag it as a potential source
+            spills = data_manager.get_oil_spills()
+            for s_id, spill in spills.items():
+                if spill['status'] == 'Active':
+                    # dist squared approx
+                    d_lat = v['lat'] - spill['lat']
+                    d_lon = v['lon'] - spill['lon']
+                    dist_sq = d_lat*d_lat + d_lon*d_lon
+                    
+                    # Threshold approx 0.05 degrees (~5km)
+                    if dist_sq < 0.0025:
+                        # High probability link
+                        spill['vessel_name'] = v['name']
+                        spill['confidence'] = min(0.99, spill.get('confidence', 0.5) + 0.1)
+                        data_manager.update_oil_spill(s_id, spill)
+                        
+                        # Trigger specific alert
+                        socketio.emit('alert', {
+                           'type': 'source_id', 
+                           'message': f"SOURCE CONFIRMED: {v['name']} linked to Spill {s_id} via trajectory analysis."
+                        }, room='alerts')
+
         # Broadcast updates
         broadcast_realtime_analysis()
+        tick_count += 1
         socketio.sleep(1) # 1Hz update rate
 
 # Start simulation on first request (handled by app startup)
@@ -1095,6 +1127,7 @@ def broadcast_realtime_analysis():
             'name': v['name'],
             'lat': v['lat'],
             'lon': v['lon'],
+            'history': v.get('history', []),
             'speed': v['speed'],
             'course': v['course'],
             'destination': v.get('destination', 'Unknown'),
