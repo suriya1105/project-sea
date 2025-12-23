@@ -151,13 +151,38 @@ function App() {
   const [chatMessages, setChatMessages] = useState([]);
   const chatEndRef = React.useRef(null);
 
-  // Smart Avatar - Local Knowledge Base
+  // Import Assets
+  import cyberVesselImg from './assets/cyber_vessel.png';
+  import oilSpillImg from './assets/oil_spill_analysis.png';
+
+  // Smart Avatar - Comprehensive Knowledge Base (Simulated NLP)
   const AVATAR_KB = [
-    { key: ['oil spill', 'detect'], response: "I use Sentinel-1B SAR imagery combined with Real-Time AIS data to detect spectral anomalies consistent with hydrocarbon synthesis." },
-    { key: ['status', 'system'], response: "All systems operational. Deep Learning Inference Engine: ONLINE. Latency: 45ms." },
-    { key: ['features', 'can you'], response: "I can monitor active spills, track vessels in real-time, generate risk heatmaps, and provide instant situational reports." },
-    { key: ['clean', 'cleanup'], response: "For hydrocarbon spills, I recommend: 1. Mechanical Skimmers, 2. Chemical Dispersants (if depth > 20m), 3. In-situ burning (controlled)." },
-    { key: ['hello', 'hi'], response: "Greetings, Commander. Avatar AI online and ready for orders." }
+    // General Greetings & Status
+    { key: ['hello', 'hi', 'hey', 'greetings'], response: "Greetings, Commander. Avatar AI online. I am ready to assist with fleet tracking, hazard analysis, and mission protocols." },
+    { key: ['status', 'system', 'report'], response: "System Status: OPTIMAL. Satellite Uplink: STABLE (Latency 45ms). AI Inference Engine: ACTIVE. No critical failures detected." },
+    { key: ['who are you', 'what are you'], response: "I am Seatrace Avatar, an advanced maritime intelligence AI designed for real-time fleet monitoring and environmental hazard prediction." },
+
+    // Oil Spill & Environmental
+    { key: ['oil spill', 'detect', 'slick'], response: "I detect hydrocarbon signatures using Sentinel-1B SAR imagery. My algorithms analyze spectral anomalies to distinguish between biogenic look-alikes and mineral oil films." },
+    { key: ['clean', 'cleanup', 'response'], response: "For active spills, I recommend the following protocol: 1. Deploy containment booms to limit spread. 2. Use mechanical skimmers for recovery. 3. Apply chemical dispersants only if depth > 20m and wind < 15 kts." },
+    { key: ['dispersant', 'chemical'], response: "Dispersants break down oil into smaller droplets for biodegradation. Caution: Avoid use near coral reefs or shallow spawning grounds." },
+
+    // Vessel & Navigation
+    { key: ['vessel', 'ship', 'fleet'], response: "I am currently tracking the active fleet. I can provide telemetry on Tankers, Cargo Freighters, Fishing Trawlers, and Naval Patrol units." },
+    { key: ['ais', 'tracking'], response: "Automatic Identification System (AIS) data is fused with satellite optics to verify vessel identity. I can detect 'ghost ships' that disable their transponders." },
+    { key: ['fishing', 'illegal', 'iuu'], response: "Illegal, Unreported, and Unregulated (IUU) fishing is detected by analyzing movement patterns. Zig-zag courses near protected zones often indicate unauthorized trawling." },
+
+    // Physics & Oceanography
+    { key: ['weather', 'forecast', 'wind'], response: "Current ocean conditions are stable. I am monitoring for cyclonic formation in the Indian Ocean basin. Wind shear is currently low." },
+    { key: ['current', 'drift'], response: "Ocean currents are a major factor in spill trajectory. I use HyCOM models to predict pollutant drift velocity." },
+
+    // Security & Navy
+    { key: ['navy', 'security', 'patrol'], response: "Naval assets are on standby. DEFCON status is 5 (Normal). I am monitoring for piracy vectors in the Gulf of Aden corridor." },
+    { key: ['pirate', 'piracy', 'threat'], response: "High-risk piracy zones are marked in red. Vessels are advised to maintain 18+ knots and deploy citadel protocols if approached by skiffs." },
+
+    // Technical
+    { key: ['update', 'software'], response: "My neural networks are updated daily via encrypted satellite beam. Current version: 4.2.0-Alpha." },
+    { key: ['help', 'usage'], response: "You can ask me about: 'Active Spills', 'Fleet Status', 'Weather Conditions', 'Cleanup Protocols', or 'Security Alerts'." }
   ];
 
   const handleSendMessage = async (text) => {
@@ -704,6 +729,7 @@ function App() {
             { id: 'vessels', icon: Anchor, label: 'Vessels' },
             { id: 'spills', icon: Shield, label: 'Hazards' },
             { id: 'reports', icon: FileText, label: 'Reports' },
+            // Access Control: Only Admins can see the Command/Settings panel
             userRole === 'admin' ? { id: 'admin', icon: Lock, label: 'Command' } : null
           ].filter(Boolean).map((item) => (
             <button
@@ -1452,7 +1478,12 @@ function App() {
 
                     {/* Oil Spills Report Card */}
                     <div className="cyber-panel group hover:border-red-500/50 transition-all duration-300 flex flex-col relative overflow-hidden">
-                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                      {/* Background Image Overlay */}
+                      <div className="absolute inset-0 z-0 opacity-20 group-hover:opacity-30 transition-opacity">
+                        <img src={oilSpillImg} alt="Hazard Analysis" className="w-full h-full object-cover" />
+                      </div>
+
+                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity z-10">
                         <Shield className="w-32 h-32 text-red-500" />
                       </div>
                       <h3 className="text-lg font-bold text-white flex items-center gap-2 mb-3 z-10">
