@@ -672,27 +672,27 @@ function App() {
             { id: 'vessels', icon: Anchor, label: 'Vessels' },
             { id: 'spills', icon: Shield, label: 'Hazards' },
             { id: 'reports', icon: FileText, label: 'Reports' },
-            { id: 'admin', icon: Lock, label: 'Command' }] : [])
+            ...(userRole === 'admin' ? [{ id: 'admin', icon: Lock, label: 'Command' }] : [])
           ].map((item) => (
-          <button
-            key={item.id}
-            onClick={() => {
-              if (activeTab !== item.id) {
-                soundManager.playNav();
-                setIsTransitioning(true);
-                setTimeout(() => {
-                  setActiveTab(item.id);
-                  setIsTransitioning(false);
-                }, 150); // Slight delay for exit effect if added, or just sound sync
-              }
-            }}
-            onMouseEnter={() => soundManager.playHover()}
-            className={`sidebar-item p-3 rounded-lg flex items-center justify-center md:justify-start gap-4 ${activeTab === item.id ? 'active' : ''}`}
-            title={item.label}
-          >
-            <item.icon className={`w-6 h-6 ${activeTab === item.id ? 'text-cyan-400 drop-shadow-[0_0_5px_rgba(0,243,255,0.5)]' : ''}`} />
-            {isMobileMenuOpen && <span className="font-rajdhani font-semibold tracking-wider text-sm whitespace-nowrap">{item.label}</span>}
-          </button>
+            <button
+              key={item.id}
+              onClick={() => {
+                if (activeTab !== item.id) {
+                  soundManager.playNav();
+                  setIsTransitioning(true);
+                  setTimeout(() => {
+                    setActiveTab(item.id);
+                    setIsTransitioning(false);
+                  }, 150); // Slight delay for exit effect if added, or just sound sync
+                }
+              }}
+              onMouseEnter={() => soundManager.playHover()}
+              className={`sidebar-item p-3 rounded-lg flex items-center justify-center md:justify-start gap-4 ${activeTab === item.id ? 'active' : ''}`}
+              title={item.label}
+            >
+              <item.icon className={`w-6 h-6 ${activeTab === item.id ? 'text-cyan-400 drop-shadow-[0_0_5px_rgba(0,243,255,0.5)]' : ''}`} />
+              {isMobileMenuOpen && <span className="font-rajdhani font-semibold tracking-wider text-sm whitespace-nowrap">{item.label}</span>}
+            </button>
           ))}
         </div>
 
@@ -2097,14 +2097,14 @@ function App() {
           <div className="fixed bottom-24 right-6 z-[1000] w-80 h-96 cyber-panel bg-slate-900/95 backdrop-blur flex flex-col font-mono text-xs">
             <div className="p-3 border-b border-cyan-500/30 flex justify-between items-center bg-slate-800/50">
               <span className="font-bold text-cyan-400 flex items-center gap-2">
-                <Activity className="w-3 h-3" /> ASK SEATRACE AI
+                <Activity className="w-3 h-3" /> AVATAR AI
               </span>
               <button onClick={() => setIsChatOpen(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-3 space-y-3">
               <div className="bg-slate-800 p-2 rounded rounded-tl-none border border-slate-700 max-w-[85%]">
-                <p className="text-slate-300">System Online. Accessing Satellite Feeds... How can I assist you today?</p>
+                <p className="text-slate-300">Hello! I'm Avatar, your intelligent maritime assistant. Accessing satellite feeds... How can I assist you today?</p>
               </div>
               {chatMessages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
