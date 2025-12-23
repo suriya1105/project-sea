@@ -27,3 +27,89 @@ code {
     padding: 0.75rem !important;
   }
 }
+
+/* --- Advanced Animations & Effects --- */
+
+/* Page Transition: "Moving and Shifting" */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Avatar Glow Effect */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.avatar-glow {
+  position: relative;
+}
+
+.avatar-glow::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--primary, #06b6d4);
+  transform: translate(-50%, -50%);
+  animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+  z-index: -1;
+}
+
+/* Hologram Effect */
+.hologram-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.hologram-effect::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(to bottom,
+      transparent,
+      rgba(6, 182, 212, 0.05) 40%,
+      rgba(6, 182, 212, 0.1) 50%,
+      rgba(6, 182, 212, 0.05) 60%,
+      transparent);
+  transform: rotate(45deg);
+  animation: hologram-scan 4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes hologram-scan {
+  0% {
+    transform: translateY(-100%) rotate(45deg);
+  }
+
+  100% {
+    transform: translateY(100%) rotate(45deg);
+  }
+}

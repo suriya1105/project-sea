@@ -3,13 +3,31 @@ import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
     BarChart, Bar
 } from 'recharts';
-import { Loader2, AlertTriangle, Ship, wind, Waves } from 'lucide-react';
-// import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet'; // Assuming standard map components used elsewhere
+import { Loader2, AlertTriangle, Ship, Waves, Activity } from 'lucide-react';
 
 const AnalyticsPanel = () => {
     const [anomalies, setAnomalies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [satelliteData, setSatelliteData] = useState(null);
+
+    // Mock data for Barges vs Others (based on user request)
+    const vesselTypeData = [
+        { year: '1985', Barges: 2500, Others: 500 },
+        { year: '1986', Barges: 6000, Others: 600 },
+        { year: '1987', Barges: 3500, Others: 800 },
+        { year: '1988', Barges: 3000, Others: 900 },
+        { year: '1989', Barges: 13000, Others: 1000 }, // Spike
+        { year: '1990', Barges: 7500, Others: 800 },
+        { year: '1991', Barges: 1500, Others: 900 },
+        { year: '1992', Barges: 1500, Others: 1000 },
+        { year: '1993', Barges: 1300, Others: 800 },
+        { year: '1994', Barges: 1400, Others: 600 },
+        { year: '1995', Barges: 1800, Others: 700 },
+        { year: '1996', Barges: 1800, Others: 600 },
+        { year: '1997', Barges: 1000, Others: 800 },
+        { year: '1998', Barges: 700, Others: 600 },
+        { year: '1999', Barges: 700, Others: 400 },
+    ];
 
     useEffect(() => {
         fetchAnomalies();
@@ -144,6 +162,28 @@ const AnalyticsPanel = () => {
 
                     <div className="mt-4 text-xs text-slate-500">
                         Model: U-Net (ResNet34 Backbone) • Latency: 450ms • Accuracy: 94.2%
+                    </div>
+                </div>
+
+                {/* Historical Spill Analysis: Barges vs Others */}
+                <div className="bg-slate-800/80 p-6 rounded-lg border border-slate-700 hover:border-cyan-500/50 transition-colors hologram-effect col-span-1 md:col-span-2">
+                    <h3 className="text-lg font-orbitron text-cyan-400 mb-4 flex items-center gap-2">
+                        <Activity className="w-5 h-5" /> Historical Spill Source Analysis (Gallons)
+                    </h3>
+                    <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={vesselTypeData}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                                <XAxis dataKey="year" stroke="#9ca3af" />
+                                <YAxis stroke="#9ca3af" />
+                                <Tooltip
+                                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #06b6d4', color: '#fff' }}
+                                />
+                                <Legend />
+                                <Bar dataKey="Barges" fill="#0f766e" name="Barges & Tankers" />
+                                <Bar dataKey="Others" fill="#dc2626" name="All Other Vessels" />
+                            </BarChart>
+                        </ResponsiveContainer>
                     </div>
                 </div>
 
