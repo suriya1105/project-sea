@@ -400,3 +400,37 @@ body {
     flex-direction: column;
   }
 }
+
+/* GLOBAL RESET & SPACE REMOVAL */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+/* Hide any accidental Footers */
+footer, .footer {
+    display: none !important;
+}
+/* Ensure Main Content fills space without extra gaps */
+.app {
+    padding-bottom: 0 !important;
+}
+main {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+}
+/* Mobile Tweaks */
+@media (max-width: 768px) {
+    .cyber-sidebar {
+        border-right: none;
+    }
+    .leaflet-container {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 60vh; 
+        border-radius: 0 !important;
+    }
+}
+
