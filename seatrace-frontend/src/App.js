@@ -672,8 +672,8 @@ function App() {
             { id: 'vessels', icon: Anchor, label: 'Vessels' },
             { id: 'spills', icon: Shield, label: 'Hazards' },
             { id: 'reports', icon: FileText, label: 'Reports' },
-            ...(userRole === 'admin' ? [{ id: 'admin', icon: Lock, label: 'Command' }] : [])
-          ].map((item) => (
+            userRole === 'admin' ? { id: 'admin', icon: Lock, label: 'Command' } : null
+          ].filter(Boolean).map((item) => (
             <button
               key={item.id}
               onClick={() => {
