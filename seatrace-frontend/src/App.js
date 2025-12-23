@@ -177,33 +177,6 @@ function App() {
     { key: ['update', 'software'], response: "My neural networks are updated daily via encrypted satellite beam. Current version: 4.2.0-Alpha." },
     { key: ['help', 'usage'], response: "You can ask me about: 'Active Spills', 'Fleet Status', 'Weather Conditions', 'Cleanup Protocols', or 'Security Alerts'." }
   ];
-  // General Greetings & Status
-  { key: ['hello', 'hi', 'hey', 'greetings'], response: "Greetings, Commander. Avatar AI online. I am ready to assist with fleet tracking, hazard analysis, and mission protocols." },
-  { key: ['status', 'system', 'report'], response: "System Status: OPTIMAL. Satellite Uplink: STABLE (Latency 45ms). AI Inference Engine: ACTIVE. No critical failures detected." },
-  { key: ['who are you', 'what are you'], response: "I am Seatrace Avatar, an advanced maritime intelligence AI designed for real-time fleet monitoring and environmental hazard prediction." },
-
-  // Oil Spill & Environmental
-  { key: ['oil spill', 'detect', 'slick'], response: "I detect hydrocarbon signatures using Sentinel-1B SAR imagery. My algorithms analyze spectral anomalies to distinguish between biogenic look-alikes and mineral oil films." },
-  { key: ['clean', 'cleanup', 'response'], response: "For active spills, I recommend the following protocol: 1. Deploy containment booms to limit spread. 2. Use mechanical skimmers for recovery. 3. Apply chemical dispersants only if depth > 20m and wind < 15 kts." },
-  { key: ['dispersant', 'chemical'], response: "Dispersants break down oil into smaller droplets for biodegradation. Caution: Avoid use near coral reefs or shallow spawning grounds." },
-
-  // Vessel & Navigation
-  { key: ['vessel', 'ship', 'fleet'], response: "I am currently tracking the active fleet. I can provide telemetry on Tankers, Cargo Freighters, Fishing Trawlers, and Naval Patrol units." },
-  { key: ['ais', 'tracking'], response: "Automatic Identification System (AIS) data is fused with satellite optics to verify vessel identity. I can detect 'ghost ships' that disable their transponders." },
-  { key: ['fishing', 'illegal', 'iuu'], response: "Illegal, Unreported, and Unregulated (IUU) fishing is detected by analyzing movement patterns. Zig-zag courses near protected zones often indicate unauthorized trawling." },
-
-  // Physics & Oceanography
-  { key: ['weather', 'forecast', 'wind'], response: "Current ocean conditions are stable. I am monitoring for cyclonic formation in the Indian Ocean basin. Wind shear is currently low." },
-  { key: ['current', 'drift'], response: "Ocean currents are a major factor in spill trajectory. I use HyCOM models to predict pollutant drift velocity." },
-
-  // Security & Navy
-  { key: ['navy', 'security', 'patrol'], response: "Naval assets are on standby. DEFCON status is 5 (Normal). I am monitoring for piracy vectors in the Gulf of Aden corridor." },
-  { key: ['pirate', 'piracy', 'threat'], response: "High-risk piracy zones are marked in red. Vessels are advised to maintain 18+ knots and deploy citadel protocols if approached by skiffs." },
-
-  // Technical
-  { key: ['update', 'software'], response: "My neural networks are updated daily via encrypted satellite beam. Current version: 4.2.0-Alpha." },
-  { key: ['help', 'usage'], response: "You can ask me about: 'Active Spills', 'Fleet Status', 'Weather Conditions', 'Cleanup Protocols', or 'Security Alerts'." }
-  ];
 
   const handleSendMessage = async (text) => {
     if (!text.trim()) return;
