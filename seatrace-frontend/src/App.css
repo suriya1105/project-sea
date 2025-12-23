@@ -380,3 +380,23 @@ body {
 .recharts-tooltip-cursor {
   fill: rgba(0, 243, 255, 0.05) !important;
 }
+/* Mobile Optimization */
+@media (max-width: 768px) {
+  .cyber-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  .cyber-input {
+    font-size: 16px;
+  }
+  .cyber-sidebar {
+    position: fixed;
+    height: 100vh;
+    z-index: 1000;
+  }
+  .leaflet-container {
+    height: 60vh !important; 
+  }
+  .auth-container {
+    flex-direction: column;
+  }
+}

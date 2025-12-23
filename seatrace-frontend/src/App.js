@@ -22,7 +22,12 @@ import AuthPage from './components/AuthPage';
 import VesselsPage from './components/VesselsPage';
 import UsersPage from './components/UsersPage';
 import AnalyticsPanel from './components/AnalyticsPanel';
-import AIAnalysisPanel from './components/AIAnalysisPanel'; // Keep this import for now, as it's used in the new AnalyticsPanel
+import AIAnalysisPanel from './components/AIAnalysisPanel'; // Keep this import for now
+import AvatarAssistant from './components/AvatarAssistant';
+import FishingDashboard from './components/VesselDashboards/FishingDashboard';
+import CargoDashboard from './components/VesselDashboards/CargoDashboard';
+import TankerDashboard from './components/VesselDashboards/TankerDashboard';
+import NavyDashboard from './components/VesselDashboards/NavyDashboard';
 import { API_BASE_URL, SOCKET_URL } from './config';
 
 // Fix leaflet icon issue
@@ -113,6 +118,10 @@ function App() {
     hours: 24
   });
   const [selectedSpillId, setSelectedSpillId] = useState(null);
+
+  // New Features State
+  const [isAvatarOpen, setIsAvatarOpen] = useState(false);
+  const [selectedVessel, setSelectedVessel] = useState(null);
 
   const runSimulation = async (spillId) => {
     if (!spillId) return;
@@ -1274,7 +1283,46 @@ function App() {
 
             {
               activeTab === 'vessels' && (
-                <VesselsPage vessels={vessels} />
+                selectedVessel ? (
+                  <div className="space-y-4 animate-slide-in">
+                    <button
+                      onClick={() => setSelectedVessel(null)}
+                      className="flex items-center gap-2 text-cyan-400 hover:text-white transition-colors mb-4 group"
+                    >
+                      <ArrowRight className="rotate-180 w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to Fleet Registry
+                    </button>
+
+                    {/* Header for specialized view */}
+                    <div className="flex items-center gap-4 bg-slate-900/50 p-6 rounded-lg border border-cyan-500/20 mb-6 backdrop-blur-sm">
+                      <div className="w-20 h-20 bg-slate-800 rounded-lg overflow-hidden border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+                        <img src="https://images.unsplash.com/photo-1542350719-7517c919d650?q=80&w=200" alt={selectedVessel.name} className="w-full h-full object-cover" />
+                      </div>
+                      <div>
+                        <h2 className="text-3xl font-bold text-white font-orbitron tracking-wide">{selectedVessel.name}</h2>
+                        <div className="flex gap-4 text-sm text-cyan-400 font-mono mt-1">
+                          <span className="px-2 py-0.5 bg-cyan-900/40 rounded border border-cyan-500/20">IMO: {selectedVessel.imo}</span>
+                          <span className="px-2 py-0.5 bg-cyan-900/40 rounded border border-cyan-500/20">TYPE: {selectedVessel.type}</span>
+                          <span className={`px-2 py-0.5 rounded border ${selectedVessel.status === 'Active' ? 'bg-green-900/40 border-green-500/20 text-green-400' : 'bg-slate-700 border-slate-600 text-gray-400'}`}>STATUS: {selectedVessel.status || 'Active'}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {(selectedVessel.type.includes('Fishing')) && <FishingDashboard vessel={selectedVessel} />}
+                    {(selectedVessel.type.includes('Cargo') || selectedVessel.type.includes('Container')) && <CargoDashboard vessel={selectedVessel} />}
+                    {(selectedVessel.type.includes('Tanker')) && <TankerDashboard vessel={selectedVessel} />}
+                    {(selectedVessel.type.includes('Navy') || selectedVessel.type.includes('Gov') || selectedVessel.type.includes('Military')) && <NavyDashboard vessel={selectedVessel} />}
+
+                    {/* Fallback */}
+                    {!selectedVessel.type.includes('Fishing') &&
+                      !selectedVessel.type.includes('Cargo') && !selectedVessel.type.includes('Container') &&
+                      !selectedVessel.type.includes('Tanker') &&
+                      !selectedVessel.type.includes('Navy') && !selectedVessel.type.includes('Gov') && !selectedVessel.type.includes('Military') && (
+                        <CargoDashboard vessel={selectedVessel} />
+                      )}
+                  </div>
+                ) : (
+                  <VesselsPage vessels={vessels} onVesselSelect={setSelectedVessel} />
+                )
               )
             }
 
@@ -2249,6 +2297,25 @@ function App() {
           </div>
         )}
       </div>
+
+      {/* Avatar Assistant - Always Floating */}
+      <AvatarAssistant isOpen={isAvatarOpen} onClose={() => setIsAvatarOpen(false)} />
+
+      {/* Avatar Toggle Button (FAB) */}
+      {!isAvatarOpen && (
+        <button
+          onClick={() => {
+            soundManager.playNav();
+            setIsAvatarOpen(true);
+          }}
+          className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-cyan-500 hover:bg-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.6)] flex items-center justify-center transition-all z-[90] group animate-slide-up"
+          title="Open AI Assistant"
+        >
+          <div className="absolute inset-0 rounded-full bg-cyan-400 animate-ping opacity-20"></div>
+          <Zap className="w-8 h-8 text-black fill-current" />
+        </button>
+      )}
+
     </div>
   );
 }

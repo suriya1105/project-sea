@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { User, Lock, ArrowRight, Activity, Shield, Eye, EyeOff, Anchor, Mail, Phone, Info } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
+import LoginScene3D from './LoginScene3D';
+
 const AuthPage = ({ onLogin, onAuthSuccess }) => {
     const [isLoginMode, setIsLoginMode] = useState(true);
     const [loading, setLoading] = useState(false);
@@ -129,18 +131,8 @@ const AuthPage = ({ onLogin, onAuthSuccess }) => {
 
     return (
         <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-slate-900 font-sans animate-slide-in">
-            {/* Dynamic Background */}
-            <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-[#0B1120] to-[#020617] z-0"></div>
-
-            {/* Animated Grid Floor */}
-            <div className="absolute inset-0 z-0 opacity-20"
-                style={{
-                    backgroundImage: 'linear-gradient(rgba(0, 243, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 243, 255, 0.1) 1px, transparent 1px)',
-                    backgroundSize: '40px 40px',
-                    transform: 'perspective(500px) rotateX(60deg) translateY(100px) scale(2)',
-                    transformOrigin: 'bottom'
-                }}>
-            </div>
+            {/* 3D Background Scene */}
+            <LoginScene3D />
 
             {/* Ambient Glows */}
             <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-[128px] animate-pulse"></div>

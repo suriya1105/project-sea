@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, Filter, Ship, Anchor, Navigation, Package, DollarSign, MapPin, Flag, Activity } from 'lucide-react';
 
-const VesselsPage = ({ vessels }) => {
+const VesselsPage = ({ vessels, onVesselSelect }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('All');
 
@@ -67,7 +67,11 @@ const VesselsPage = ({ vessels }) => {
             {/* Vessels Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredVessels.map((vessel, index) => (
-                    <div key={vessel.imo || index} className="bg-slate-800/80 rounded-xl overflow-hidden border border-slate-700 hover:border-cyan-500/50 transition-all hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] group relative">
+                    <div
+                        key={vessel.imo || index}
+                        onClick={() => typeof onVesselSelect === 'function' && onVesselSelect(vessel)}
+                        className="bg-slate-800/80 rounded-xl overflow-hidden border border-slate-700 hover:border-cyan-500/50 transition-all hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] group relative cursor-pointer"
+                    >
                         {/* Image Section */}
                         <div className="h-40 w-full relative overflow-hidden bg-slate-800">
                             <img
