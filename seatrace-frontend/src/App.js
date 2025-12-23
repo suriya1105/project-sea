@@ -142,10 +142,33 @@ function App() {
   const [chatMessages, setChatMessages] = useState([]);
   const chatEndRef = React.useRef(null);
 
+  // Smart Avatar - Local Knowledge Base
+  const AVATAR_KB = [
+    { key: ['oil spill', 'detect'], response: "I use Sentinel-1B SAR imagery combined with Real-Time AIS data to detect spectral anomalies consistent with hydrocarbon synthesis." },
+    { key: ['status', 'system'], response: "All systems operational. Deep Learning Inference Engine: ONLINE. Latency: 45ms." },
+    { key: ['features', 'can you'], response: "I can monitor active spills, track vessels in real-time, generate risk heatmaps, and provide instant situational reports." },
+    { key: ['clean', 'cleanup'], response: "For hydrocarbon spills, I recommend: 1. Mechanical Skimmers, 2. Chemical Dispersants (if depth > 20m), 3. In-situ burning (controlled)." },
+    { key: ['hello', 'hi'], response: "Greetings, Commander. Avatar AI online and ready for orders." }
+  ];
+
   const handleSendMessage = async (text) => {
     if (!text.trim()) return;
     const newMessages = [...chatMessages, { text, isUser: true }];
     setChatMessages(newMessages);
+
+    // Fast Response Logic (Client-Side)
+    const lowerText = text.toLowerCase();
+    const localMatch = AVATAR_KB.find(item => item.key.some(k => lowerText.includes(k)));
+
+    if (localMatch) {
+      // Simulate "typing" fast response
+      setTimeout(() => {
+        setChatMessages(prev => [...prev, { text: localMatch.response, isUser: false }]);
+        soundManager.playLogin(); // Use login sound as a "message received" chime
+        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 600); // 600ms delay for realism
+      return;
+    }
 
     try {
       const response = await axios.post(`${API_BASE_URL}/chat`, { message: text }, {
