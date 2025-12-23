@@ -6,3 +6,6 @@ reportlab==4.0.8
 requests==2.31.0
 eventlet==0.33.3
 gunicorn==21.2.0
+pandas==2.2.0
+numpy==1.26.0
+google-generativeai==0.3.2

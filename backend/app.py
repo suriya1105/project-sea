@@ -40,6 +40,13 @@ except Exception as e:
     REGION_FILTER = {}
 import threading
 
+# --- AI & Analytics Integration ---
+from ais_analytics import ais_analyzer
+from spill_forecasting import spill_forecaster
+from llm_service import llm_service
+from model_inference import model_inference
+# ----------------------------------
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-prod')
 
@@ -643,16 +650,43 @@ def simulate_oil_spill():
     log_access(request.user['email'], 'SIMULATE_OIL_SPILL', 'oil_spills', {'spill_id': spill_id, 'imo': imo})
     return jsonify({'message': 'Oil spill simulated and alert sent', 'spill_id': spill_id}), 200
 
+@app.route('/api/analytics/ais-anomalies', methods=['GET', 'POST'])
+@token_required
+def check_ais_anomalies():
+    """Analyze current vessel traffic for anomalies using Pandas/NumPy"""
+    vessels = list(data_manager.get_vessels().values())
+    anomalies = ais_analyzer.detect_anomalies(vessels)
+    
+    # If POST, we might be filtering or running specific checks
+    return jsonify({
+        'anomalies': anomalies,
+        'count': len(anomalies),
+        'timestamp': datetime.utcnow().isoformat()
+    }), 200
+
+@app.route('/api/analytics/satellite-check', methods=['POST'])
+@token_required
+def check_satellite_imagery():
+    """Simulate Deep Learning Satellite Analysis"""
+    # In real app, receive image file or ID
+    result = model_inference.analyze_satellite_image({'timestamp': datetime.utcnow().isoformat()})
+    return jsonify(result), 200
+
 @app.route('/api/simulate/predict', methods=['POST'])
 @token_required
 def predict_spill_spread():
     """AI 'What-If' Simulation: Predict spill spread based on weather parameters"""
+    # Use the dedicated SpillForecaster module
     data = request.json or {}
     spill_id = data.get('spill_id')
-    wind_speed = float(data.get('wind_speed', 10)) # kts
-    wind_direction = float(data.get('wind_direction', 0)) # degrees
-    current_speed = float(data.get('current_speed', 1)) # kts
-    current_direction = float(data.get('current_direction', 90)) # degrees
+    
+    # Defaults
+    env = {
+        'wind_speed': float(data.get('wind_speed', 10)),
+        'wind_dir': float(data.get('wind_direction', 0)),
+        'current_speed': float(data.get('current_speed', 1)),
+        'current_dir': float(data.get('current_direction', 90))
+    }
     hours = float(data.get('hours', 24))
     
     # Get initial spill location
@@ -660,56 +694,14 @@ def predict_spill_spread():
     if not spill:
         return jsonify({'error': 'Spill ID not found'}), 404
         
-    start_lat = spill['lat']
-    start_lon = spill['lon']
+    prediction = spill_forecaster.run_simulation(spill, env, duration_hours=int(hours))
     
-    # Physics Model (Simplified Fay's + Vector Addition)
-    # Wind Drift Factor: ~3% of wind speed
-    # Current Drift Factor: ~100% of current speed
-    
-    from math import cos, sin, radians
-    
-    predicted_path = []
-    
-    # Calculate hourly drift vector (in degrees approx)
-    # 1 kt approx 0.5 m/s. 1 deg lat approx 111km -> 111,000m
-    # 1 kt * 1 hr = 1.852 km approx 0.016 degrees
-    kt_to_deg = 0.016 
-    
-    wind_vec_x = (wind_speed * 0.03 * kt_to_deg) * sin(radians(wind_direction))
-    wind_vec_y = (wind_speed * 0.03 * kt_to_deg) * cos(radians(wind_direction))
-    
-    curr_vec_x = (current_speed * 1.0 * kt_to_deg) * sin(radians(current_direction))
-    curr_vec_y = (current_speed * 1.0 * kt_to_deg) * cos(radians(current_direction))
-    
-    total_drift_x = wind_vec_x + curr_vec_x
-    total_drift_y = wind_vec_y + curr_vec_y
-    
-    # Spread Calculation over time
-    current_lat = start_lat
-    current_lon = start_lon
-    
-    for h in range(int(hours) + 1):
-        # Drift center point
-        current_lat += total_drift_y
-        current_lon += total_drift_x
-        
-        # Spread radius increases with sqrt(time) (Fay's algorithm simplified)
-        # Initial radius ~ 0.5km. Growth factor.
-        radius_km = 0.5 + (0.1 * (h ** 0.5))
-        radius_deg = radius_km / 111.0
-        
-        predicted_path.append({
-            'time': h,
-            'lat': current_lat,
-            'lon': current_lon,
-            'radius': radius_deg
-        })
-        
-    final_area = 3.14159 * (radius_km ** 2)
+    # Calculate impacts (simplified)
+    # Area based on final radius
+    final_radius = prediction[-1]['radius_km']
+    final_area = 3.14159 * (final_radius ** 2)
     
     # Economic Impact Estimator
-    # Base rates per km2
     cleanup_rate = 50000 
     rehab_rate = 35000
     econ_rate = 25000
@@ -723,7 +715,7 @@ def predict_spill_spread():
 
     return jsonify({
         'spill_id': spill_id,
-        'prediction': predicted_path,
+        'prediction': prediction,
         'final_area_km2': final_area,
         'economic_impact': impact
     }), 200
@@ -736,28 +728,16 @@ def chat_bot():
     data = request.json or {}
     message = data.get('message', '').lower()
     
-    # Simple Intent Recognition Logic
-    response_text = "I didn't understand that query. Try asking about 'active spills', 'tanker status', or 'weather'."
+    # Use LLM Service
     
-    if 'spill' in message or 'leak' in message:
-        spills = data_manager.get_oil_spills()
-        active_count = sum(1 for s in spills.values() if s['status'] == 'Active')
-        if active_count > 0:
-            details = ", ".join([f"Spill {s['spill_id']} ({s['severity']})" for s in spills.values() if s['status'] == 'Active'])
-            response_text = f"There are currently {active_count} active oil spills detected: {details}. Check the Incidents tab for more."
-        else:
-            response_text = "No active oil spills detected at this moment. The ocean is clear."
-            
-    elif 'tanker' in message or 'vessel' in message or 'ship' in message:
-        vessels = data_manager.get_vessels()
-        high_risk = sum(1 for v in vessels.values() if v.get('risk_level') == 'High')
-        response_text = f"Tracking {len(vessels)} vessels in the sector. {high_risk} are classified as High Risk. Top vessel: {list(vessels.values())[0]['name']}."
-        
-    elif 'weather' in message or 'wind' in message:
-        response_text = "Current conditions: Wind 12kts NW, Sea State Moderate. Visibility Good."
-        
-    elif 'cost' in message or 'economic' in message:
-        response_text = "Economic Impact models estimate potential ecosystem services loss at $50k/km² for current anomalies."
+    # Build context from Data Manager
+    context = {
+        'vessels': data_manager.get_vessels(),
+        'spills': data_manager.get_oil_spills(),
+        'alerts': [] # could fetch alerts if implemented
+    }
+    
+    response_text = llm_service.generate_response(message, context)
         
     return jsonify({
         'response': response_text,

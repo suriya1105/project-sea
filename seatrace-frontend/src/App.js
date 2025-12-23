@@ -19,9 +19,10 @@ import 'leaflet/dist/leaflet.css';
 // Trigger redeploy for build fix
 
 import AuthPage from './components/AuthPage';
-import UsersPage from './components/UsersPage';
 import VesselsPage from './components/VesselsPage';
-import AIAnalysisPanel from './components/AIAnalysisPanel';
+import UsersPage from './components/UsersPage';
+import AnalyticsPanel from './components/AnalyticsPanel';
+import AIAnalysisPanel from './components/AIAnalysisPanel'; // Keep this import for now, as it's used in the new AnalyticsPanel
 import { API_BASE_URL, SOCKET_URL } from './config';
 
 // Fix leaflet icon issue
@@ -615,6 +616,7 @@ function App() {
         <div className="flex-1 py-6 flex flex-col gap-2 px-2">
           {[
             { id: 'dashboard', icon: Activity, label: 'Live Ops' },
+            { id: 'analytics', icon: BarChart2, label: 'AI Analytics' },
             { id: 'map', icon: Globe, label: 'Global Map' },
             { id: 'vessels', icon: Anchor, label: 'Vessels' },
             { id: 'spills', icon: Shield, label: 'Hazards' },
@@ -795,9 +797,6 @@ function App() {
           {/* Dashboard - Visible to all roles */}
           {activeTab === 'dashboard' && dashboardData && (
             <div className="space-y-6">
-              {/* Advanced AI Analysis Section */}
-              <AIAnalysisPanel token={token} userRole={userRole} />
-
               {/* Stats Overview Grid */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="cyber-panel flex items-center justify-between group hover:border-cyan-400 transition-colors">
@@ -954,6 +953,11 @@ function App() {
               </div>
 
             </div>
+          )}
+
+          {/* AI Analytics Tab */}
+          {activeTab === 'analytics' && (
+            <AnalyticsPanel token={token} userRole={userRole} />
           )}
 
           {/* Map - All roles */}
