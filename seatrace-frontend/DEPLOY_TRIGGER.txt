@@ -1,0 +1,2 @@
+Force Deploy Trigger: 2025-12-23
+Reason: Verify dependency fix.
