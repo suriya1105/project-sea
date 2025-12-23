@@ -15,3 +15,15 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Mobile optimizations: Reduce spacing */
+@media (max-width: 768px) {
+  .cyber-panel {
+    margin-bottom: 0.75rem !important;
+    padding: 0.75rem !important;
+  }
+
+  .p-6 {
+    padding: 0.75rem !important;
+  }
+}
