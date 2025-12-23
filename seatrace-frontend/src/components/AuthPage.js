@@ -68,7 +68,7 @@ const AuthPage = ({ onLogin, onAuthSuccess }) => {
         setError('');
 
         try {
-            await new Promise(r => setTimeout(r, 800)); // Cinematic delay
+            await new Promise(r => setTimeout(r, 1200)); // Cinematic delay for effect
 
             if (isLoginMode) {
                 await onLogin(email, password);
@@ -128,7 +128,7 @@ const AuthPage = ({ onLogin, onAuthSuccess }) => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-slate-900 font-sans">
+        <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-slate-900 font-sans animate-slide-in">
             {/* Dynamic Background */}
             <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-[#0B1120] to-[#020617] z-0"></div>
 

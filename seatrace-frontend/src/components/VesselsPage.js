@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Search, Filter, Ship, Anchor, Navigation, Package, DollarSign, MapPin } from 'lucide-react';
+import { Search, Filter, Ship, Anchor, Navigation, Package, DollarSign, MapPin, Flag, Activity } from 'lucide-react';
 
 const VesselsPage = ({ vessels }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -18,8 +17,22 @@ const VesselsPage = ({ vessels }) => {
 
     const uniqueTypes = ['All', ...new Set(vesselsList.map(v => v.type))];
 
+    // Image set for vessels
+    const vehicleImages = [
+        "https://images.unsplash.com/photo-1542350719-7517c919d650?q=80&w=400",
+        "https://images.unsplash.com/photo-1605218427368-35b84d4d6a78?q=80&w=400",
+        "https://images.unsplash.com/photo-1516685018646-549198525c1b?q=80&w=400",
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=400",
+        "https://images.unsplash.com/photo-1559825481-12a05cc00f08?q=80&w=400",
+        "https://images.unsplash.com/photo-1563861826-6b5a791a9a88?q=80&w=400"
+    ];
+
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 p-4 md:p-6">
+            <h1 className="text-2xl font-bold text-cyan-400 mb-6 flex items-center gap-2">
+                <Anchor className="w-6 h-6" /> Vessel Registry
+            </h1>
+
             {/* Header & Controls */}
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-900/50 p-4 rounded-lg border border-cyan-500/20">
                 <div className="flex items-center gap-3 w-full md:w-auto">
@@ -53,70 +66,53 @@ const VesselsPage = ({ vessels }) => {
 
             {/* Vessels Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredVessels.map((vessel) => (
-                    <div key={vessel.imo} className="cyber-panel group relative overflow-hidden bg-slate-900 border border-slate-700 hover:border-cyan-500/50 transition-all duration-300">
+                {filteredVessels.map((vessel, index) => (
+                    <div key={vessel.imo || index} className="bg-slate-800/80 rounded-xl overflow-hidden border border-slate-700 hover:border-cyan-500/50 transition-all hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] group relative">
                         {/* Image Section */}
-                        <div className="h-48 w-full relative overflow-hidden bg-slate-800">
+                        <div className="h-40 w-full relative overflow-hidden bg-slate-800">
                             <img
-                                src={vessel.image || `https://source.unsplash.com/400x300/?ship,${vessel.type}`}
+                                src={vehicleImages[index % vehicleImages.length]}
                                 alt={vessel.name}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 filter brightness-75 group-hover:brightness-100"
+                                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500"
                             />
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
                             <div className="absolute top-2 right-2 bg-black/70 backdrop-blur px-2 py-1 rounded text-xs font-mono text-cyan-400 border border-cyan-500/20">
                                 IMO: {vessel.imo}
                             </div>
-                            <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-slate-900 to-transparent">
-                                <div className="flex items-center gap-2">
-                                    <span className={`w-2 h-2 rounded-full ${vessel.risk_level === 'High' ? 'bg-red-500 animate-pulse' : 'bg-green-500'}`}></span>
-                                    <span className="text-xs text-white font-mono">{vessel.status}</span>
-                                </div>
+                            <div className="absolute bottom-2 left-2 px-2">
+                                <h3 className="text-lg font-bold text-white font-orbitron truncate drop-shadow-md" title={vessel.name}>{vessel.name}</h3>
                             </div>
                         </div>
 
                         {/* Details Section */}
-                        <div className="p-4 space-y-3">
-                            <div>
-                                <h3 className="text-lg font-bold text-white font-orbitron truncate" title={vessel.name}>{vessel.name}</h3>
-                                <div className="text-sm text-slate-400 flex items-center gap-1">
-                                    <Ship className="w-3 h-3" /> {vessel.type} • {vessel.flag}
-                                </div>
+                        <div className="p-4 space-y-3 text-sm">
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-slate-400 flex items-center gap-1"><Flag className="w-3 h-3" /> Flag</span>
+                                <span className="text-slate-200">{vessel.flag}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-slate-400 flex items-center gap-1"><Ship className="w-3 h-3" /> Type</span>
+                                <span className="text-white px-2 py-0.5 bg-cyan-900/30 rounded border border-cyan-500/20 text-xs">{vessel.type}</span>
                             </div>
 
-                            {/* Cargo Manifest (FMCG Data) */}
                             {vessel.cargo_manifest && (
-                                <div className="bg-slate-800/50 p-2 rounded border border-slate-700/50 text-xs space-y-1">
+                                <div className="bg-slate-800/50 p-2 rounded border border-slate-700/50 text-xs mt-2 relative overflow-hidden">
                                     <div className="flex items-center gap-1 text-cyan-400 font-bold uppercase border-b border-slate-700 pb-1 mb-1">
-                                        <Package className="w-3 h-3" /> Cargo Manifest
+                                        <Package className="w-3 h-3" /> Cargo
                                     </div>
-                                    <div className="flex justify-between">
+                                    <div className="grid grid-cols-2 gap-x-2">
                                         <span className="text-slate-400">Owner:</span>
-                                        <span className="text-white">{vessel.cargo_manifest.major_brand}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-slate-400">Type:</span>
-                                        <span className="text-cyan-100">{vessel.cargo_manifest.category}</span>
-                                    </div>
-                                    <div className="flex justify-between">
+                                        <span className="text-white truncate">{vessel.cargo_manifest.major_brand}</span>
                                         <span className="text-slate-400">Value:</span>
                                         <span className="text-green-400">{vessel.cargo_manifest.value_est_usd}</span>
                                     </div>
                                 </div>
                             )}
 
-                            {/* Route Info */}
-                            <div className="grid grid-cols-2 gap-2 text-xs">
-                                <div className="bg-slate-800 p-2 rounded border border-slate-700">
-                                    <div className="text-slate-500 flex items-center gap-1 mb-1">
-                                        <Navigation className="w-3 h-3" /> Speed
-                                    </div>
-                                    <div className="text-white font-mono">{vessel.speed} kn</div>
-                                </div>
-                                <div className="bg-slate-800 p-2 rounded border border-slate-700">
-                                    <div className="text-slate-500 flex items-center gap-1 mb-1">
-                                        <MapPin className="w-3 h-3" /> Destination
-                                    </div>
-                                    <div className="text-white font-mono truncate" title={vessel.destination}>{vessel.destination}</div>
-                                </div>
+                            {/* Expanded Details on Hover/Touch */}
+                            <div className="pt-3 border-t border-slate-700 flex justify-between items-center text-xs font-mono text-cyan-500">
+                                <div className="flex items-center gap-1"><Activity className="w-3 h-3" /> {vessel.status || "Underway"}</div>
+                                <div className="flex items-center gap-1"><Navigation className="w-3 h-3" /> {vessel.speed} kn</div>
                             </div>
                         </div>
                     </div>
