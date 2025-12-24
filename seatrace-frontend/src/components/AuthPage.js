@@ -34,7 +34,7 @@ const AuthPage = ({ onLogin, onAuthSuccess }) => {
             setCurrentFactIndex((prev) => (prev + 1) % marineFacts.length);
         }, 5000);
         return () => clearInterval(interval);
-    }, []);
+    }, [marineFacts.length]);
 
     const [error, setError] = useState('');
 

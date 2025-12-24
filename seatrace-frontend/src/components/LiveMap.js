@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, LayersControl, GeoJSON, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import { Activity } from 'lucide-react';

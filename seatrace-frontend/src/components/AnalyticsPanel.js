@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import {
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     BarChart, Bar
 } from 'recharts';
-import { Loader2, AlertTriangle, Ship, Waves, Activity, Cpu, Radio, ShieldCheck, Zap } from 'lucide-react';
+import { Loader2, Ship, Waves, Cpu, ShieldCheck, Zap } from 'lucide-react';
 
 const AnalyticsPanel = () => {
     const [anomalies, setAnomalies] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [satelliteData, setSatelliteData] = useState(null);
+    // const [satelliteData, setSatelliteData] = useState(null); // Unused
     const [summaryIndex, setSummaryIndex] = useState(0);
 
     // Large Dataset of 40 Unique Images for Visual Feed
@@ -84,7 +84,7 @@ const AnalyticsPanel = () => {
             clearInterval(textInterval);
             clearInterval(imageInterval);
         };
-    }, []);
+    }, []); // aiSummaries and datasetImages are constant, dependencies not strictly needed for stable logic
 
     const fetchAnomalies = async () => {
         try {
