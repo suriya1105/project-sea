@@ -30,6 +30,8 @@ import FishingDashboard from './components/VesselDashboards/FishingDashboard';
 import CargoDashboard from './components/VesselDashboards/CargoDashboard';
 import TankerDashboard from './components/VesselDashboards/TankerDashboard';
 import NavyDashboard from './components/VesselDashboards/NavyDashboard';
+import SpillsPage from './components/SpillsPage';
+import LiveMap from './components/LiveMap';
 import { API_BASE_URL, SOCKET_URL } from './config';
 
 // Fix leaflet icon issue
@@ -1075,229 +1077,17 @@ function App() {
 
             {/* Map - All roles */}
             {activeTab === 'map' && (
-              <div className="flex-1 flex flex-col h-full cyber-panel p-0 overflow-hidden relative" style={{ minHeight: '80vh' }}>
-                <div className="absolute inset-0 z-0 map-radar-overlay"></div>
-
-                {/* Map Controls Overlay */}
-                <div className="absolute top-4 right-4 z-[500] flex flex-col gap-2">
-                  <div className="bg-slate-900/80 backdrop-blur border border-cyan-500/30 p-2 rounded text-cyan-400 text-xs font-mono">
-                    <div className="flex items-center gap-2 mb-1"><span className="w-2 h-2 rounded-full bg-cyan-400"></span> LIVE SAT FEED</div>
-                    <div>LAT: {vessels[0]?.lat.toFixed(4) || '00.000'} | LON: {vessels[0]?.lon.toFixed(4) || '00.000'}</div>
-                  </div>
-                </div>
-
-                <MapContainer center={[20, 80]} zoom={5} style={{ height: '100%', width: '100%' }} className="z-0 bg-slate-900">
-                  <LayersControl position="topright">
-                    <LayersControl.BaseLayer checked name="Deep Ocean (Dark)">
-                      <TileLayer
-                        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                      />
-                    </LayersControl.BaseLayer>
-                    <LayersControl.BaseLayer name="Satellite Mode">
-                      <TileLayer
-                        url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                        attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-                      />
-                    </LayersControl.BaseLayer>
-                  </LayersControl>
-
-                  {/* GeoJSON Boundaries */}
-                  {Object.values(countryBoundaries).map((country, index) => (
-                    <GeoJSON
-                      key={index}
-                      data={country}
-                      style={{
-                        color: '#00f3ff',
-                        weight: 1,
-                        fillColor: '#00f3ff',
-                        fillOpacity: 0.05,
-                        dashArray: '5, 5'
-                      }}
-                    />
-                  ))}
-
-                  {/* Vessels with Unique Directional Icons */}
-                  {vessels.map(vessel => {
-                    // Custom Icon Logic
-                    const getIconColor = (type) => {
-                      if (type.includes('Tanker')) return '#ef4444'; // Red
-                      if (type.includes('Container')) return '#06b6d4'; // Cyan
-                      if (type.includes('Fishing')) return '#22c55e'; // Green
-                      return '#f59e0b'; // Amber default
-                    };
-
-                    const color = getIconColor(vessel.type);
-
-                    const customIcon = L.divIcon({
-                      className: 'custom-vessel-icon',
-                      html: `
-                      <div style="transform: rotate(${vessel.course}deg); width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
-                        <svg viewBox="0 0 24 24" fill="${color}" stroke="white" stroke-width="1" width="24" height="24" style="filter: drop-shadow(0 0 4px ${color});">
-                          ${vessel.type.includes('Tanker')
-                          ? '<path d="M12 2L20 8V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V8L12 2Z" />' // Hull shape
-                          : vessel.type.includes('Container')
-                            ? '<path d="M4 6H20V20H4V6ZM12 2L20 6H4L12 2Z" />' // Boxy shape
-                            : '<path d="M12 2L2 22L12 18L22 22L12 2Z" />' // Arrow shape
-                        }
-                        </svg>
-                      </div>
-                    `,
-                      iconSize: [30, 30],
-                      iconAnchor: [15, 15]
-                    });
-
-                    return (
-                      <div key={vessel.imo}>
-                        <Marker position={[vessel.lat, vessel.lon]} icon={customIcon}>
-                          <Popup className="cyber-popup">
-                            <div className="p-2 bg-slate-900 text-cyan-400 border border-cyan-500/50 rounded text-xs font-mono">
-                              <strong className="text-sm block mb-1 border-b border-cyan-500/30 pb-1">{vessel.name}</strong>
-                              <div>TYPE: {vessel.type}</div>
-                              <div>COURSE: {vessel.course.toFixed(0)}°</div>
-                              <div>SPEED: {vessel.speed} kts</div>
-                              <div className={`mt-1 font-bold ${vessel.risk_level === 'High' ? 'text-red-500' : 'text-green-500'}`}>
-                                RISK: {vessel.risk_level}
-                              </div>
-                            </div>
-                          </Popup>
-                        </Marker>
-
-                        {/* Vessel Historic Track (Breadcrumbs) */}
-                        {vessel.history && vessel.history.length > 2 && (
-                          <Polyline
-                            positions={vessel.history.map(h => [h.lat, h.lon])}
-                            pathOptions={{ color: color, weight: 2, opacity: 0.3, dashArray: '5, 10' }}
-                          >
-                            <Popup>Track History: {vessel.name}</Popup>
-                          </Polyline>
-                        )}
-                      </div>
-                    );
-                  })}
-
-                  {/* Oil Spills */}
-                  {oilSpills.map(spill => (
-                    <div key={spill.spill_id}>
-                      <Circle
-                        center={[spill.lat, spill.lon]}
-                        radius={(spill.size_tons || 100) * 50}// approximate radius from tons
-                        pathOptions={{
-                          color: '#ef4444',
-                          fillColor: '#ef4444',
-                          fillOpacity: 0.3,
-                          className: 'animate-pulse'
-                        }}
-                      >
-                        <Popup>
-                          <div className="p-2 bg-red-900/90 text-red-100 border border-red-500 rounded text-xs font-mono">
-                            <strong className="text-sm block mb-1">⚠️ SPILL DETECTED</strong>
-                            <div>ID: {spill.spill_id}</div>
-                            <div>Severtiy: {spill.severity}</div>
-                            <div>Size: {spill.size_tons}t</div>
-                            {spill.vessel_name && (
-                              <div className="mt-2 pt-2 border-t border-red-500/50 text-yellow-300 animate-pulse">
-                                SOURCE CONFIRMED: <br />{spill.vessel_name}
-                              </div>
-                            )}
-                          </div>
-                        </Popup>
-                      </Circle>
-
-                      {/* Source Identification Link Line */}
-                      {spill.vessel_name && vessels.find(v => v.name === spill.vessel_name) && (
-                        <Polyline
-                          positions={[
-                            [spill.lat, spill.lon],
-                            [vessels.find(v => v.name === spill.vessel_name).lat, vessels.find(v => v.name === spill.vessel_name).lon]
-                          ]}
-                          pathOptions={{ color: '#ef4444', weight: 2, dashArray: '10, 10', className: 'animate-pulse' }}
-                        />
-                      )}
-                    </div>
-                  ))}
-
-                  {/* Prediction Layer (AI Simulation) */}
-                  {predictionData && predictionData.map((point, i) => (
-                    <Circle
-                      key={i}
-                      center={[point.lat, point.lon]}
-                      radius={point.radius * 111000} // deg to meters
-                      pathOptions={{
-                        color: '#a855f7', // Purple
-                        fillColor: '#a855f7',
-                        fillOpacity: 0.1 + (i / 24) * 0.2, // Fade in
-                        weight: 1
-                      }}
-                    />
-                  ))}
-                </MapContainer>
-
-                {/* Simulation Control Panel Overlay */}
-                {activeTab === 'map' && (
-                  <div className="absolute bottom-4 left-4 z-[500] cyber-panel w-72 bg-slate-900/90 backdrop-blur">
-                    <h3 className="text-cyan-400 font-orbitron text-sm mb-3 flex items-center gap-2">
-                      <Activity className="w-4 h-4" /> AI SIMULATION MODE
-                    </h3>
-
-                    <div className="space-y-3">
-                      <div>
-                        <label className="text-xs text-slate-400 block mb-1">Wind Speed: {simParams?.wind_speed || 10} kts</label>
-                        <input
-                          type="range" min="0" max="50"
-                          value={simParams?.wind_speed || 10}
-                          onChange={(e) => {
-                            setSimParams({ ...simParams, wind_speed: e.target.value });
-                            if (selectedSpillId) runSimulation(selectedSpillId);
-                          }}
-                          className="w-full accent-cyan-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs text-slate-400 block mb-1">Current Dir: {simParams?.current_direction || 90}°</label>
-                        <input
-                          type="range" min="0" max="360"
-                          value={simParams?.current_direction || 90}
-                          onChange={(e) => {
-                            setSimParams({ ...simParams, current_direction: e.target.value });
-                            if (selectedSpillId) runSimulation(selectedSpillId);
-                          }}
-                          className="w-full accent-cyan-500"
-                        />
-                      </div>
-                      <button
-                        onClick={() => runSimulation(oilSpills[0]?.spill_id)}
-                        className="w-full py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded uppercase transition-colors"
-                      >
-                        {predictionData ? 'Update Prediction' : 'Run Scenario'}
-                      </button>
-
-                      {predictionStats && predictionStats.economic_impact && (
-                        <div className="mt-4 pt-3 border-t border-slate-700/50">
-                          <h4 className="text-xs text-slate-400 font-bold mb-2">ECONOMIC IMPACT ESTIMATE</h4>
-                          <div className="grid grid-cols-2 gap-2 text-xs">
-                            <div className="bg-slate-800/80 p-1.5 rounded border border-red-500/30">
-                              <span className="block text-slate-500 text-[10px]">TOTAL LOSS</span>
-                              <span className="text-red-400 font-mono font-bold">
-                                ${(predictionStats.economic_impact.total_estimated_cost / 1000000).toFixed(2)}M
-                              </span>
-                            </div>
-                            <div className="bg-slate-800/80 p-1.5 rounded border border-cyan-500/30">
-                              <span className="block text-slate-500 text-[10px]">CLEANUP</span>
-                              <span className="text-cyan-400 font-mono font-bold">
-                                ${(predictionStats.economic_impact.cleanup_cost / 1000000).toFixed(2)}M
-                              </span>
-                            </div>
-                          </div>
-                          <div className="mt-2 text-[10px] text-slate-500 italic text-center">
-                            *Based on {predictionStats.final_area_km2.toFixed(1)} km² spread
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
+              <LiveMap
+                vessels={vessels}
+                oilSpills={oilSpills}
+                countryBoundaries={countryBoundaries}
+                predictionData={predictionData}
+                simParams={simParams}
+                setSimParams={setSimParams}
+                runSimulation={runSimulation}
+                selectedSpillId={selectedSpillId}
+                predictionStats={predictionStats}
+              />
             )}
 
             {
@@ -1347,88 +1137,8 @@ function App() {
 
             {/* Oil Spills Tab - Operator/Admin only */}
             {
-              activeTab === 'spills' && userRole !== 'viewer' && (
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <h2 className="text-2xl font-bold font-orbitron text-white flex items-center gap-2">
-                      <Shield className="w-6 h-6 text-red-500" />
-                      INCIDENT RESPONSE LOG
-                    </h2>
-                    <div className="text-sm text-red-400/70 font-mono border border-red-500/30 px-3 py-1 rounded bg-slate-900/50">
-                      ACTIVE HAZARDS: {oilSpills.length}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {oilSpills.map(spill => (
-                      <div key={spill.spill_id} className="cyber-panel p-0 overflow-hidden group hover:border-red-500/50 transition-all duration-300">
-                        <div className="relative h-48 w-full overflow-hidden bg-slate-900">
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent z-10"></div>
-                          <img
-                            src={spill.image || 'https://images.unsplash.com/photo-1628126233061-0b445853b02c?auto=format&fit=crop&q=80'}
-                            alt={spill.spill_id}
-                            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 opacity-60 group-hover:opacity-100"
-                            onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1628126233061-0b445853b02c?auto=format&fit=crop&q=80' }}
-                          />
-                          <div className="absolute top-3 right-3 z-20">
-                            <span className="px-3 py-1 rounded bg-slate-900/80 backdrop-blur border border-red-500/50 text-red-400 text-xs font-bold font-mono">
-                              CONFIDENCE: {spill.confidence}%
-                            </span>
-                          </div>
-                          <div className="absolute bottom-3 left-4 z-20">
-                            <div className="flex items-center gap-2">
-                              <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${spill.severity === 'High' ? 'bg-red-600/80 text-white' :
-                                spill.severity === 'Medium' ? 'bg-orange-500/80 text-white' :
-                                  'bg-yellow-500/80 text-white'
-                                }`}>
-                                {spill.severity} SEVERITY
-                              </span>
-                              <span className="text-xs text-slate-300 font-mono bg-slate-800/80 px-2 py-0.5 rounded border border-slate-600">ID: {spill.spill_id}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="p-5 space-y-4 bg-slate-900/40">
-                          <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-sm">
-                            <div className="col-span-2 border-b border-slate-700/50 pb-2 mb-1">
-                              <span className="text-slate-500 text-xs uppercase block">Related Vessel</span>
-                              <div className="text-white font-bold font-orbitron text-lg flex items-center gap-2">
-                                <Anchor className="w-4 h-4 text-cyan-500" /> {spill.vessel_name}
-                              </div>
-                            </div>
-
-                            <div className="col-span-1">
-                              <span className="text-slate-500 text-xs uppercase block mb-0.5">Spill Size</span>
-                              <span className="text-slate-300 font-medium">{spill.size_tons} tons</span>
-                            </div>
-                            <div className="col-span-1">
-                              <span className="text-slate-500 text-xs uppercase block mb-0.5">Affected Area</span>
-                              <span className="text-slate-300 font-medium">{spill.estimated_area_km2} km²</span>
-                            </div>
-                            <div className="col-span-1">
-                              <span className="text-slate-500 text-xs uppercase block mb-0.5">Location</span>
-                              <span className="text-cyan-400 font-mono text-xs">{spill.lat.toFixed(3)}°N, {spill.lon.toFixed(3)}°E</span>
-                            </div>
-                            <div className="col-span-1">
-                              <span className="text-slate-500 text-xs uppercase block mb-0.5">Status</span>
-                              <span className="text-slate-300 font-medium capitalize">{spill.status}</span>
-                            </div>
-                            <div className="col-span-2">
-                              <span className="text-slate-500 text-xs uppercase block mb-0.5">Reported Time</span>
-                              <span className="text-slate-400 text-xs font-mono">{spill.timestamp ? new Date(spill.timestamp).toLocaleString() : 'Timestamp unavailable'}</span>
-                            </div>
-                          </div>
-
-                          <div className="pt-3 border-t border-slate-700/50">
-                            <button className="w-full py-2 bg-red-900/20 hover:bg-red-900/40 border border-red-500/30 hover:border-red-500/60 text-red-400 text-xs font-bold uppercase tracking-wider rounded transition-colors flex items-center justify-center gap-2 group-hover:animate-pulse">
-                              <Shield className="w-4 h-4" /> Initiate Cleanup Protocol
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              activeTab === 'spills' && (
+                <SpillsPage oilSpills={oilSpills} userRole={userRole} />
               )
             }
 
