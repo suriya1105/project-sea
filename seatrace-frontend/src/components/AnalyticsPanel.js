@@ -3,7 +3,7 @@ import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     BarChart, Bar
 } from 'recharts';
-import { Loader2, Ship, Waves, Cpu, ShieldCheck, Zap } from 'lucide-react';
+import { Loader2, Ship, Waves, Cpu, ShieldCheck, Zap, Activity } from 'lucide-react';
 
 const AnalyticsPanel = () => {
     const [anomalies, setAnomalies] = useState([]);
