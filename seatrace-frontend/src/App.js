@@ -7,12 +7,12 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Zap, Activity, Globe, Anchor, Shield, Lock, User, CheckCircle, Trash2, FileText, Download, Clipboard } from 'lucide-react';
+import { Menu, X, Zap, Activity, Globe, Anchor, Shield, Lock, User, CheckCircle, Trash2, FileText, Download, Clipboard, BarChart2, ArrowRight, Loader, AlertTriangle, UserPlus, Users } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, LayersControl } from 'react-leaflet';
 import L from 'leaflet';
 import io from 'socket.io-client';
 import axios from 'axios';
-// Recharts imports removed as they were unused in App.js
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import './App.css';
 import 'leaflet/dist/leaflet.css';
 // import cyberVesselImg from './assets/cyber_vessel.png';
