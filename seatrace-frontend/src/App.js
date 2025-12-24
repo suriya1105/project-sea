@@ -217,6 +217,121 @@ function App() {
   };
 
   // Country boundaries for India region (simplified)
+  // Generate simulated vessel movement data
+  const generateVesselMovementData = (vessel) => {
+    const movementData = [];
+    const baseLat = vessel.lat;
+    const baseLon = vessel.lon;
+    const now = new Date();
+
+    // Generate 24 hours of movement data (every 2 hours)
+    for (let i = 23; i >= 0; i--) {
+      const timestamp = new Date(now.getTime() - (i * 2 * 60 * 60 * 1000));
+      const latOffset = (Math.random() - 0.5) * 0.1; // Small random movement
+      const lonOffset = (Math.random() - 0.5) * 0.1;
+
+      movementData.push({
+        time: timestamp.toLocaleTimeString(),
+        lat: baseLat + latOffset,
+        lon: baseLon + lonOffset,
+        speed: vessel.speed + (Math.random() - 0.5) * 2,
+        course: vessel.course + (Math.random() - 0.5) * 10
+      });
+    }
+
+    return movementData;
+  };
+
+  const playAlertSound = () => {
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4
+      oscillator.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.1);
+
+      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.5);
+    } catch (e) {
+      console.error("Audio play failed", e);
+    }
+  };
+
+  // Check for vessel movement alerts
+  const checkMovementAlerts = React.useCallback((newMovementData) => {
+    const alerts = [];
+
+    Object.entries(newMovementData).forEach(([imo, movementData]) => {
+      const vessel = vessels.find(v => v.imo === imo);
+      if (!vessel || movementData.length < 2) return;
+
+      const currentPos = movementData[movementData.length - 1];
+      const previousPos = movementData[movementData.length - 2];
+
+      // Check for high speed
+      if (currentPos.speed > 25) {
+        alerts.push({
+          id: `speed-${imo}-${Date.now()}`,
+          type: 'warning',
+          title: 'High Speed Alert',
+          message: `${vessel.name} is traveling at ${currentPos.speed} knots`,
+          vessel: vessel.name,
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Check for course changes (potential maneuvering)
+      const courseChange = Math.abs(currentPos.course - previousPos.course);
+      if (courseChange > 45) {
+        alerts.push({
+          id: `course-${imo}-${Date.now()}`,
+          type: 'info',
+          title: 'Course Change',
+          message: `${vessel.name} changed course by ${courseChange.toFixed(1)}°`,
+          vessel: vessel.name,
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // Check if vessel is near restricted areas (simplified check)
+      if (currentPos.lat > 20 && currentPos.lat < 25 && currentPos.lon > 85 && currentPos.lon < 95) {
+        alerts.push({
+          id: `restricted-${imo}-${Date.now()}`,
+          type: 'danger',
+          title: 'Restricted Area Alert',
+          message: `${vessel.name} is approaching restricted waters`,
+          vessel: vessel.name,
+          timestamp: new Date().toISOString()
+        });
+      }
+    });
+
+    if (alerts.length > 0) {
+      setNotifications(prev => [...alerts, ...prev].slice(0, 10)); // Keep last 10 notifications
+      playAlertSound(); // Play sound on new alert
+    }
+  }, [vessels]); // Added dependency
+
+  // Update movement data for all vessels
+  const updateMovementData = React.useCallback(() => {
+    const newMovementData = {};
+    vessels.forEach(vessel => {
+      newMovementData[vessel.imo] = generateVesselMovementData(vessel);
+    });
+    setVesselMovementData(newMovementData);
+
+    // Check for movement alerts
+    checkMovementAlerts(newMovementData);
+  }, [vessels, checkMovementAlerts]); // Added dependencies
+
   const countryBoundaries = {
     "India": {
       "type": "Feature",
@@ -425,127 +540,7 @@ function App() {
     initializeSocket(newToken);
   };
 
-  // Generate simulated vessel movement data
-  const generateVesselMovementData = (vessel) => {
-    const movementData = [];
-    const baseLat = vessel.lat;
-    const baseLon = vessel.lon;
-    const now = new Date();
 
-    // Generate 24 hours of movement data (every 2 hours)
-    for (let i = 23; i >= 0; i--) {
-      const timestamp = new Date(now.getTime() - (i * 2 * 60 * 60 * 1000));
-      const latOffset = (Math.random() - 0.5) * 0.1; // Small random movement
-      const lonOffset = (Math.random() - 0.5) * 0.1;
-
-      movementData.push({
-        time: timestamp.toLocaleTimeString(),
-        lat: baseLat + latOffset,
-        lon: baseLon + lonOffset,
-        speed: vessel.speed + (Math.random() - 0.5) * 2,
-        course: vessel.course + (Math.random() - 0.5) * 10
-      });
-    }
-
-    return movementData;
-  };
-
-  // Generate oil spill progression data
-
-
-
-
-  // Check for vessel movement alerts
-  const checkMovementAlerts = React.useCallback((newMovementData) => {
-    const alerts = [];
-
-    Object.entries(newMovementData).forEach(([imo, movementData]) => {
-      const vessel = vessels.find(v => v.imo === imo);
-      if (!vessel || movementData.length < 2) return;
-
-      const currentPos = movementData[movementData.length - 1];
-      const previousPos = movementData[movementData.length - 2];
-
-      // Check for high speed
-      if (currentPos.speed > 25) {
-        alerts.push({
-          id: `speed-${imo}-${Date.now()}`,
-          type: 'warning',
-          title: 'High Speed Alert',
-          message: `${vessel.name} is traveling at ${currentPos.speed} knots`,
-          vessel: vessel.name,
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      // Check for course changes (potential maneuvering)
-      const courseChange = Math.abs(currentPos.course - previousPos.course);
-      if (courseChange > 45) {
-        alerts.push({
-          id: `course-${imo}-${Date.now()}`,
-          type: 'info',
-          title: 'Course Change',
-          message: `${vessel.name} changed course by ${courseChange.toFixed(1)}°`,
-          vessel: vessel.name,
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      // Check if vessel is near restricted areas (simplified check)
-      if (currentPos.lat > 20 && currentPos.lat < 25 && currentPos.lon > 85 && currentPos.lon < 95) {
-        alerts.push({
-          id: `restricted-${imo}-${Date.now()}`,
-          type: 'danger',
-          title: 'Restricted Area Alert',
-          message: `${vessel.name} is approaching restricted waters`,
-          vessel: vessel.name,
-          timestamp: new Date().toISOString()
-        });
-      }
-    });
-
-    if (alerts.length > 0) {
-      setNotifications(prev => [...alerts, ...prev].slice(0, 10)); // Keep last 10 notifications
-      playAlertSound(); // Play sound on new alert
-    }
-  }, [vessels]); // Added dependency
-
-  // Update movement data for all vessels
-  const updateMovementData = React.useCallback(() => {
-    const newMovementData = {};
-    vessels.forEach(vessel => {
-      newMovementData[vessel.imo] = generateVesselMovementData(vessel);
-    });
-    setVesselMovementData(newMovementData);
-
-    // Check for movement alerts
-    checkMovementAlerts(newMovementData);
-  }, [vessels, checkMovementAlerts]); // Added dependencies
-
-
-
-  const playAlertSound = () => {
-    try {
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4
-      oscillator.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.1);
-
-      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-
-      oscillator.start();
-      oscillator.stop(audioContext.currentTime + 0.5);
-    } catch (e) {
-      console.error("Audio play failed", e);
-    }
-  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
