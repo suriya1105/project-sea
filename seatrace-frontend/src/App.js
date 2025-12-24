@@ -148,6 +148,9 @@ function App() {
   };
 
   const [notifications, setNotifications] = useState([]);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const chatEndRef = React.useRef(null);
 
 
   // Smart Avatar - Comprehensive Knowledge Base (Simulated NLP)
