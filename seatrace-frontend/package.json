@@ -4,6 +4,9 @@
   "private": true,
   "proxy": "http://localhost:10000",
   "description": "SeaTrace Frontend Application",
+  "engines": {
+    "node": "18.x"
+  },
   "dependencies": {
     "@react-three/drei": "9.105.6",
     "@react-three/fiber": "8.16.8",
@@ -57,6 +60,8 @@
     ]
   },
   "devDependencies": {
+    "ajv": "^8.12.0",
+    "ajv-keywords": "^5.1.0",
     "autoprefixer": "^10.4.23",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17"
