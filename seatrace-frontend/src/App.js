@@ -443,7 +443,47 @@ function App() {
       // Generate spill progression data after spills are loaded
       setTimeout(() => updateMovementData(), 100);
     } catch (error) {
-      console.error('Error fetching oil spills:', error);
+      console.error('Error fetching oil spills - Using Enhanced Simulation Data:', error);
+      // Fallback/Demo Data with Diverse Images per user request
+      setOilSpills([
+        {
+          spill_id: 'SPILL-2025-001',
+          lat: 12.5,
+          lon: 80.2,
+          severity: 'High',
+          size_tons: 150.5,
+          estimated_area_km2: 2.3,
+          vessel_name: 'KMTC NEW YORK',
+          status: 'Active',
+          image: 'https://images.unsplash.com/photo-1611273426761-53c8577a20fa?q=80&w=600&auto=format&fit=crop', // Smokestack/Pollution
+          description: 'Significant discharge detected near harbor entrance.'
+        },
+        {
+          spill_id: 'SPILL-2025-002',
+          lat: 5.8,
+          lon: 95.3,
+          severity: 'Medium',
+          size_tons: 75.2,
+          estimated_area_km2: 1.1,
+          vessel_name: 'MSC ARIANE',
+          status: 'Contained',
+          image: 'https://images.unsplash.com/photo-1596792556778-3c4ffdf392be?q=80&w=600&auto=format&fit=crop', // Oil sheen on water
+          description: 'Contained leakage from fuel transfer operation.'
+        },
+        {
+          spill_id: 'SPILL-2025-003',
+          lat: -5.2,
+          lon: 105.1,
+          severity: 'Low',
+          size_tons: 25.8,
+          estimated_area_km2: 0.4,
+          vessel_name: 'EVER GREEN',
+          status: 'Cleaned',
+          image: 'https://images.unsplash.com/photo-1621451537084-482c73073a0f?q=80&w=600&auto=format&fit=crop', // Dark water texture
+          description: 'Minor residual sheen post-cleanup.'
+        }
+      ]);
+      setTimeout(() => updateMovementData(), 100);
     }
   };
 
@@ -673,7 +713,7 @@ function App() {
             { id: 'map', icon: Globe, label: 'Live Map' },
             { id: 'analytics', icon: BarChart2, label: 'AI Analytics' },
             { id: 'vessels', icon: Anchor, label: 'Vessels' },
-            { id: 'spills', icon: Shield, label: 'Hazards' },
+            { id: 'reports', icon: FileText, label: 'Reports' },
             { id: 'reports', icon: FileText, label: 'Reports' },
             // Access Control: Only Admins can see the Command/Settings panel
             { id: 'settings', icon: Settings, label: 'Settings' },
@@ -903,19 +943,7 @@ function App() {
 
                 {/* Main Dashboard Content Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Live Satellite Map Preview */}
-                  <div className="lg:col-span-2 h-[400px] cyber-panel p-0 relative group">
-                    <div className="absolute top-4 left-4 z-[400] bg-slate-900/80 border border-cyan-500/30 px-3 py-1 rounded text-xs text-cyan-400 font-mono">
-                      LIVE SATELLITE TRACKING PREVIEW
-                    </div>
-                    <MapContainer center={[20, 80]} zoom={4} style={{ height: '100%', width: '100%' }} zoomControl={false} dragging={false} doubleClickZoom={false} scrollWheelZoom={false} className="z-0 bg-slate-900">
-                      <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
-                      <div className="absolute inset-0 z-[300] bg-gradient-to-t from-slate-900 via-transparent to-transparent pointer-events-none"></div>
-                      {vessels.slice(0, 10).map(v => <Circle key={v.imo} center={[v.lat, v.lon]} radius={30000} pathOptions={{ color: '#00f3ff', fillColor: '#00f3ff', fillOpacity: 0.6 }} />)}
-                    </MapContainer>
-                    <div className="absolute inset-0 bg-cyan-900/10 pointer-events-none group-hover:bg-transparent transition-colors z-[400]"></div>
-                    <button onClick={() => setActiveTab('map')} className="absolute bottom-4 right-4 z-[500] cyber-btn text-xs py-2 px-4 bg-slate-900/80">EXPAND MAP</button>
-                  </div>
+                  {/* Map Preview Removed - Use Live Map Tab */}
 
                   {/* Fleet Status List */}
                   <div className="cyber-panel overflow-hidden flex flex-col">
@@ -1661,13 +1689,7 @@ function App() {
             }
 
             {/* Spills Tab - SpillsPage */}
-            {
-              activeTab === 'spills' && (
-                <div className="flex-1 overflow-auto h-full pb-20 md:pb-0" style={{ height: 'calc(100vh - 100px)' }}>
-                  <SpillsPage oilSpills={oilSpills} userRole={userRole} vessels={vessels} />
-                </div>
-              )
-            }
+            {/* Spills/Hazards Tab removed - Consolidated into Live Map */}
 
             {/* Settings Page */}
             {
