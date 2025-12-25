@@ -708,8 +708,8 @@ function App() {
         {/* Logo Area */}
         <div className="h-16 flex items-center justify-center border-b border-cyan-500/20">
           <div className="relative group">
-            <div className="absolute inset-0 bg-cyan-500/30 blur-md rounded-full animate-pulse group-hover:bg-cyan-400/50 transition-all"></div>
-            <img src="/logo.png" alt="SeaTrace Logo" className={`relative z-10 w-10 h-10 object-contain ${isMobileMenuOpen ? 'mr-2' : ''} drop-shadow-[0_0_8px_rgba(34,211,238,0.8)] transition-transform group-hover:scale-110`} />
+            <div className="absolute inset-0 bg-cyan-500/30 blur-md rounded-xl animate-pulse group-hover:bg-cyan-400/50 transition-all"></div>
+            <img src="/logo.png" alt="SeaTrace Logo" className={`relative z-10 w-10 h-10 rounded-xl object-contain ${isMobileMenuOpen ? 'mr-2' : ''} shadow-[0_0_15px_rgba(6,182,212,0.5)] transition-transform group-hover:scale-110`} />
           </div>
           {isMobileMenuOpen && <span className="text-xl font-bold font-orbitron text-cyan-400 tracking-widest">SEATRACE MONITORING</span>}
         </div>

@@ -151,8 +151,8 @@ const AuthPage = ({ onLogin, onAuthSuccess }) => {
                             <div className="relative">
                                 {/* Holographic Projection Ray */}
                                 <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-40 h-24 bg-gradient-to-b from-cyan-500/20 to-transparent blur-xl"></div>
-                                {/* Main Logo */}
-                                <img src="/logo.png" alt="SeaTrace Logo" className="w-48 h-48 object-contain drop-shadow-[0_0_25px_rgba(6,182,212,0.6)] opacity-90 animate-pulse brightness-125 saturate-150" />
+                                {/* Main Logo - App Icon Style with Glow */}
+                                <img src="/logo.png" alt="SeaTrace Logo" className="w-48 h-48 rounded-[2rem] object-cover shadow-[0_0_30px_rgba(6,182,212,0.6)] ring-1 ring-cyan-400/50 opacity-90 animate-pulse brightness-110" />
                             </div>
                         </div>
 
