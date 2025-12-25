@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings, Volume2, VolumeX, Moon, Sun, Bell, Shield, Activity, Power } from 'lucide-react';
+import { Settings, Volume2, VolumeX, Moon, Sun, Bell, Shield, Activity, Power, EyeOff, Wifi, Map, AlertTriangle } from 'lucide-react';
 
 const SettingsPage = ({
     soundManager,
@@ -26,8 +26,8 @@ const SettingsPage = ({
                     <Settings className="w-8 h-8 text-cyan-400 animate-spin-slow" />
                     SYSTEM PREFERENCES
                 </h2>
-                <div className="text-sm font-mono text-cyan-600 bg-cyan-950/30 px-3 py-1 rounded border border-cyan-500/20">
-                    BUILD v2.4.0
+                <div className="text-sm font-mono text-cyan-600 bg-cyan-950/30 px-3 py-1 rounded border border-cyan-500/20 animate-pulse">
+                    BUILD v2.5.0 (CYBER-HUD)
                 </div>
             </div>
 
@@ -58,6 +58,16 @@ const SettingsPage = ({
                         <span className="text-slate-300 font-mono text-sm">Critical Alert Voice</span>
                         <div className="flex gap-2">
                             <span className="text-xs text-cyan-400 font-bold bg-cyan-900/40 px-2 py-1 rounded border border-cyan-500/30">AI FEMALE</span>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-between bg-slate-900/50 p-4 rounded border border-slate-700 opacity-70 hover:opacity-100 transition-opacity">
+                        <div className="flex items-center gap-2">
+                            <EyeOff className="w-4 h-4 text-purple-400" />
+                            <span className="text-slate-300 font-mono text-sm">Stealth Mode (No Anim)</span>
+                        </div>
+                        <div className={`w-10 h-5 rounded-full cursor-pointer transition-colors relative bg-slate-600`}>
+                            <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all left-1`}></div>
                         </div>
                     </div>
                 </div>
@@ -92,6 +102,38 @@ const SettingsPage = ({
                             <div className="text-sm font-bold text-white mb-1">RED ALERT</div>
                             <div className="text-[10px] text-slate-400">Crisis Mode</div>
                         </button>
+                    </div>
+                </div>
+
+
+
+                {/* Operations Settings */}
+                <div className="cyber-panel p-6 space-y-4 border-yellow-500/30">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-3 bg-yellow-900/20 rounded-lg border border-yellow-500/30">
+                            <Wifi className="w-6 h-6 text-yellow-400" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-bold text-white font-orbitron">DATA OPERATIONS</h3>
+                            <p className="text-xs text-slate-400">Bandwidth and Mapping controls.</p>
+                        </div>
+                    </div>
+
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 rounded bg-slate-900/40 hover:bg-slate-900/60 transition-colors">
+                            <div className="flex items-center gap-2">
+                                <Wifi className="w-4 h-4 text-slate-400" />
+                                <span className="text-slate-300 text-sm">Data Saver Mode</span>
+                            </div>
+                            <span className="text-xs text-cyan-500 uppercase font-bold tracking-wider">OFF</span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 rounded bg-slate-900/40 hover:bg-slate-900/60 transition-colors">
+                            <div className="flex items-center gap-2">
+                                <Map className="w-4 h-4 text-slate-400" />
+                                <span className="text-slate-300 text-sm">Satellite Imagery</span>
+                            </div>
+                            <span className="text-xs text-green-500 uppercase font-bold tracking-wider">LIVE</span>
+                        </div>
                     </div>
                 </div>
 
@@ -144,13 +186,17 @@ const SettingsPage = ({
                         <div className="text-xs text-slate-500 uppercase tracking-widest mb-1">Access Level</div>
                         <div className="text-xl font-bold text-white font-orbitron text-shadow-orange">COMMANDER</div>
                     </div>
+
+                    <button className="w-full py-3 bg-red-600/20 hover:bg-red-600/40 border border-red-500 text-red-100 text-sm font-bold uppercase rounded flex items-center justify-center gap-2 group transition-all animate-pulse">
+                        <AlertTriangle className="w-5 h-5" /> EMERGENCY SOS BEACON
+                    </button>
                     <button className="w-full py-2 bg-red-900/20 hover:bg-red-900/40 border border-red-500/30 text-red-500 text-sm font-bold uppercase rounded flex items-center justify-center gap-2 group transition-all">
                         <Power className="w-4 h-4 group-hover:scale-110 transition-transform" /> Terminate Session
                     </button>
                 </div>
 
             </div>
-        </div>
+        </div >
     );
 };
 
