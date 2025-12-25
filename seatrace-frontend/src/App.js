@@ -924,7 +924,7 @@ function App() {
             {activeTab === 'dashboard' && dashboardData && (
               <div className="space-y-6">
                 {/* Stats Overview Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
                   <div className="cyber-panel flex items-center justify-between group hover:border-cyan-400 transition-colors">
                     <div>
                       <div className="text-cyan-500/70 text-sm font-bold tracking-wider mb-1">TOTAL VESSELS</div>
