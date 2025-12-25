@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { User, Lock, ArrowRight, Activity, Shield, Eye, EyeOff, Anchor, Mail, Phone, Info } from 'lucide-react';
+import BiometricAuth from './BiometricAuth';
 import { API_BASE_URL } from '../config';
 
 
@@ -17,6 +18,8 @@ const AuthPage = ({ onLogin, onAuthSuccess }) => {
 
     // Marine Facts State
     const [currentFactIndex, setCurrentFactIndex] = useState(0);
+    const [showBiometric, setShowBiometric] = useState(false);
+    const [pendingAuthData, setPendingAuthData] = useState(null);
 
     const marineFacts = [
         "AI satellites can detect oil spills as small as 10 square meters from space.",
@@ -73,7 +76,25 @@ const AuthPage = ({ onLogin, onAuthSuccess }) => {
             await new Promise(r => setTimeout(r, 1200)); // Cinematic delay for effect
 
             if (isLoginMode) {
-                await onLogin(email, password);
+                // Verify credentials first (mock or real)
+                // For actual implementation, we might want to verify first then show biometrics or show biometrics as part of '2FA'
+                // Here: We simulate flow.
+                const authResponse = await onLogin(email, password, true); // Pass true to 'dryRun' if we can, else just assume onLogin returns data or throws
+                // Since onLogin in App.js might set state directly, we need to adapt.
+                // Assuming onLogin returns void but throws on error. 
+                // We will hijack the flow: 
+                // 1. We know credentials are GOOD if onLogin doesn't throw.
+                // 2. But onLogin calls handleAuthSuccess immediately. We need to prevent that if we want scan.
+                // Actually, let's just show Scan -> Then call onLogin. 
+                // Wait, onLogin uses API. We need to verify API first.
+                // Refactoring: we will call onLogin, but App.js handleLogin sets state.
+                // Let's use a local internal validation if possible, OR just trigger biometric animation THEN login.
+                // Better flow: 
+                // 1. User submits -> Biometric Scan (Simulation of "Scanning User") -> 
+                // 2. If Scan success -> Call API Login.
+
+                setShowBiometric(true);
+                // We keep email/password in state to use after scan
             } else {
                 // Run Validation
                 validateForm();
@@ -348,6 +369,19 @@ const AuthPage = ({ onLogin, onAuthSuccess }) => {
                     100% { transform: scaleX(1); }
                 }
             `}</style>
+
+            {showBiometric && (
+                <BiometricAuth
+                    onComplete={async () => {
+                        try {
+                            await onLogin(email, password);
+                        } catch (err) {
+                            setShowBiometric(false);
+                            setError("Biometric Verified but Server Rejected: " + err.message);
+                        }
+                    }}
+                />
+            )}
         </div>
     );
 };

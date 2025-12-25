@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { User, Lock, Activity, Globe, BarChart2, Anchor, FileText, Settings, LogOut, Download, AlertTriangle, Cloud, Navigation, Info, Search, Menu, X, Filter, ChevronDown, Plus } from 'lucide-react';
+import { User, Lock, Activity, Globe, BarChart2, Anchor, FileText, Settings, LogOut, Download, AlertTriangle, Cloud, Navigation, Info, Search, Menu, X, Filter, ChevronDown, Plus, Mic } from 'lucide-react';
 import AddVesselModal from './components/AddVesselModal';
 import { MapContainer, TileLayer, Marker, Popup, Circle, LayersControl } from 'react-leaflet';
 import L from 'leaflet';
@@ -707,9 +707,10 @@ function App() {
       <div className="grid-overlay"></div>
 
       {/* Cyber Sidebar */}
-      <div className={`cyber-sidebar flex flex-col ${isMobileMenuOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 w-20'} md:relative fixed inset-y-0 left-0 transition-all duration-300 z-50 h-full border-r border-cyan-500/30 bg-slate-900/95 md:bg-transparent`}>
-        {/* Logo Area */}
-        <div className="h-16 flex items-center justify-center border-b border-cyan-500/20">
+      {/* Cyber Sidebar (Desert Layout) / Mobile Bottom Nav (Thumb Zone) */}
+      <div className={`cyber-sidebar flex md:flex-col flex-row ${isMobileMenuOpen ? 'translate-y-0' : 'translate-y-0'} md:relative fixed bottom-0 left-0 right-0 md:inset-y-0 md:w-20 md:h-full h-16 transition-all duration-300 z-50 border-t md:border-t-0 md:border-r border-cyan-500/30 bg-slate-900/95 md:bg-transparent justify-around md:justify-start`}>
+        {/* Logo Area (Hidden on Mobile Nav to save space) */}
+        <div className="hidden md:flex h-16 items-center justify-center border-b border-cyan-500/20">
           <div className="relative group">
             <div className="absolute inset-0 bg-cyan-500/30 blur-md rounded-xl animate-pulse group-hover:bg-cyan-400/50 transition-all"></div>
             <img src="/logo.png" alt="SeaTrace Logo" className={`relative z-10 w-10 h-10 rounded-xl object-contain ${isMobileMenuOpen ? 'mr-2' : ''} shadow-[0_0_15px_rgba(6,182,212,0.5)] transition-transform group-hover:scale-110`} />
@@ -717,8 +718,8 @@ function App() {
           {isMobileMenuOpen && <span className="text-xl font-bold font-orbitron text-cyan-400 tracking-widest">SEATRACE MONITORING</span>}
         </div>
 
-        {/* Navigation Items */}
-        <div className="flex-1 py-6 flex flex-col gap-2 px-2">
+        {/* Navigation Items - Horizontal on Mobile, Vertical on Desktop */}
+        <div className="flex-1 py-0 md:py-6 flex md:flex-col flex-row gap-1 md:gap-2 px-1 md:px-2 items-center justify-around md:justify-start w-full">
           {[
             { id: 'dashboard', icon: Activity, label: 'Live Ops' },
             { id: 'map', icon: Globe, label: 'Live Map' },
@@ -748,11 +749,12 @@ function App() {
                 }
               }}
               onMouseEnter={() => soundManager.playHover()}
-              className={`sidebar-item p-3 rounded-lg flex items-center justify-center md:justify-start gap-4 ${activeTab === item.id ? 'active' : ''}`}
+              className={`sidebar-item p-2 md:p-3 rounded-lg flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-4 ${activeTab === item.id ? 'active' : ''}`}
               title={item.label}
             >
-              <item.icon className={`w-6 h-6 ${activeTab === item.id ? 'text-cyan-400 drop-shadow-[0_0_5px_rgba(0,243,255,0.5)]' : ''}`} />
-              {isMobileMenuOpen && <span className="font-rajdhani font-semibold tracking-wider text-sm whitespace-nowrap">{item.label}</span>}
+              <item.icon className={`w-5 h-5 md:w-6 md:h-6 ${activeTab === item.id ? 'text-cyan-400 drop-shadow-[0_0_5px_rgba(0,243,255,0.5)]' : ''}`} />
+              {/* Label hidden on mobile mostly, except special cases, but let's hide all for "Thumb Zone" cleanliness */}
+              {isMobileMenuOpen && <span className="hidden md:inline font-rajdhani font-semibold tracking-wider text-sm whitespace-nowrap">{item.label}</span>}
             </button>
           ))}
         </div>
@@ -1148,7 +1150,10 @@ function App() {
                       <FileText className="w-6 h-6 text-cyan-500" />
                       MISSION REPORTS GENERATOR
                     </h2>
-                    <div className="text-sm text-cyan-400/70 font-mono border border-cyan-500/20 px-3 py-1 rounded bg-slate-900/50">
+                    <div className="text-sm text-cyan-400/70 font-mono border border-cyan-500/20 px-3 py-1 rounded bg-slate-900/50 flex items-center gap-2">
+                      <button className="animate-pulse text-red-400 hover:text-red-300" title="Voice Command (Simulated)">
+                        <Mic className="w-4 h-4" />
+                      </button>
                       SECURE ARCHIVE ACCESS
                     </div>
                   </div>

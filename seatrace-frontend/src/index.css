@@ -16,16 +16,47 @@ code {
     monospace;
 }
 
-/* Mobile optimizations: Reduce spacing */
+/* Mobile optimizations: "Thumb Zone" & HUD Compression */
 @media (max-width: 768px) {
   .cyber-panel {
-    margin-bottom: 0.75rem !important;
-    padding: 0.75rem !important;
+    margin-bottom: 0.5rem !important;
+    /* Compressed from 0.75rem */
+    padding: 0.5rem !important;
+    /* Compressed for density */
+    border-radius: 4px !important;
+    /* Sharper corners */
   }
 
   .p-6 {
     padding: 0.75rem !important;
   }
+
+  /* Remove gaps between grid items */
+  .grid {
+    gap: 0.5rem !important;
+    /* Tighter grid */
+  }
+
+  .space-y-6>*+* {
+    margin-top: 0.75rem !important;
+    /* Tighter vertical spacing */
+  }
+
+  /* Thumb-Zone Spacer for Bottom Nav */
+  .app {
+    padding-bottom: 80px;
+    /* Space for bottom nav */
+  }
+}
+
+/* Global HUD Density */
+:root {
+  --panel-spacing: 1rem;
+}
+
+body {
+  letter-spacing: -0.01em;
+  /* Tighter font tracking */
 }
 
 /* --- Advanced Animations & Effects --- */
