@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MessageSquare, X, Send, Mic, Cpu, Zap, Activity } from 'lucide-react';
 import '../App.css'; // Ensure we use the global styles
 
+import { processAIQuery } from './services/AIEngine';
+
 const AvatarAssistant = ({ isOpen, onClose, context }) => {
     const [messages, setMessages] = useState([
         { id: 1, text: "Systems Online. I am your SeaTrace AI Co-Pilot. How can I assist with the current marine situation?", sender: 'ai' }
@@ -26,29 +28,21 @@ const AvatarAssistant = ({ isOpen, onClose, context }) => {
         setInput('');
         setIsTyping(true);
 
-        // Simulate AI "Thinking" and Context Awareness
+        // Process with AI Engine
         setTimeout(() => {
-            let responseText = "I'm processing that data.";
-            const lowerInput = userMsg.text.toLowerCase();
+            const response = processAIQuery(userMsg.text, context);
 
-            // Simple Context-Aware Logic
-            if (lowerInput.includes('oil') || lowerInput.includes('spill')) {
-                responseText = "Scanning for potential oil spills... I've detected spectral anomalies in Sector 7G. Recommending immediate tanker routing analysis.";
-            } else if (lowerInput.includes('weather') || lowerInput.includes('storm')) {
-                responseText = "Analyzing meteorological patterns. High-pressure system forming in the Bay of Bengal. Advising small vessels to seek harbor.";
-            } else if (lowerInput.includes('fishing') || lowerInput.includes('fish')) {
-                responseText = "Checking sustainable fishing zones. Current yield in Zone A is within optimal limits. No illegal trawling detected.";
-            } else if (lowerInput.includes('navy') || lowerInput.includes('security')) {
-                responseText = "Secure Channel 9. Unidentified vessel signature detected near the exclusion zone. Satellite redeployment initiated.";
-            } else {
-                responseText = "Acknowledged. Updating mission parameters based on your request.";
-            }
-
-            setMessages(prev => [...prev, { id: Date.now() + 1, text: responseText, sender: 'ai' }]);
+            setMessages(prev => [...prev, { id: Date.now() + 1, text: response.text, sender: 'ai' }]);
             setIsTyping(false);
 
-            // Play sound effect if available in parent/global scope? For now, silent.
-        }, 1500);
+            // Execute Actions
+            if (response.action === 'navigate_spills') {
+                if (context.setActiveTab) context.setActiveTab('spills');
+            }
+            if (response.action === 'focus_map') {
+                if (context.setActiveTab) context.setActiveTab('map');
+            }
+        }, 1000);
     };
 
     if (!isOpen) return null;
@@ -82,8 +76,8 @@ const AvatarAssistant = ({ isOpen, onClose, context }) => {
                 {messages.map((msg) => (
                     <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                         <div className={`max-w-[80%] p-3 rounded-lg text-sm font-rajdhani leading-relaxed ${msg.sender === 'user'
-                                ? 'bg-cyan-700/30 text-cyan-50 border border-cyan-500/30 rounded-tr-none'
-                                : 'bg-slate-800/80 text-gray-200 border border-slate-600 rounded-tl-none'
+                            ? 'bg-cyan-700/30 text-cyan-50 border border-cyan-500/30 rounded-tr-none'
+                            : 'bg-slate-800/80 text-gray-200 border border-slate-600 rounded-tl-none'
                             }`}>
                             {msg.text}
                         </div>

@@ -1,15 +1,22 @@
 import React from 'react';
 import { Settings, Volume2, VolumeX, Moon, Sun, Bell, Shield, Activity, Power } from 'lucide-react';
 
-const SettingsPage = ({ soundManager, toggleTheme, currentTheme }) => {
-    const [soundEnabled, setSoundEnabled] = React.useState(true);
-    const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
+const SettingsPage = ({
+    soundManager,
+    toggleTheme,
+    currentTheme,
+    audioEnabled,
+    toggleAudio,
+    notificationsEnabled,
+    toggleNotifications
+}) => {
 
     const handleSoundToggle = () => {
-        setSoundEnabled(!soundEnabled);
-        if (soundEnabled) {
-            soundManager.playClick();
-        }
+        toggleAudio();
+        // Feedback sound only if we just turned it ON or if it WAS on? 
+        // If we toggle, the prop isn't updated instantly in this closure usually? 
+        // But assuming optimistic update or just play click regardless (soundManager checks state).
+        soundManager.playClick();
     };
 
     return (
@@ -30,7 +37,7 @@ const SettingsPage = ({ soundManager, toggleTheme, currentTheme }) => {
                 <div className="cyber-panel p-6 space-y-4">
                     <div className="flex items-center gap-3 mb-4">
                         <div className="p-3 bg-cyan-900/20 rounded-lg border border-cyan-500/30">
-                            {soundEnabled ? <Volume2 className="w-6 h-6 text-cyan-400" /> : <VolumeX className="w-6 h-6 text-slate-500" />}
+                            {audioEnabled ? <Volume2 className="w-6 h-6 text-cyan-400" /> : <VolumeX className="w-6 h-6 text-slate-500" />}
                         </div>
                         <div>
                             <h3 className="text-lg font-bold text-white font-orbitron">AUDIO INTERFACE</h3>
@@ -42,9 +49,9 @@ const SettingsPage = ({ soundManager, toggleTheme, currentTheme }) => {
                         <span className="text-slate-300 font-mono text-sm">UI Sound Effects</span>
                         <button
                             onClick={handleSoundToggle}
-                            className={`w-14 h-7 rounded-full transition-colors relative ${soundEnabled ? 'bg-cyan-600' : 'bg-slate-700'}`}
+                            className={`w-14 h-7 rounded-full transition-colors relative ${audioEnabled ? 'bg-cyan-600' : 'bg-slate-700'}`}
                         >
-                            <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform duration-300 ${soundEnabled ? 'left-8' : 'left-1'}`}></div>
+                            <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform duration-300 ${audioEnabled ? 'left-8' : 'left-1'}`}></div>
                         </button>
                     </div>
                     <div className="flex items-center justify-between bg-slate-900/50 p-4 rounded border border-slate-700">
@@ -69,6 +76,7 @@ const SettingsPage = ({ soundManager, toggleTheme, currentTheme }) => {
 
                     <div className="grid grid-cols-2 gap-4">
                         <button
+                            onClick={() => toggleTheme('#2563eb')}
                             className={`p-4 rounded border-2 transition-all text-center group ${currentTheme !== 'red' ? 'border-cyan-500 bg-cyan-900/20' : 'border-slate-700 bg-slate-900/40 hover:border-cyan-500/50'}`}
                         >
                             <div className="w-8 h-8 bg-cyan-500 rounded-full mx-auto mb-2 shadow-[0_0_15px_rgba(6,182,212,0.6)]"></div>
@@ -77,6 +85,7 @@ const SettingsPage = ({ soundManager, toggleTheme, currentTheme }) => {
                         </button>
 
                         <button
+                            onClick={() => toggleTheme('#dc2626')}
                             className={`p-4 rounded border-2 transition-all text-center group ${currentTheme === 'red' ? 'border-red-500 bg-red-900/20' : 'border-slate-700 bg-slate-900/40 hover:border-red-500/50'}`}
                         >
                             <div className="w-8 h-8 bg-red-600 rounded-full mx-auto mb-2 shadow-[0_0_15px_rgba(220,38,38,0.6)] animate-pulse"></div>
@@ -101,7 +110,7 @@ const SettingsPage = ({ soundManager, toggleTheme, currentTheme }) => {
                     <div className="space-y-3">
                         <div className="flex items-center justify-between p-3 rounded hover:bg-white/5 transition-colors">
                             <span className="text-slate-300 text-sm">Hazard Detection</span>
-                            <div onClick={() => setNotificationsEnabled(!notificationsEnabled)} className={`w-10 h-5 rounded-full cursor-pointer transition-colors relative ${notificationsEnabled ? 'bg-green-600' : 'bg-slate-600'}`}>
+                            <div onClick={toggleNotifications} className={`w-10 h-5 rounded-full cursor-pointer transition-colors relative ${notificationsEnabled ? 'bg-green-600' : 'bg-slate-600'}`}>
                                 <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${notificationsEnabled ? 'left-6' : 'left-1'}`}></div>
                             </div>
                         </div>

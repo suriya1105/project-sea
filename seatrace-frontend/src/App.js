@@ -63,16 +63,32 @@ function App() {
   const [connectionStatus, setConnectionStatus] = useState('disconnected');
   const [reportLoading, setReportLoading] = useState(false);
   const [weatherData, setWeatherData] = useState(null);
-  const [themeColors, setThemeColors] = useState({
-    primary: '#2563eb',
-    secondary: '#0f766e',
-    accent: '#f59e0b',
-    danger: '#dc2626'
+  // Settings & Persistence
+  const [audioEnabled, setAudioEnabled] = useState(() => JSON.parse(localStorage.getItem('seatrace_audio') ?? 'true'));
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() => JSON.parse(localStorage.getItem('seatrace_notifications') ?? 'true'));
+  const [themeColors, setThemeColors] = useState(() => {
+    const saved = localStorage.getItem('seatrace_theme');
+    return saved ? JSON.parse(saved) : {
+      primary: '#2563eb',
+      secondary: '#0f766e',
+      accent: '#f59e0b',
+      danger: '#dc2626'
+    };
   });
 
-  // Sound Manager
+  // Apply Theme Effect
+  useEffect(() => {
+    document.body.className = themeColors.primary === '#dc2626' ? 'theme-red' : '';
+    localStorage.setItem('seatrace_theme', JSON.stringify(themeColors));
+    localStorage.setItem('seatrace_audio', JSON.stringify(audioEnabled));
+    localStorage.setItem('seatrace_notifications', JSON.stringify(notificationsEnabled));
+  }, [themeColors, audioEnabled, notificationsEnabled]);
+
+  // Sound Manager (Aware of audioEnabled)
+  // We use a ref to access the latest state inside the immutable function, or just rely on re-renders
   const soundManager = {
     playTone: (freq, type, duration) => {
+      if (!audioEnabled) return;
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
@@ -89,6 +105,7 @@ function App() {
     playLogin: () => soundManager.playTone(600, 'sine', 0.5),
     playNav: () => soundManager.playTone(300, 'triangle', 0.1),
     playHover: () => soundManager.playTone(800, 'sine', 0.05),
+    playClick: () => soundManager.playTone(400, 'square', 0.1),
   };
   const [showThemeEditor, setShowThemeEditor] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -149,73 +166,7 @@ function App() {
   };
 
   const [notifications, setNotifications] = useState([]);
-  const [chatMessages, setChatMessages] = useState([]);
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const chatEndRef = React.useRef(null);
-
-
-  // Smart Avatar - Comprehensive Knowledge Base (Simulated NLP)
-  const AVATAR_KB = [
-    // General Greetings & Status
-    { key: ['hello', 'hi', 'hey', 'greetings'], response: "Greetings, Commander. Avatar AI online. I am ready to assist with fleet tracking, hazard analysis, and mission protocols." },
-    { key: ['status', 'system', 'report'], response: "System Status: OPTIMAL. Satellite Uplink: STABLE (Latency 45ms). AI Inference Engine: ACTIVE. No critical failures detected." },
-    { key: ['who are you', 'what are you'], response: "I am Seatrace Avatar, an advanced maritime intelligence AI designed for real-time fleet monitoring and environmental hazard prediction." },
-
-    // Oil Spill & Environmental
-    { key: ['oil spill', 'detect', 'slick'], response: "I detect hydrocarbon signatures using Sentinel-1B SAR imagery. My algorithms analyze spectral anomalies to distinguish between biogenic look-alikes and mineral oil films." },
-    { key: ['clean', 'cleanup', 'response'], response: "For active spills, I recommend the following protocol: 1. Deploy containment booms to limit spread. 2. Use mechanical skimmers for recovery. 3. Apply chemical dispersants only if depth > 20m and wind < 15 kts." },
-    { key: ['dispersant', 'chemical'], response: "Dispersants break down oil into smaller droplets for biodegradation. Caution: Avoid use near coral reefs or shallow spawning grounds." },
-
-    // Vessel & Navigation
-    { key: ['vessel', 'ship', 'fleet'], response: "I am currently tracking the active fleet. I can provide telemetry on Tankers, Cargo Freighters, Fishing Trawlers, and Naval Patrol units." },
-    { key: ['ais', 'tracking'], response: "Automatic Identification System (AIS) data is fused with satellite optics to verify vessel identity. I can detect 'ghost ships' that disable their transponders." },
-    { key: ['fishing', 'illegal', 'iuu'], response: "Illegal, Unreported, and Unregulated (IUU) fishing is detected by analyzing movement patterns. Zig-zag courses near protected zones often indicate unauthorized trawling." },
-
-    // Physics & Oceanography
-    { key: ['weather', 'forecast', 'wind'], response: "Current ocean conditions are stable. I am monitoring for cyclonic formation in the Indian Ocean basin. Wind shear is currently low." },
-    { key: ['current', 'drift'], response: "Ocean currents are a major factor in spill trajectory. I use HyCOM models to predict pollutant drift velocity." },
-
-    // Security & Navy
-    { key: ['navy', 'security', 'patrol'], response: "Naval assets are on standby. DEFCON status is 5 (Normal). I am monitoring for piracy vectors in the Gulf of Aden corridor." },
-    { key: ['pirate', 'piracy', 'threat'], response: "High-risk piracy zones are marked in red. Vessels are advised to maintain 18+ knots and deploy citadel protocols if approached by skiffs." },
-
-    // Technical
-    { key: ['update', 'software'], response: "My neural networks are updated daily via encrypted satellite beam. Current version: 4.2.0-Alpha." },
-    { key: ['help', 'usage'], response: "You can ask me about: 'Active Spills', 'Fleet Status', 'Weather Conditions', 'Cleanup Protocols', or 'Security Alerts'." }
-  ];
-
-  const handleSendMessage = async (text) => {
-    if (!text.trim()) return;
-    const newMessages = [...chatMessages, { text, isUser: true }];
-    setChatMessages(newMessages);
-
-    // Fast Response Logic (Client-Side)
-    const lowerText = text.toLowerCase();
-    const localMatch = AVATAR_KB.find(item => item.key.some(k => lowerText.includes(k)));
-
-    if (localMatch) {
-      // Simulate "typing" fast response
-      setTimeout(() => {
-        setChatMessages(prev => [...prev, { text: localMatch.response, isUser: false }]);
-        soundManager.playLogin(); // Use login sound as a "message received" chime
-        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-      }, 600); // 600ms delay for realism
-      return;
-    }
-
-    try {
-      const response = await axios.post(`${API_BASE_URL}/chat`, { message: text }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setChatMessages([...newMessages, { text: response.data.response, isUser: false }]);
-      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    } catch (err) {
-      console.error(err);
-      const statuses = { 404: "AI Service Offline (Backend not updated)", 401: "Authorization Failed", 500: "Internal System Error" };
-      const msg = statuses[err.response?.status] || "Error connecting to AI Command.";
-      setChatMessages([...newMessages, { text: `⚠️ ${msg}`, isUser: false }]);
-    }
-  };
+  // Chat logic removed in favor of Unified Avatar Assistant
 
   // Country boundaries for India region (simplified)
   // Generate simulated vessel movement data
@@ -1725,85 +1676,31 @@ function App() {
                     soundManager={soundManager}
                     toggleTheme={(color) => setThemeColors({ ...themeColors, primary: color })}
                     currentTheme={themeColors.primary === '#dc2626' ? 'red' : 'blue'}
+                    audioEnabled={audioEnabled}
+                    toggleAudio={() => setAudioEnabled(!audioEnabled)}
+                    notificationsEnabled={notificationsEnabled}
+                    toggleNotifications={() => setNotificationsEnabled(!notificationsEnabled)}
                   />
                 </div>
               )
             }
 
-            {/* Map - All roles */}
+            {/* Live Map - All roles */}
             {
               activeTab === 'map' && (
-                <div className="flex-1 flex flex-col h-full cyber-panel p-0 overflow-hidden relative" style={{ height: 'calc(100vh - 100px)' }}>
-                  <div className="absolute inset-0 z-0 map-radar-overlay"></div>
-
-                  {/* Map Controls Overlay */}
-                  <div className="absolute top-4 right-4 z-[500] flex flex-col gap-2">
-                    <div className="bg-slate-900/80 backdrop-blur border border-cyan-500/30 p-2 rounded text-cyan-400 text-xs font-mono">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-                        MEDITERRANEAN MONITOR
-                      </div>
-                      <div>LAT: 34.0000 | LON: 18.0000</div>
-                    </div>
-                  </div>
-
-                  {/* Mediterranean Heatmap Map */}
-                  <MapContainer
-                    center={[34.0, 18.0]}
-                    zoom={6}
-                    style={{ height: '100%', width: '100%', minHeight: '600px' }}
-                    className="z-0 bg-slate-900"
-                    key={activeTab} // Force re-render on tab switch
-                  >
-                    <LayersControl position="topright">
-                      <LayersControl.BaseLayer checked name="Deep Ocean (Dark)">
-                        <TileLayer
-                          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                        />
-                      </LayersControl.BaseLayer>
-                      <LayersControl.BaseLayer name="Satellite Mode">
-                        <TileLayer
-                          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                          attribution='Tiles &copy; Esri &mdash; Source: Esri'
-                        />
-                      </LayersControl.BaseLayer>
-                    </LayersControl>
-
-                    {/* Heatmap Simulation (Mediterranean Density) */}
-                    {/* Blue Base (Low Density) */}
-                    <Circle center={[34.5, 18.5]} radius={400000} pathOptions={{ color: 'transparent', fillColor: '#0000FF', fillOpacity: 0.2 }} />
-                    <Circle center={[36.0, 15.0]} radius={350000} pathOptions={{ color: 'transparent', fillColor: '#0000FF', fillOpacity: 0.2 }} />
-
-                    {/* Cyan/Green (Medium Density) */}
-                    <Circle center={[34.5, 19.0]} radius={200000} pathOptions={{ color: 'transparent', fillColor: '#00FFFF', fillOpacity: 0.3 }} />
-                    <Circle center={[35.5, 16.0]} radius={180000} pathOptions={{ color: 'transparent', fillColor: '#00FF00', fillOpacity: 0.3 }} />
-
-                    {/* Yellow (High Density) */}
-                    <Circle center={[34.8, 19.5]} radius={100000} pathOptions={{ color: 'transparent', fillColor: '#FFFF00', fillOpacity: 0.4 }} />
-
-                    {/* Red (Critical Density - Simulated Hotspots) */}
-                    {[
-                      [34.8, 19.5], [35.2, 16.5], [33.5, 20.0], [36.0, 14.5], [34.0, 18.0],
-                      [35.8, 15.2], [33.2, 21.5], [34.5, 17.5], [35.0, 19.0], [33.8, 18.5]
-                    ].map((pos, i) => (
-                      <Circle key={i} center={pos} radius={30000} pathOptions={{ color: 'transparent', fillColor: '#FF0000', fillOpacity: 0.5, className: 'animate-pulse' }} />
-                    ))}
-
-                    {/* Vessels */}
-                    {vessels.map(vessel => (
-                      <div key={vessel.imo}>
-                        <Marker position={[vessel.lat, vessel.lon]}>
-                          {/* ... existing marker content ... keeping it simple for now or reusing existing logic if it was cleaner in previous code */}
-                          <Popup className="cyber-popup">
-                            {/* Simplified popup for now to ensure replacement works */}
-                            <div className="p-2 bg-slate-900 text-cyan-400"><strong>{vessel.name}</strong></div>
-                          </Popup>
-                        </Marker>
-                      </div>
-                    ))}
-
-                  </MapContainer>
+                <div className="flex-1 flex flex-col h-full overflow-hidden relative" style={{ height: 'calc(100vh - 100px)' }}>
+                  <LiveMap
+                    vessels={vessels}
+                    oilSpills={oilSpills}
+                    countryBoundaries={countryBoundaries}
+                    predictionData={predictionData}
+                    simParams={simParams} // Ensure this state exists or pass mock
+                    setSimParams={setSimParams} // Ensure exists
+                    runSimulation={runSimulation} // Ensure exists
+                    selectedSpillId={selectedSpillId}
+                    predictionStats={predictionStats}
+                    vesselMovementData={vesselMovementData}
+                  />
                 </div>
               )
             }
@@ -2003,76 +1900,29 @@ function App() {
             </footer>
           </main >
         </div >
-        <button
-          onClick={() => setIsChatOpen(!isChatOpen)}
-          className="fixed bottom-6 right-6 z-[1000] p-4 bg-cyan-600 hover:bg-cyan-500 rounded-full shadow-lg shadow-cyan-500/30 transition-all hover:scale-110"
-        >
-          <Zap className="w-6 h-6 text-white" fill="currentColor" />
-        </button>
+        {/* Avatar Assistant - Unified AI Interface */}
+        <AvatarAssistant
+          isOpen={isAvatarOpen}
+          onClose={() => setIsAvatarOpen(false)}
+          context={{ vessels, oilSpills, setActiveTab }}
+        />
 
-        {/* Chat Window */}
-        {isChatOpen && (
-          <div className="fixed bottom-24 right-6 z-[1000] w-80 h-96 cyber-panel bg-slate-900/95 backdrop-blur flex flex-col font-mono text-xs">
-            <div className="p-3 border-b border-cyan-500/30 flex justify-between items-center bg-slate-800/50">
-              <span className="font-bold text-cyan-400 flex items-center gap-2">
-                <Activity className="w-3 h-3" /> AVATAR AI
-              </span>
-              <button onClick={() => setIsChatOpen(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-3 space-y-3">
-              <div className="bg-slate-800 p-2 rounded rounded-tl-none border border-slate-700 max-w-[85%]">
-                <p className="text-slate-300">Hello! I'm Avatar, your intelligent maritime assistant. Accessing satellite feeds... How can I assist you today?</p>
-              </div>
-              {chatMessages.map((msg, i) => (
-                <div key={i} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`p-2 rounded max-w-[85%] ${msg.isUser ? 'bg-cyan-900/50 border border-cyan-500/30 rounded-tr-none text-cyan-100' : 'bg-slate-800 border border-slate-700 rounded-tl-none text-slate-300'}`}>
-                    <p>{msg.text}</p>
-                  </div>
-                </div>
-              ))}
-              <div ref={chatEndRef} />
-            </div>
-
-            <div className="p-3 border-t border-cyan-500/30 bg-slate-800/50">
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                handleSendMessage(e.target.chatInput.value);
-                e.target.chatInput.value = '';
-              }} className="flex gap-2">
-                <input
-                  name="chatInput"
-                  type="text"
-                  placeholder="Query vessel status..."
-                  className="flex-1 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white focus:border-cyan-500 outline-none"
-                />
-                <button type="submit" className="bg-cyan-600 hover:bg-cyan-500 px-3 py-1 rounded text-white">
-                  <Zap className="w-3 h-3" />
-                </button>
-              </form>
-            </div>
-          </div>
+        {/* Avatar Toggle Button (FAB) */}
+        {!isAvatarOpen && (
+          <button
+            onClick={() => {
+              soundManager.playNav();
+              setIsAvatarOpen(true);
+            }}
+            className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-cyan-500 hover:bg-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.6)] flex items-center justify-center transition-all z-[90] group animate-slide-up"
+            title="Open AI Assistant"
+          >
+            <div className="absolute inset-0 rounded-full bg-cyan-400 animate-ping opacity-20"></div>
+            <Zap className="w-8 h-8 text-black fill-current" />
+          </button>
         )}
+
       </div>
-
-      {/* Avatar Assistant - Always Floating */}
-      <AvatarAssistant isOpen={isAvatarOpen} onClose={() => setIsAvatarOpen(false)} />
-
-      {/* Avatar Toggle Button (FAB) */}
-      {!isAvatarOpen && (
-        <button
-          onClick={() => {
-            soundManager.playNav();
-            setIsAvatarOpen(true);
-          }}
-          className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-cyan-500 hover:bg-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.6)] flex items-center justify-center transition-all z-[90] group animate-slide-up"
-          title="Open AI Assistant"
-        >
-          <div className="absolute inset-0 rounded-full bg-cyan-400 animate-ping opacity-20"></div>
-          <Zap className="w-8 h-8 text-black fill-current" />
-        </button>
-      )}
-
     </div>
   );
 }
