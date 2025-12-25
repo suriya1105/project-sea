@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Search, Filter, Ship, Anchor, Navigation, Package, DollarSign, MapPin, Flag, Activity } from 'lucide-react';
+import { Search, Filter, Ship, Anchor, Navigation, Package, DollarSign, MapPin, Flag, Activity, Plus } from 'lucide-react';
 
-const VesselsPage = ({ vessels, onVesselSelect }) => {
+const VesselsPage = ({ vessels, onVesselSelect, onAddClick }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('All');
 
@@ -29,9 +29,17 @@ const VesselsPage = ({ vessels, onVesselSelect }) => {
 
     return (
         <div className="space-y-6 p-4 md:p-6">
-            <h1 className="text-2xl font-bold text-cyan-400 mb-6 flex items-center gap-2">
-                <Anchor className="w-6 h-6" /> Vessel Registry
-            </h1>
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold text-cyan-400 flex items-center gap-2">
+                    <Anchor className="w-6 h-6" /> Vessel Registry
+                </h1>
+                <button
+                    onClick={onAddClick}
+                    className="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded flex items-center gap-2 text-sm font-bold shadow-[0_0_15px_rgba(8,145,178,0.4)] transition-all hover:scale-105"
+                >
+                    <Plus className="w-4 h-4" /> REGISTER NEW SHIP
+                </button>
+            </div>
 
             {/* Header & Controls */}
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-900/50 p-4 rounded-lg border border-cyan-500/20">

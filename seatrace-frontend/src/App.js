@@ -6,8 +6,9 @@
  * for maritime operations and ocean conservation.
  */
 
-import React, { useState, useEffect } from 'react';
-import { Menu, X, Zap, Activity, Globe, Anchor, Shield, Lock, User, CheckCircle, Trash2, FileText, Download, Clipboard, BarChart2, ArrowRight, Loader, AlertTriangle, UserPlus, Users, Settings } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { User, Lock, Activity, Globe, BarChart2, Anchor, FileText, Settings, LogOut, Download, AlertTriangle, Cloud, Navigation, Info, Search, Menu, X, Filter, ChevronDown, Plus } from 'lucide-react';
+import AddVesselModal from './components/AddVesselModal';
 import { MapContainer, TileLayer, Marker, Popup, Circle, LayersControl } from 'react-leaflet';
 import L from 'leaflet';
 import io from 'socket.io-client';
@@ -86,7 +87,16 @@ function App() {
 
   // Sound Manager (Aware of audioEnabled)
   // We use a ref to access the latest state inside the immutable function, or just rely on re-renders
-  const soundManager = {
+  // Add Vessel Modal State
+  const [isAddVesselModalOpen, setIsAddVesselModalOpen] = useState(false);
+
+  const handleAddVessel = (newVessel) => {
+    setVessels(prev => [newVessel, ...prev]);
+    soundManager.playSuccess();
+    // Simulate API capability (local update for now)
+  };
+
+  const soundManager = useMemo(() => ({
     playTone: (freq, type, duration) => {
       if (!audioEnabled) return;
       try {
@@ -106,7 +116,8 @@ function App() {
     playNav: () => soundManager.playTone(300, 'triangle', 0.1),
     playHover: () => soundManager.playTone(800, 'sine', 0.05),
     playClick: () => soundManager.playTone(400, 'square', 0.1),
-  };
+    playSuccess: () => soundManager.playTone(750, 'sine', 0.2), // New success sound
+  }), [audioEnabled]);
   const [showThemeEditor, setShowThemeEditor] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -713,8 +724,9 @@ function App() {
             { id: 'map', icon: Globe, label: 'Live Map' },
             { id: 'analytics', icon: BarChart2, label: 'AI Analytics' },
             { id: 'vessels', icon: Anchor, label: 'Vessels' },
-            { id: 'reports', icon: FileText, label: 'Reports' },
-            { id: 'reports', icon: FileText, label: 'Reports' },
+            // Reports removed as requested
+            { id: 'register', icon: Plus, label: 'Register Ship', action: 'modal' },
+
             // Access Control: Only Admins can see the Command/Settings panel
             { id: 'settings', icon: Settings, label: 'Settings' },
             userRole === 'admin' ? { id: 'admin', icon: Lock, label: 'Command' } : null
@@ -722,13 +734,17 @@ function App() {
             <button
               key={item.id}
               onClick={() => {
+                if (item.action === 'modal') {
+                  if (item.id === 'register') setIsAddVesselModalOpen(true);
+                  return;
+                }
                 if (activeTab !== item.id) {
                   soundManager.playNav();
                   setIsTransitioning(true);
                   setTimeout(() => {
                     setActiveTab(item.id);
                     setIsTransitioning(false);
-                  }, 150); // Slight delay for exit effect if added, or just sound sync
+                  }, 150);
                 }
               }}
               onMouseEnter={() => soundManager.playHover()}
@@ -1111,7 +1127,7 @@ function App() {
                       )}
                   </div>
                 ) : (
-                  <VesselsPage vessels={vessels} onVesselSelect={setSelectedVessel} />
+                  <VesselsPage vessels={vessels} onVesselSelect={setSelectedVessel} onAddClick={() => setIsAddVesselModalOpen(true)} />
                 )
               )
             }
@@ -1132,7 +1148,7 @@ function App() {
                       <FileText className="w-6 h-6 text-cyan-500" />
                       MISSION REPORTS GENERATOR
                     </h2>
-                    <div className="text-sm text-cyan-400/70 font-mono border border-cyan-500/30 px-3 py-1 rounded bg-slate-900/50">
+                    <div className="text-sm text-cyan-400/70 font-mono border border-cyan-500/20 px-3 py-1 rounded bg-slate-900/50">
                       SECURE ARCHIVE ACCESS
                     </div>
                   </div>
@@ -1246,7 +1262,7 @@ function App() {
                       COMMAND CENTER STATUS: <span className="text-green-400">ONLINE</span>
                     </h2>
                     <div className="flex items-center gap-3">
-                      <span className="text-xs font-mono text-cyan-500/70 border border-cyan-500/20 px-2 py-1 rounded">SECURE CONNECTION</span>
+                      <span className="text-xs font-mono text-cyan-500/70 border border-cyan-500/20 px-3 py-1 rounded">SECURE CONNECTION</span>
                       {adminPanelMessage && (
                         <div className={`px-4 py-2 rounded border text-xs font-bold ${adminPanelMessage.includes('Error') ? 'bg-red-500/10 border-red-500 text-red-400' : 'bg-green-500/10 border-green-500 text-green-400'}`}>
                           {adminPanelMessage}
@@ -1603,9 +1619,7 @@ function App() {
               activeTab === 'reports' && (
                 <div className="flex-1 overflow-y-auto p-6 bg-slate-900">
                   <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-cyan-400 flex items-center gap-2">
-                      <FileText className="w-6 h-6" /> Mission Reports
-                    </h2>
+
                     <button className="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded flex items-center gap-2 text-sm font-bold shadow-lg shadow-cyan-500/20">
                       <Download className="w-4 h-4" /> EXPORT ALL PDF
                     </button>
@@ -1755,14 +1769,19 @@ function App() {
             className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-cyan-500 hover:bg-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.6)] flex items-center justify-center transition-all z-[90] group animate-slide-up"
             title="Open AI Assistant"
           >
-            <div className="absolute inset-0 rounded-full bg-cyan-400 animate-ping opacity-20"></div>
             <Zap className="w-8 h-8 text-black fill-current" />
           </button>
         )}
 
       </div>
+      <AddVesselModal
+        isOpen={isAddVesselModalOpen}
+        onClose={() => setIsAddVesselModalOpen(false)}
+        onAdd={handleAddVessel}
+      />
     </div>
   );
 }
 
 export default App;
+
