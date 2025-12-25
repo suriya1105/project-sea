@@ -5,7 +5,7 @@
   "proxy": "http://localhost:10000",
   "description": "SeaTrace Frontend Application",
   "engines": {
-    "node": "24.x"
+    "node": "22.x"
   },
   "dependencies": {
     "@react-three/drei": "9.105.6",
