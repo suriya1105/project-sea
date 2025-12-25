@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { User, Lock, ArrowRight, Activity, Shield, Eye, EyeOff, Anchor, Mail, Phone, Info } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
-import LoginScene3D from './LoginScene3D';
+
 
 const AuthPage = ({ onLogin, onAuthSuccess }) => {
     const [isLoginMode, setIsLoginMode] = useState(true);
@@ -131,8 +131,7 @@ const AuthPage = ({ onLogin, onAuthSuccess }) => {
 
     return (
         <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-slate-900 font-sans animate-slide-in">
-            {/* 3D Background Scene */}
-            <LoginScene3D />
+
 
             {/* Ambient Glows */}
             <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-[128px] animate-pulse"></div>
