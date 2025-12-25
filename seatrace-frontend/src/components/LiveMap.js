@@ -40,6 +40,8 @@ const LiveMap = ({
         return { color: '#f59e0b', dashArray: '5, 10', weight: 2 };
     };
 
+    const [isLegendOpen, setIsLegendOpen] = React.useState(window.innerWidth > 768);
+
     const getVesselClass = (type) => {
         if (type.includes('Tanker')) return 'marker-shape-tanker';
         if (type.includes('Container') || type.includes('Cargo')) return 'marker-shape-cargo';
@@ -48,7 +50,7 @@ const LiveMap = ({
     };
 
     return (
-        <div className="flex-1 flex flex-col h-full cyber-panel p-0 overflow-hidden relative" style={{ minHeight: '80vh' }}>
+        <div className="flex-1 flex flex-col h-full cyber-panel p-0 overflow-hidden relative">
             <div className="absolute inset-0 z-0 map-radar-overlay"></div>
 
             {/* Map Controls Overlay */}
@@ -60,24 +62,37 @@ const LiveMap = ({
                 </div>
             </div>
 
-            {/* Legend Overlay */}
-            <div className="absolute bottom-6 right-4 z-[500] map-legend">
-                <div className="text-xs text-cyan-400 font-bold mb-2 border-b border-cyan-500/30 pb-1">Identified Signals</div>
-                <div className="map-legend-item">
-                    <span className="legend-shape marker-shape-cargo"></span>
-                    <span>Cargo / Container</span>
-                </div>
-                <div className="map-legend-item">
-                    <span className="legend-shape marker-shape-tanker"></span>
-                    <span>Oil Tanker (HazMat)</span>
-                </div>
-                <div className="map-legend-item">
-                    <span className="legend-shape marker-shape-navy"></span>
-                    <span>Naval Entity</span>
-                </div>
-                <div className="map-legend-item">
-                    <span className="legend-shape marker-shape-standard"></span>
-                    <span>Standard / Fishing</span>
+            {/* Legend Overlay - Collapsible */}
+            <div className={`absolute bottom-6 right-4 z-[500] transition-all duration-300 ${isLegendOpen ? 'translate-x-0' : 'translate-x-[calc(100%-32px)]'}`}>
+                <div className="bg-slate-900/90 border border-cyan-500/30 rounded-lg shadow-lg backdrop-blur overflow-hidden">
+                    {/* Toggle Button */}
+                    <button
+                        onClick={() => setIsLegendOpen(!isLegendOpen)}
+                        className="w-full p-2 bg-slate-800/80 border-b border-cyan-500/20 text-xs text-cyan-400 font-bold flex items-center justify-between"
+                    >
+                        <span>SIGNAL ID</span>
+                        <span className={`transform transition-transform ${isLegendOpen ? 'rotate-0' : 'rotate-180'}`}>▼</span>
+                    </button>
+
+                    {/* Legend Content */}
+                    <div className={`p-3 space-y-2 ${isLegendOpen ? 'block' : 'hidden'}`}>
+                        <div className="map-legend-item">
+                            <span className="legend-shape marker-shape-cargo"></span>
+                            <span>Cargo / Container</span>
+                        </div>
+                        <div className="map-legend-item">
+                            <span className="legend-shape marker-shape-tanker"></span>
+                            <span>Oil Tanker (HazMat)</span>
+                        </div>
+                        <div className="map-legend-item">
+                            <span className="legend-shape marker-shape-navy"></span>
+                            <span>Naval Entity</span>
+                        </div>
+                        <div className="map-legend-item">
+                            <span className="legend-shape marker-shape-standard"></span>
+                            <span>Standard / Fishing</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
