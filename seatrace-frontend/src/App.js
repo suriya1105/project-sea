@@ -1083,6 +1083,7 @@ function App() {
                 runSimulation={runSimulation}
                 selectedSpillId={selectedSpillId}
                 predictionStats={predictionStats}
+                vesselMovementData={vesselMovementData}
               />
             )}
 

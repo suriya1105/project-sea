@@ -21,7 +21,8 @@ const LiveMap = ({
     setSimParams,
     runSimulation,
     selectedSpillId,
-    predictionStats
+    predictionStats,
+    vesselMovementData
 }) => {
 
     // Custom Icon Logic
@@ -39,6 +40,13 @@ const LiveMap = ({
         return { color: '#f59e0b', dashArray: '5, 10', weight: 2 };
     };
 
+    const getVesselClass = (type) => {
+        if (type.includes('Tanker')) return 'marker-shape-tanker';
+        if (type.includes('Container') || type.includes('Cargo')) return 'marker-shape-cargo';
+        if (type.includes('Navy') || type.includes('Military')) return 'marker-shape-navy';
+        return 'marker-shape-standard';
+    };
+
     return (
         <div className="flex-1 flex flex-col h-full cyber-panel p-0 overflow-hidden relative" style={{ minHeight: '80vh' }}>
             <div className="absolute inset-0 z-0 map-radar-overlay"></div>
@@ -49,6 +57,27 @@ const LiveMap = ({
                     <div className="flex items-center gap-2 mb-1"><span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span> LIVE SAT FEED</div>
                     <div>LAT: {vessels[0]?.lat.toFixed(4) || '00.000'} | LON: {vessels[0]?.lon.toFixed(4) || '00.000'}</div>
                     <div>TRACKED: {vessels.length} VESSELS</div>
+                </div>
+            </div>
+
+            {/* Legend Overlay */}
+            <div className="absolute bottom-6 right-4 z-[500] map-legend">
+                <div className="text-xs text-cyan-400 font-bold mb-2 border-b border-cyan-500/30 pb-1">Identified Signals</div>
+                <div className="map-legend-item">
+                    <span className="legend-shape marker-shape-cargo"></span>
+                    <span>Cargo / Container</span>
+                </div>
+                <div className="map-legend-item">
+                    <span className="legend-shape marker-shape-tanker"></span>
+                    <span>Oil Tanker (HazMat)</span>
+                </div>
+                <div className="map-legend-item">
+                    <span className="legend-shape marker-shape-navy"></span>
+                    <span>Naval Entity</span>
+                </div>
+                <div className="map-legend-item">
+                    <span className="legend-shape marker-shape-standard"></span>
+                    <span>Standard / Fishing</span>
                 </div>
             </div>
 
@@ -63,7 +92,7 @@ const LiveMap = ({
                     <LayersControl.BaseLayer name="Satellite Mode">
                         <TileLayer
                             url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                            attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+                            attribution='Tiles &copy; Esri &mdash; Source: Esri'
                         />
                     </LayersControl.BaseLayer>
                 </LayersControl>
@@ -83,28 +112,22 @@ const LiveMap = ({
                     />
                 ))}
 
-                {/* Vessels with Unique Directional Icons */}
+                {/* Vessels with Unique Geometric Neon Icons */}
                 {vessels.map(vessel => {
-                    const color = getIconColor(vessel.type);
                     const routeStyle = getRouteStyle(vessel.type);
+                    const vesselClass = getVesselClass(vessel.type);
 
                     const customIcon = L.divIcon({
                         className: 'custom-vessel-icon',
-                        html: `
-            <div style="transform: rotate(${vessel.course}deg); width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; transition: all 1s ease;">
-              <svg viewBox="0 0 24 24" fill="${color}" stroke="white" stroke-width="1" width="24" height="24" style="filter: drop-shadow(0 0 4px ${color});">
-                ${vessel.type.includes('Tanker')
-                                ? '<path d="M12 2L20 8V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V8L12 2Z" />' // Hull shape
-                                : vessel.type.includes('Container')
-                                    ? '<path d="M4 6H20V20H4V6ZM12 2L20 6H4L12 2Z" />' // Boxy shape
-                                    : '<path d="M12 2L2 22L12 18L22 22L12 2Z" />' // Arrow shape
-                            }
-              </svg>
-            </div>
-          `,
+                        html: `<div class="${vesselClass}" style="transform: rotate(${vessel.course}deg);"></div>`,
                         iconSize: [30, 30],
                         iconAnchor: [15, 15]
                     });
+
+                    // Get trailing path from vesselMovementData prop
+                    const trail = vesselMovementData && vesselMovementData[vessel.imo]
+                        ? vesselMovementData[vessel.imo].map(p => [p.lat, p.lon])
+                        : [];
 
                     return (
                         <div key={vessel.imo}>
@@ -122,25 +145,18 @@ const LiveMap = ({
                                 </Popup>
                             </Marker>
 
-                            {/* Vessel Historic Track (Breadcrumbs) with DISTINCT STYLES */}
-                            {vessel.history && vessel.history.length > 2 && (
+                            {/* Vessel Historic Track (Breadcrumbs) from Movement Data */}
+                            {trail.length > 1 && (
                                 <Polyline
-                                    positions={vessel.history.map(h => [h.lat, h.lon])}
+                                    positions={trail}
                                     pathOptions={{
                                         color: routeStyle.color,
                                         weight: routeStyle.weight,
                                         opacity: 0.6,
                                         dashArray: routeStyle.dashArray,
-                                        className: 'animate-pulse-slow' // Custom class for pulsing effect if needed
+                                        className: 'animate-pulse-slow'
                                     }}
-                                >
-                                    <Popup>
-                                        <div className="text-xs font-mono text-slate-300">
-                                            <strong>Route: {vessel.name}</strong><br />
-                                            Type: {vessel.type}
-                                        </div>
-                                    </Popup>
-                                </Polyline>
+                                />
                             )}
                         </div>
                     );
