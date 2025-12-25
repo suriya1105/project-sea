@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Zap, Activity, Globe, Anchor, Shield, Lock, User, CheckCircle, Trash2, FileText, Download, Clipboard, BarChart2, ArrowRight, Loader, AlertTriangle, UserPlus, Users } from 'lucide-react';
+import { Menu, X, Zap, Activity, Globe, Anchor, Shield, Lock, User, CheckCircle, Trash2, FileText, Download, Clipboard, BarChart2, ArrowRight, Loader, AlertTriangle, UserPlus, Users, Settings } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, LayersControl } from 'react-leaflet';
 import L from 'leaflet';
 import io from 'socket.io-client';
@@ -31,6 +31,7 @@ import CargoDashboard from './components/VesselDashboards/CargoDashboard';
 import TankerDashboard from './components/VesselDashboards/TankerDashboard';
 import NavyDashboard from './components/VesselDashboards/NavyDashboard';
 import SpillsPage from './components/SpillsPage';
+import SettingsPage from './components/SettingsPage';
 import LiveMap from './components/LiveMap';
 import { API_BASE_URL, SOCKET_URL } from './config';
 
@@ -719,11 +720,11 @@ function App() {
           {[
             { id: 'dashboard', icon: Activity, label: 'Live Ops' },
             { id: 'analytics', icon: BarChart2, label: 'AI Analytics' },
-            { id: 'map', icon: Globe, label: 'Global Map' },
             { id: 'vessels', icon: Anchor, label: 'Vessels' },
             { id: 'spills', icon: Shield, label: 'Hazards' },
             { id: 'reports', icon: FileText, label: 'Reports' },
             // Access Control: Only Admins can see the Command/Settings panel
+            { id: 'settings', icon: Settings, label: 'Settings' },
             userRole === 'admin' ? { id: 'admin', icon: Lock, label: 'Command' } : null
           ].filter(Boolean).map((item) => (
             <button
@@ -1703,6 +1704,28 @@ function App() {
                       </div>
                     </div>
                   </div>
+                </div>
+              )
+            }
+
+            {/* Spills Tab - SpillsPage */}
+            {
+              activeTab === 'spills' && (
+                <div className="flex-1 overflow-auto h-full pb-20 md:pb-0" style={{ height: 'calc(100vh - 100px)' }}>
+                  <SpillsPage oilSpills={oilSpills} userRole={userRole} vessels={vessels} />
+                </div>
+              )
+            }
+
+            {/* Settings Page */}
+            {
+              activeTab === 'settings' && (
+                <div className="flex-1 overflow-auto h-full pb-20 md:pb-0" style={{ height: 'calc(100vh - 100px)' }}>
+                  <SettingsPage
+                    soundManager={soundManager}
+                    toggleTheme={(color) => setThemeColors({ ...themeColors, primary: color })}
+                    currentTheme={themeColors.primary === '#dc2626' ? 'red' : 'blue'}
+                  />
                 </div>
               )
             }
