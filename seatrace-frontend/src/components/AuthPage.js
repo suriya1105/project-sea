@@ -148,7 +148,7 @@ const AuthPage = ({ onLogin, onAuthSuccess }) => {
 
                         {/* Ship Icon / Structure */}
                         <div className="absolute inset-0 flex items-center justify-center transform translate-z-10">
-                            <Anchor className="w-48 h-48 text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.8)] opacity-90" strokeWidth={0.5} />
+                            <img src="/logo.png" alt="SeaTrace Logo" className="w-48 h-48 object-contain drop-shadow-[0_0_15px_rgba(34,211,238,0.8)] opacity-90 animate-pulse" />
                         </div>
 
                         {/* Orbiting Elements */}

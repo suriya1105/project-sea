@@ -707,7 +707,7 @@ function App() {
       <div className={`cyber-sidebar flex flex-col ${isMobileMenuOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 w-20'} md:relative fixed inset-y-0 left-0 transition-all duration-300 z-50 h-full border-r border-cyan-500/30 bg-slate-900/95 md:bg-transparent`}>
         {/* Logo Area */}
         <div className="h-16 flex items-center justify-center border-b border-cyan-500/20">
-          <Anchor className={`text-cyan-400 w-8 h-8 ${isMobileMenuOpen ? 'mr-2' : ''} animate-pulse`} />
+          <img src="/logo.png" alt="SeaTrace Logo" className={`w-8 h-8 object-contain ${isMobileMenuOpen ? 'mr-2' : ''} drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]`} />
           {isMobileMenuOpen && <span className="text-xl font-bold font-orbitron text-cyan-400 tracking-widest">SEATRACE MONITORING</span>}
         </div>
 
