@@ -44,11 +44,14 @@ const RadarPage = ({ vessels = [] }) => {
                         TACTICAL RADAR ARRAY
                     </h2>
                     <div className="flex gap-2">
+                        <div className="px-2 py-1 rounded bg-green-900/20 border border-green-500/30 text-green-400 text-xs font-bold flex items-center animate-pulse mr-2">
+                            SYSTEM ONLINE
+                        </div>
                         <button
                             onClick={() => setScanMode(scanMode === 'ACTIVE' ? 'PASSIVE' : 'ACTIVE')}
                             className={`px-4 py-1 rounded border text-sm font-bold font-mono transition-all ${scanMode === 'ACTIVE'
-                                    ? 'bg-red-500/20 border-red-500 text-red-400 shadow-[0_0_10px_rgba(239,68,68,0.3)]'
-                                    : 'bg-cyan-900/40 border-cyan-500/30 text-cyan-500'
+                                ? 'bg-red-500/20 border-red-500 text-red-400 shadow-[0_0_10px_rgba(239,68,68,0.3)]'
+                                : 'bg-cyan-900/40 border-cyan-500/30 text-cyan-500'
                                 }`}
                         >
                             {scanMode === 'ACTIVE' ? '● ACTIVE SCAN' : '○ PASSIVE LISTEN'}
@@ -154,8 +157,8 @@ const RadarPage = ({ vessels = [] }) => {
                                 key={obj.id}
                                 onClick={() => setSelectedTarget(obj)}
                                 className={`p-2 rounded border transition-all cursor-pointer flex items-center justify-between group ${selectedTarget?.id === obj.id
-                                        ? 'bg-cyan-900/40 border-cyan-400/50'
-                                        : 'bg-slate-900/30 border-slate-700 hover:border-cyan-500/30 hover:bg-slate-800'
+                                    ? 'bg-cyan-900/40 border-cyan-400/50'
+                                    : 'bg-slate-900/30 border-slate-700 hover:border-cyan-500/30 hover:bg-slate-800'
                                     }`}
                             >
                                 <div>
