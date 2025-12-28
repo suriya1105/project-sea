@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Target, Activity, Crosshair, Shield, Wifi, AlertTriangle, Wind, Info, Disc } from 'lucide-react';
-import RadarWidget from './RadarWidget'; // Re-use the widget for the core visual if desired, or build a bigger one. 
+
 // Actually, let's build a bigger, better one here relative to the page.
 
 const RadarPage = ({ vessels = [] }) => {
