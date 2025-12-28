@@ -1514,7 +1514,7 @@ function App() {
             {
               activeTab === 'settings' && (
                 <div className="flex-1 overflow-auto h-full pb-20 md:pb-0" style={{ height: 'calc(100vh - 100px)' }}>
-                  <SettingsPage
+                  <SettingsScreen
                     soundManager={soundManager}
                     toggleTheme={(color) => setThemeColors({ ...themeColors, primary: color })}
                     currentTheme={themeColors.primary === '#dc2626' ? 'red' : 'blue'}
