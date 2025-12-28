@@ -35,6 +35,7 @@ import SpillsPage from './components/SpillsPage';
 import SettingsScreen from './components/SettingsScreen';
 import RadarWidget from './components/RadarWidget';
 import RadarPage from './components/RadarPage';
+import ReportsPage from './components/ReportsPage';
 import LiveMap from './components/LiveMap';
 import { API_BASE_URL, SOCKET_URL } from './config';
 
@@ -728,6 +729,7 @@ function App() {
             { id: 'analytics', icon: BarChart2, label: 'AI Analytics' },
             { id: 'radar', icon: Target, label: 'Radar' },
             { id: 'vessels', icon: Anchor, label: 'Vessels' },
+            { id: 'reports', icon: FileText, label: 'Reports' },
             { id: 'register', icon: Plus, label: 'Register Ship', action: 'modal' },
 
             // Access Control: Only Admins can see the Command/Settings panel
@@ -1129,6 +1131,12 @@ function App() {
             }
 
             {/* Reports Tab - Available to All Roles */}
+            {
+              activeTab === 'reports' && (
+                <ReportsPage userRole={userRole} />
+              )
+            }
+
             {/* Radar Tab */}
             {
               activeTab === 'radar' && (
