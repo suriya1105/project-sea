@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { User, Lock, Activity, Globe, BarChart2, Anchor, FileText, Settings, LogOut, AlertTriangle, Cloud, Navigation, Info, Search, Menu, X, Filter, ChevronDown, Plus } from 'lucide-react';
+import { User, Lock, Activity, Globe, BarChart2, Anchor, FileText, Settings, LogOut, AlertTriangle, Cloud, Navigation, Info, Search, Menu, X, Filter, ChevronDown, Plus, Target, Shield, ArrowRight, UserPlus, Loader, CheckCircle, Users, Trash2, Zap } from 'lucide-react';
 import AddVesselModal from './components/AddVesselModal';
 import { MapContainer, TileLayer, Marker, Popup, Circle, LayersControl } from 'react-leaflet';
 import L from 'leaflet';
