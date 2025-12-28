@@ -32,7 +32,7 @@ import CargoDashboard from './components/VesselDashboards/CargoDashboard';
 import TankerDashboard from './components/VesselDashboards/TankerDashboard';
 import NavyDashboard from './components/VesselDashboards/NavyDashboard';
 import SpillsPage from './components/SpillsPage';
-import SettingsScreen from './components/SettingsPage';
+import SettingsScreen from './components/SettingsScreen';
 import RadarWidget from './components/RadarWidget';
 import RadarPage from './components/RadarPage';
 import LiveMap from './components/LiveMap';
