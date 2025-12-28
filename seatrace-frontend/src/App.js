@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { User, Lock, Activity, Globe, BarChart2, Anchor, FileText, Settings, LogOut, AlertTriangle, Cloud, Navigation, Info, Search, Menu, X, Filter, ChevronDown, Plus, Target, Shield, ArrowRight, UserPlus, Loader, CheckCircle, Users, Trash2, Zap, Scan, Box, Cpu, Database, Layers, ChevronRight } from 'lucide-react';
+import { User, Lock, Activity, Globe, BarChart2, Anchor, FileText, Settings, LogOut, AlertTriangle, Cloud, Navigation, Info, Search, Menu, X, Filter, ChevronDown, Plus, Target, Shield, ArrowRight, UserPlus, Loader, CheckCircle, Users, Trash2, Zap, Scan, Box, Cpu, Database, Layers, ChevronRight, Video, Crosshair, Battery, Wifi, Maximize, Radio, Heart, Thermometer, Wind, MessageSquare, Send, Mic, Volume2 } from 'lucide-react';
 import AddVesselModal from './components/AddVesselModal';
 import { MapContainer, TileLayer, Marker, Popup, Circle, LayersControl } from 'react-leaflet';
 import L from 'leaflet';
@@ -38,6 +38,9 @@ import RadarPage from './components/RadarPage';
 import ScannerPage from './components/ScannerPage';
 import ReportsPage from './components/ReportsPage';
 import EmergencyOverlay from './components/EmergencyOverlay';
+import DronePage from './components/DronePage';
+import CrewPage from './components/CrewPage';
+import CommsPage from './components/CommsPage';
 import LiveMap from './components/LiveMap';
 import { API_BASE_URL, SOCKET_URL } from './config';
 
@@ -735,6 +738,9 @@ function App() {
             { id: 'analytics', icon: BarChart2, label: 'AI Analytics' },
             { id: 'radar', icon: Target, label: 'Radar' },
             { id: 'scanner', icon: Scan, label: 'X-Ray Scanner' },
+            { id: 'drone', icon: Video, label: 'Drone Recon' },
+            { id: 'crew', icon: Users, label: 'Crew Bio' },
+            { id: 'comms', icon: Radio, label: 'Dark Comms' },
             { id: 'vessels', icon: Anchor, label: 'Vessels' },
             { id: 'reports', icon: FileText, label: 'Reports' },
             { id: 'register', icon: Plus, label: 'Register Ship', action: 'modal' },
@@ -1030,8 +1036,8 @@ function App() {
                     <button
                       onClick={toggleRedAlert}
                       className={`w-full py-3 font-bold uppercase tracking-widest rounded border transition-all ${isRedAlert
-                          ? 'bg-red-600 text-white border-red-400 shadow-[0_0_20px_#dc2626] animate-pulse'
-                          : 'bg-slate-900 text-red-500 border-red-900 hover:bg-red-900/20 hover:border-red-500'
+                        ? 'bg-red-600 text-white border-red-400 shadow-[0_0_20px_#dc2626] animate-pulse'
+                        : 'bg-slate-900 text-red-500 border-red-900 hover:bg-red-900/20 hover:border-red-500'
                         }`}
                     >
                       {isRedAlert ? 'DEACTIVATE ALERT' : 'INITIATE RED ALERT'}
@@ -1178,6 +1184,27 @@ function App() {
             {
               activeTab === 'scanner' && (
                 <ScannerPage vessels={vessels} />
+              )
+            }
+
+            {/* Drone Tab */}
+            {
+              activeTab === 'drone' && (
+                <DronePage vessels={vessels} />
+              )
+            }
+
+            {/* Crew Tab */}
+            {
+              activeTab === 'crew' && (
+                <CrewPage vessels={vessels} />
+              )
+            }
+
+            {/* Comms Tab */}
+            {
+              activeTab === 'comms' && (
+                <CommsPage />
               )
             }
 
