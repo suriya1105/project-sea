@@ -215,8 +215,47 @@ const LiveMap = ({
                                     </div>
                                 </Popup>
                             </Marker>
+
+                            {/* Existing Trail Logic */}
                             {trail.length > 1 && visibleLayers[vessel.type.toLowerCase().split(' ')[0]] && (
                                 <Polyline positions={trail} pathOptions={{ color: routeStyle.color, weight: routeStyle.weight, opacity: 0.6, dashArray: routeStyle.dashArray, className: 'animate-pulse-slow' }} />
+                            )}
+
+                            {/* Predictive AI Pathing (Ghost Path) */}
+                            {visibleLayers[vessel.type.toLowerCase().split(' ')[0]] && (
+                                <Polyline
+                                    positions={[
+                                        [vessel.lat, vessel.lon],
+                                        // Simple projection: 0.1 degree per 10 knots approx
+                                        [
+                                            vessel.lat + (Math.cos(vessel.course * Math.PI / 180) * vessel.speed * 0.005),
+                                            vessel.lon + (Math.sin(vessel.course * Math.PI / 180) * vessel.speed * 0.005)
+                                        ]
+                                    ]}
+                                    pathOptions={{
+                                        color: routeStyle.color,
+                                        weight: 1,
+                                        opacity: 0.4,
+                                        dashArray: '2, 5'
+                                    }}
+                                />
+                            )}
+                            {/* Predicted Destination Marker */}
+                            {visibleLayers[vessel.type.toLowerCase().split(' ')[0]] && (
+                                <Circle
+                                    center={[
+                                        vessel.lat + (Math.cos(vessel.course * Math.PI / 180) * vessel.speed * 0.005),
+                                        vessel.lon + (Math.sin(vessel.course * Math.PI / 180) * vessel.speed * 0.005)
+                                    ]}
+                                    radius={5000}
+                                    pathOptions={{
+                                        color: routeStyle.color,
+                                        fillColor: routeStyle.color,
+                                        fillOpacity: 0.1,
+                                        weight: 1,
+                                        dashArray: '2, 2'
+                                    }}
+                                />
                             )}
                         </div>
                     );

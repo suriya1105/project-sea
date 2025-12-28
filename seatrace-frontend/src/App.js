@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { User, Lock, Activity, Globe, BarChart2, Anchor, FileText, Settings, LogOut, AlertTriangle, Cloud, Navigation, Info, Search, Menu, X, Filter, ChevronDown, Plus, Target, Shield, ArrowRight, UserPlus, Loader, CheckCircle, Users, Trash2, Zap } from 'lucide-react';
+import { User, Lock, Activity, Globe, BarChart2, Anchor, FileText, Settings, LogOut, AlertTriangle, Cloud, Navigation, Info, Search, Menu, X, Filter, ChevronDown, Plus, Target, Shield, ArrowRight, UserPlus, Loader, CheckCircle, Users, Trash2, Zap, Scan, Box, Cpu, Database, Layers, ChevronRight } from 'lucide-react';
 import AddVesselModal from './components/AddVesselModal';
 import { MapContainer, TileLayer, Marker, Popup, Circle, LayersControl } from 'react-leaflet';
 import L from 'leaflet';
@@ -35,7 +35,9 @@ import SpillsPage from './components/SpillsPage';
 import SettingsScreen from './components/SettingsScreen';
 import RadarWidget from './components/RadarWidget';
 import RadarPage from './components/RadarPage';
+import ScannerPage from './components/ScannerPage';
 import ReportsPage from './components/ReportsPage';
+import EmergencyOverlay from './components/EmergencyOverlay';
 import LiveMap from './components/LiveMap';
 import { API_BASE_URL, SOCKET_URL } from './config';
 
@@ -92,6 +94,10 @@ function App() {
   // We use a ref to access the latest state inside the immutable function, or just rely on re-renders
   // Add Vessel Modal State
   const [isAddVesselModalOpen, setIsAddVesselModalOpen] = useState(false);
+  const [isRedAlert, setIsRedAlert] = useState(false);
+
+  // Toggle Red Alert Mode
+  const toggleRedAlert = () => setIsRedAlert(prev => !prev);
 
   const handleAddVessel = (newVessel) => {
     setVessels(prev => [newVessel, ...prev]);
@@ -728,6 +734,7 @@ function App() {
             { id: 'map', icon: Globe, label: 'Live Map' },
             { id: 'analytics', icon: BarChart2, label: 'AI Analytics' },
             { id: 'radar', icon: Target, label: 'Radar' },
+            { id: 'scanner', icon: Scan, label: 'X-Ray Scanner' },
             { id: 'vessels', icon: Anchor, label: 'Vessels' },
             { id: 'reports', icon: FileText, label: 'Reports' },
             { id: 'register', icon: Plus, label: 'Register Ship', action: 'modal' },
@@ -1010,7 +1017,27 @@ function App() {
                 </div>
 
                 {/* Graphs Row */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                  {/* Red Alert Control */}
+                  <div className="cyber-panel border-red-500/50">
+                    <h3 className="text-red-500 font-bold mb-4 flex items-center gap-2">
+                      <AlertTriangle className="w-5 h-5" /> EMERGENCY OVERRIDE
+                    </h3>
+                    <p className="text-slate-400 text-sm mb-4">
+                      Trigger global "Red Alert" protocol. This will override all user interfaces with emergency visuals.
+                    </p>
+                    <button
+                      onClick={toggleRedAlert}
+                      className={`w-full py-3 font-bold uppercase tracking-widest rounded border transition-all ${isRedAlert
+                          ? 'bg-red-600 text-white border-red-400 shadow-[0_0_20px_#dc2626] animate-pulse'
+                          : 'bg-slate-900 text-red-500 border-red-900 hover:bg-red-900/20 hover:border-red-500'
+                        }`}
+                    >
+                      {isRedAlert ? 'DEACTIVATE ALERT' : 'INITIATE RED ALERT'}
+                    </button>
+                  </div>
+
                   <div className="cyber-panel">
                     <h3 className="text-cyan-400 font-orbitron mb-4 text-sm">REAL-TIME SPEED ANALYSIS</h3>
                     <div className="h-64" style={{ minHeight: '250px' }}>
@@ -1109,7 +1136,10 @@ function App() {
                     {(selectedVessel.type.includes('Tanker')) && <TankerDashboard vessel={selectedVessel} />}
                     {(selectedVessel.type.includes('Navy') || selectedVessel.type.includes('Gov') || selectedVessel.type.includes('Military')) && <NavyDashboard vessel={selectedVessel} />}
 
-                    {/* Fallback */}
+                    {/* Emergency Overlay */}
+                    {isRedAlert && <EmergencyOverlay />}
+
+                    {/* Sidebar */}
                     {!selectedVessel.type.includes('Fishing') &&
                       !selectedVessel.type.includes('Cargo') && !selectedVessel.type.includes('Container') &&
                       !selectedVessel.type.includes('Tanker') &&
@@ -1141,6 +1171,13 @@ function App() {
             {
               activeTab === 'radar' && (
                 <RadarPage vessels={vessels} />
+              )
+            }
+
+            {/* Scanner Tab */}
+            {
+              activeTab === 'scanner' && (
+                <ScannerPage vessels={vessels} />
               )
             }
 
