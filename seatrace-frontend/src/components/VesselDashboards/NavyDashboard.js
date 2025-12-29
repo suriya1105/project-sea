@@ -1,5 +1,5 @@
 import React from 'react';
-import { Target, Radio, ShieldAlert, Crosshair, Radar } from 'lucide-react';
+import { Target, Radio, Crosshair } from 'lucide-react';
 
 const NavyDashboard = ({ vessel }) => {
     const tacticalTargets = [
@@ -64,8 +64,8 @@ const NavyDashboard = ({ vessel }) => {
                                         </div>
                                     </div>
                                     <div className={`text-xs px-2 py-0.5 rounded border ${tgt.status === 'Neutral' ? 'border-yellow-500/30 text-yellow-500 bg-yellow-500/10' :
-                                            tgt.status === 'Unknown' ? 'border-red-500/30 text-red-500 bg-red-500/10' :
-                                                'border-green-500/30 text-green-500 bg-green-500/10'
+                                        tgt.status === 'Unknown' ? 'border-red-500/30 text-red-500 bg-red-500/10' :
+                                            'border-green-500/30 text-green-500 bg-green-500/10'
                                         }`}>
                                         {tgt.status.toUpperCase()}
                                     </div>

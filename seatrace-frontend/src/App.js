@@ -895,7 +895,7 @@ function App() {
 
         {/* Scrollable Content - Reduced Padding for Mobile */}
         <div className={`${activeTab === 'map' ? 'p-0' : 'p-2 md:p-6'} flex-1 overflow-hidden flex flex-col ${isTransitioning ? 'opacity-50 blur-sm scale-95' : 'opacity-100 blur-0 scale-100'} transition-all duration-300 ease-in-out`}>
-          <main className={`flex-1 overflow-y-auto overflow-x-hidden relative custom-scrollbar animate-slide-in ${activeTab === 'map' ? 'pb-[50px] md:pb-0' : 'pb-24 md:pb-0'}`}>
+          <main className={`flex-1 overflow-y-auto overflow-x-hidden relative custom-scrollbar animate-slide-in`}>
             {connectionStatus !== 'connected' && (
               <div className="mb-4 bg-red-900/20 border border-red-500/50 text-red-200 px-4 py-2 rounded flex items-center gap-2 animate-pulse">
                 <Activity className="w-4 h-4" />

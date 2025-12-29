@@ -1,5 +1,5 @@
 import React from 'react';
-import { Fish, Anchor, Scale, AlertTriangle, Map, TrendingUp } from 'lucide-react';
+import { Fish, Anchor, Scale, Map, TrendingUp } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 
 const FishingDashboard = ({ vessel }) => {

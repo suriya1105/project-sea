@@ -325,8 +325,8 @@ body.light-mode .ocean-bg {
   background: var(--bg-sidebar);
   backdrop-filter: blur(15px);
   border-right: 1px solid var(--border-color);
-  box-shadow: 5px 0 30px var(--shadow-color);
-  transition: width 0.3s ease;
+  box-shadow: 5px 0 30px var(--shadow-color), inset -1px 0 0 rgba(255, 255, 255, 0.05);
+  transition: width 0.3s ease, transform 0.3s ease;
   z-index: 100;
 }
 
@@ -346,6 +346,19 @@ body.light-mode .ocean-bg {
 .sidebar-item.active {
   color: var(--neon-blue);
   text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+  animation: sidebar-glow 2s infinite alternate;
+}
+
+@keyframes sidebar-glow {
+  from {
+    border-left-color: var(--neon-blue);
+    box-shadow: 5px 0 15px rgba(0, 243, 255, 0.2);
+  }
+
+  to {
+    border-left-color: #ffffff;
+    box-shadow: 5px 0 25px rgba(0, 243, 255, 0.6);
+  }
 }
 
 /* Dashboard Layout */

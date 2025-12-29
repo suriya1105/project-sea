@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, Ship, Anchor, Navigation, Package, DollarSign, MapPin, Flag, Activity, Plus } from 'lucide-react';
+import { Search, Filter, Ship, Anchor, Navigation, Package, Flag, Activity, Plus } from 'lucide-react';
 
 const VesselsPage = ({ vessels, onVesselSelect, onAddClick }) => {
     const [searchTerm, setSearchTerm] = useState('');
