@@ -40,14 +40,8 @@ import NavyDashboard from './components/VesselDashboards/NavyDashboard';
 import SpillsPage from './components/SpillsPage';
 import SettingsScreen from './components/SettingsScreen';
 import RadarWidget from './components/RadarWidget';
-import RadarPage from './components/RadarPage';
-import ScannerPage from './components/ScannerPage';
 import ReportsPage from './components/ReportsPage';
 import EmergencyOverlay from './components/EmergencyOverlay';
-import DronePage from './components/DronePage';
-import CrewPage from './components/CrewPage';
-import CommsPage from './components/CommsPage';
-import LiveMap from './components/LiveMap';
 import { API_BASE_URL, SOCKET_URL } from './config';
 
 // Fix leaflet icon issue
