@@ -22,6 +22,7 @@ import axios from 'axios';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import './App.css';
 import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 // import cyberVesselImg from './assets/cyber_vessel.png';
 import oilSpillImg from './assets/oil_spill_analysis.png';
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Leaf, Droplet, Wind, AlertTriangle, TrendingDown, Thermometer, Info } from 'lucide-react';
+import { Leaf, Droplet, Wind, AlertTriangle, TrendingDown, Thermometer, Info, Activity } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 
 const EcoScanner = () => {
