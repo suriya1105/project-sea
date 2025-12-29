@@ -1,16 +1,22 @@
 /**
  * SeaTrace - Advanced Marine Intelligence & Real-Time Monitoring System
  * Copyright © 2025 by Suriya. All rights reserved.
- * 
+ *
  * Real-time vessel tracking, oil spill detection, and environmental monitoring
  * for maritime operations and ocean conservation.
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Activity, Globe, BarChart2, Anchor, FileText, Settings, LogOut, ChevronDown, ChevronRight, Target, Users, Scan, Video, Radio, Lock, Menu, X, Shield, AlertTriangle, ArrowRight, UserPlus, Loader, CheckCircle, Trash2, Zap } from 'lucide-react';
+import { Activity, Globe, BarChart2, Anchor, FileText, Settings, LogOut, ChevronDown, ChevronRight, Target, Users, Scan, Video, Radio, Lock, Menu, X, Shield, AlertTriangle, ArrowRight, UserPlus, Loader, CheckCircle, Trash2, Zap, Leaf, CloudLightning } from 'lucide-react';
 import AddVesselModal from './components/AddVesselModal';
-import { MapContainer, TileLayer, Marker, Popup, Circle, LayersControl } from 'react-leaflet';
-import L from 'leaflet';
+import LiveMap from './components/LiveMap';
+import RadarPage from './components/RadarPage';
+import ScannerPage from './components/ScannerPage';
+import EcoScanner from './components/EcoScanner';
+import CrewPage from './components/CrewPage';
+import CommsPage from './components/CommsPage';
+import CyberDefense from './components/CyberDefense';
+import StormWatch from './components/StormWatch';
 import io from 'socket.io-client';
 import axios from 'axios';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
@@ -785,7 +791,7 @@ function App() {
             { id: 'analytics', icon: BarChart2, label: 'AI Analytics' },
             { id: 'radar', icon: Target, label: 'Radar System' },
             { id: 'scanner', icon: Scan, label: 'X-Ray Scanner' },
-            { id: 'drone', icon: Video, label: 'Drone Recon' },
+            { id: 'eco', icon: Leaf, label: 'Eco-Scanner' },
             { id: 'crew', icon: Users, label: 'Crew Manifest' },
             { id: 'comms', icon: Radio, label: 'Comms Link' },
             { id: 'vessels', icon: Anchor, label: 'Vessel Registry' },
@@ -895,7 +901,7 @@ function App() {
 
         {/* Scrollable Content - Reduced Padding for Mobile */}
         <div className={`${activeTab === 'map' ? 'p-0' : 'p-2 md:p-6'} flex-1 overflow-hidden flex flex-col ${isTransitioning ? 'opacity-50 blur-sm scale-95' : 'opacity-100 blur-0 scale-100'} transition-all duration-300 ease-in-out`}>
-          <main className={`flex-1 overflow-y-auto overflow-x-hidden relative custom-scrollbar animate-slide-in`}>
+          <main className={`flex-1 ${activeTab === 'map' ? 'overflow-hidden' : 'overflow-y-auto'} overflow-x-hidden relative custom-scrollbar animate-slide-in`}>
             {connectionStatus !== 'connected' && (
               <div className="mb-4 bg-red-900/20 border border-red-500/50 text-red-200 px-4 py-2 rounded flex items-center gap-2 animate-pulse">
                 <Activity className="w-4 h-4" />
@@ -1243,10 +1249,10 @@ function App() {
               )
             }
 
-            {/* Drone Tab */}
+            {/* Eco-Scanner Tab */}
             {
-              activeTab === 'drone' && (
-                <DronePage vessels={vessels} />
+              activeTab === 'eco' && (
+                <EcoScanner />
               )
             }
 
