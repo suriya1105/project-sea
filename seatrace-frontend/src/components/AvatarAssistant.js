@@ -75,9 +75,9 @@ const AvatarAssistant = ({ isOpen, onClose, context }) => {
             <div className="flex-1 h-80 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-black/40">
                 {messages.map((msg) => (
                     <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[80%] p-3 rounded-lg text-sm font-rajdhani leading-relaxed ${msg.sender === 'user'
+                        <div className={`max-w-[80%] p-3 rounded-lg text-sm font-rajdhani leading-relaxed whitespace-pre-wrap shadow-sm ${msg.sender === 'user'
                             ? 'bg-cyan-700/30 text-cyan-50 border border-cyan-500/30 rounded-tr-none'
-                            : 'bg-slate-800/80 text-gray-200 border border-slate-600 rounded-tl-none'
+                            : 'bg-slate-800/90 text-gray-200 border border-slate-600 rounded-tl-none shadow-[0_2px_10px_rgba(0,0,0,0.2)]'
                             }`}>
                             {msg.text}
                         </div>
