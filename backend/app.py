@@ -1182,16 +1182,16 @@ def handle_subscribe_realtime():
     oil_spills_dict = data_manager.get_oil_spills()
     analysis_data = {
         'vessels': [{
-            'imo': v['imo'],
-            'name': v['name'],
-            'lat': v['lat'],
-            'lon': v['lon'],
-            'speed': v['speed'],
-            'course': v['course'],
+            'imo': v.get('imo'),
+            'name': v.get('name', 'Unknown'),
+            'lat': v.get('lat', 0.0),
+            'lon': v.get('lon', 0.0),
+            'speed': v.get('speed', 0),
+            'course': v.get('course', 0),
             'destination': v.get('destination', 'Unknown'),
-            'compliance_rating': v['compliance_rating'],
-            'risk_level': v['risk_level'],
-            'last_inspection': v['last_inspection']
+            'compliance_rating': v.get('compliance_rating', 0),
+            'risk_level': v.get('risk_level', 'Unknown'),
+            'last_inspection': v.get('last_inspection', 'N/A')
         } for v in vessels_dict.values()],
         'oil_spills': [{
             'spill_id': s['spill_id'],
@@ -1224,17 +1224,17 @@ def broadcast_realtime_analysis():
     oil_spills_dict = data_manager.get_oil_spills()
     analysis_data = {
         'vessels': [{
-            'imo': v['imo'],
-            'name': v['name'],
-            'lat': v['lat'],
-            'lon': v['lon'],
+            'imo': v.get('imo'),
+            'name': v.get('name', 'Unknown'),
+            'lat': v.get('lat', 0.0),
+            'lon': v.get('lon', 0.0),
             'history': v.get('history', []),
-            'speed': v['speed'],
-            'course': v['course'],
+            'speed': v.get('speed', 0),
+            'course': v.get('course', 0),
             'destination': v.get('destination', 'Unknown'),
-            'compliance_rating': v['compliance_rating'],
-            'risk_level': v['risk_level'],
-            'last_inspection': v['last_inspection']
+            'compliance_rating': v.get('compliance_rating', 0),
+            'risk_level': v.get('risk_level', 'Unknown'),
+            'last_inspection': v.get('last_inspection', 'N/A')
         } for v in vessels_dict.values()],
         'oil_spills': [{
             'spill_id': s['spill_id'],

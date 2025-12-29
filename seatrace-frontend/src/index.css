@@ -20,32 +20,37 @@ code {
 @media (max-width: 768px) {
   .cyber-panel {
     margin-bottom: 0.5rem !important;
-    /* Compressed from 0.75rem */
-    padding: 0.5rem !important;
-    /* Compressed for density */
-    border-radius: 4px !important;
-    /* Sharper corners */
+    padding: 0.75rem !important;
+    border-radius: 8px !important;
   }
 
   .p-6 {
-    padding: 0.75rem !important;
+    padding: 1rem !important;
   }
 
   /* Remove gaps between grid items */
   .grid {
-    gap: 0.5rem !important;
-    /* Tighter grid */
+    gap: 0.75rem !important;
   }
 
   .space-y-6>*+* {
-    margin-top: 0.75rem !important;
-    /* Tighter vertical spacing */
+    margin-top: 1rem !important;
   }
 
-  /* Thumb-Zone Spacer for Bottom Nav */
-  .app {
-    padding-bottom: 80px;
-    /* Space for bottom nav */
+  /* Thumb-Zone Spacer */
+  .padding-safe-bottom {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+
+  /* Utilities for Responsive Visibility */
+  .mobile-hidden {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .desktop-hidden {
+    display: none !important;
   }
 }
 

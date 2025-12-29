@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { User, Lock, Activity, Globe, BarChart2, Anchor, FileText, Settings, LogOut, AlertTriangle, Cloud, Navigation, Info, Search, Menu, X, Filter, ChevronDown, Plus, Target, Shield, ArrowRight, UserPlus, Loader, CheckCircle, Users, Trash2, Zap, Scan, Box, Cpu, Database, Layers, ChevronRight, Video, Crosshair, Battery, Wifi, Maximize, Radio, Heart, Thermometer, Wind, MessageSquare, Send, Mic, Volume2 } from 'lucide-react';
+import { Activity, Globe, BarChart2, Anchor, FileText, Settings, LogOut, ChevronDown, ChevronRight, Target, Users, Scan, Video, Radio, Lock, Menu, X } from 'lucide-react';
 import AddVesselModal from './components/AddVesselModal';
 import { MapContainer, TileLayer, Marker, Popup, Circle, LayersControl } from 'react-leaflet';
 import L from 'leaflet';
@@ -75,6 +75,10 @@ function App() {
   // Settings & Persistence
   const [audioEnabled, setAudioEnabled] = useState(() => JSON.parse(localStorage.getItem('seatrace_audio') ?? 'true'));
   const [notificationsEnabled, setNotificationsEnabled] = useState(() => JSON.parse(localStorage.getItem('seatrace_notifications') ?? 'true'));
+  const [refreshRate, setRefreshRate] = useState(() => JSON.parse(localStorage.getItem('seatrace_refresh_rate') ?? '10000'));
+  const [uiScale, setUiScale] = useState(() => localStorage.getItem('seatrace_ui_scale') || 'touch');
+  const [mapStyle, setMapStyle] = useState(() => localStorage.getItem('seatrace_map_style') || 'dark');
+  const [themeMode, setThemeMode] = useState(() => localStorage.getItem('seatrace_theme_mode') || 'dark');
   const [themeColors, setThemeColors] = useState(() => {
     const saved = localStorage.getItem('seatrace_theme');
     return saved ? JSON.parse(saved) : {
@@ -85,13 +89,31 @@ function App() {
     };
   });
 
-  // Apply Theme Effect
+  // Apply Theme & UI Scale Effect
   useEffect(() => {
-    document.body.className = themeColors.primary === '#dc2626' ? 'theme-red' : '';
+    // Mode
+    if (themeMode === 'light') {
+      document.body.classList.add('light-mode');
+    } else {
+      document.body.classList.remove('light-mode');
+    }
+
+    document.body.className = `${themeColors.primary === '#dc2626' ? 'theme-red' : ''} ${themeMode === 'light' ? 'light-mode' : ''}`;
+    // Apply Scale Class to Root
+    const root = document.getElementById('root');
+    if (root) {
+      root.className = uiScale === 'compact' ? 'scale-compact' : 'scale-touch';
+    }
+
     localStorage.setItem('seatrace_theme', JSON.stringify(themeColors));
     localStorage.setItem('seatrace_audio', JSON.stringify(audioEnabled));
     localStorage.setItem('seatrace_notifications', JSON.stringify(notificationsEnabled));
-  }, [themeColors, audioEnabled, notificationsEnabled]);
+    localStorage.setItem('seatrace_refresh_rate', JSON.stringify(refreshRate));
+    localStorage.setItem('seatrace_ui_scale', uiScale);
+    localStorage.setItem('seatrace_map_style', mapStyle);
+    localStorage.setItem('seatrace_theme_mode', themeMode);
+  }, [themeColors, audioEnabled, notificationsEnabled, refreshRate, uiScale, mapStyle, themeMode]);
+
 
   // Sound Manager (Aware of audioEnabled)
   // We use a ref to access the latest state inside the immutable function, or just rely on re-renders
@@ -130,6 +152,7 @@ function App() {
     playClick: () => soundManager.playTone(400, 'square', 0.1),
     playSuccess: () => soundManager.playTone(750, 'sine', 0.2), // New success sound
   }), [audioEnabled]);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [showThemeEditor, setShowThemeEditor] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -718,82 +741,115 @@ function App() {
       <div className="absolute inset-0 bg-slate-900/90 backdrop-blur-sm z-0"></div>
       <div className="grid-overlay"></div>
 
-      {/* Cyber Sidebar */}
-      {/* Cyber Sidebar (Desert Layout) / Mobile Bottom Nav (Thumb Zone) */}
-      <div className={`cyber-sidebar flex md:flex-col flex-row ${isMobileMenuOpen ? 'translate-y-0' : 'translate-y-0'} md:relative fixed bottom-0 left-0 right-0 md:inset-y-0 md:w-20 md:h-full h-16 transition-all duration-300 z-50 border-t md:border-t-0 md:border-r border-cyan-500/30 bg-slate-900/95 md:bg-transparent justify-around md:justify-start`}>
-        {/* Logo Area (Hidden on Mobile Nav to save space) */}
-        <div className="hidden md:flex h-16 items-center justify-center border-b border-cyan-500/20">
-          <div className="relative group">
-            <div className="absolute inset-0 bg-cyan-500/30 blur-md rounded-xl animate-pulse group-hover:bg-cyan-400/50 transition-all"></div>
-            <img src="/logo.png" alt="SeaTrace Logo" className={`relative z-10 w-10 h-10 rounded-xl object-contain ${isMobileMenuOpen ? 'mr-2' : ''} shadow-[0_0_15px_rgba(6,182,212,0.5)] transition-transform group-hover:scale-110`} />
+      {/* Cyber Sidebar (Desktop) / Mobile Side Drawer (Off-Canvas) */}
+      <div className={`cyber-sidebar flex flex-col fixed md:relative inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} w-64 ${isSidebarExpanded ? 'md:w-64' : 'md:w-16'} bg-slate-900/95 md:bg-transparent border-r border-cyan-500/30 overflow-hidden`}>
+
+        {/* Mobile Header with Close Button */}
+        <div className="flex md:hidden items-center justify-between p-4 border-b border-cyan-500/20">
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="Logo" className="w-6 h-6" />
+            <span className="font-orbitron font-bold text-cyan-400">SEATRACE</span>
           </div>
-          {isMobileMenuOpen && <span className="text-xl font-bold font-orbitron text-cyan-400 tracking-widest">SEATRACE MONITORING</span>}
+          <button onClick={() => setIsMobileMenuOpen(false)} className="text-slate-400 hover:text-white">
+            <X className="w-6 h-6" />
+          </button>
         </div>
 
-        {/* Navigation Items - Horizontal on Mobile, Vertical on Desktop */}
-        <div className="flex-1 py-0 md:py-6 flex md:flex-col flex-row gap-1 md:gap-2 px-1 md:px-2 items-center justify-around md:justify-start w-full">
+        {/* Toggle Handle (Desktop Only) */}
+        <button
+          onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
+          className="hidden md:flex absolute -right-3 top-10 bg-cyan-900 border border-cyan-500 text-cyan-400 rounded-full p-1 hover:scale-110 transition-transform z-50 shadow-[0_0_10px_rgba(6,182,212,0.5)]"
+          title={isSidebarExpanded ? "Collapse" : "Expand"}
+        >
+          {isSidebarExpanded ? <ChevronDown className="w-4 h-4 rotate-90" /> : <ChevronRight className="w-4 h-4" />}
+        </button>
+
+        {/* Desktop Logo Area */}
+        <div className={`hidden md:flex h-16 items-center ${isSidebarExpanded ? 'justify-start px-4' : 'justify-center'} border-b border-cyan-500/20 shrink-0 mb-2 transition-all`}>
+          <div className="relative group shrink-0">
+            <div className="absolute inset-0 bg-cyan-500/30 blur-sm rounded-lg animate-pulse group-hover:bg-cyan-400/50 transition-all"></div>
+            <img src="/logo.png" alt="SeaTrace" className={`relative z-10 w-8 h-8 rounded-lg object-contain shadow-[0_0_10px_rgba(6,182,212,0.5)] transition-transform group-hover:scale-110`} />
+          </div>
+          {isSidebarExpanded && (
+            <div className="ml-3 font-orbitron font-bold text-cyan-400 tracking-wider whitespace-nowrap overflow-hidden animate-fade-in">
+              SEATRACE
+            </div>
+          )}
+        </div>
+
+        {/* Navigation Items - Vertical Scroll */}
+        <div className="flex-1 py-2 flex flex-col gap-1 px-2 overflow-y-auto custom-scrollbar">
           {[
-            { id: 'dashboard', icon: Activity, label: 'Live Ops' },
+            { id: 'dashboard', icon: Activity, label: 'Ops Dashboard' },
             { id: 'map', icon: Globe, label: 'Live Map' },
             { id: 'analytics', icon: BarChart2, label: 'AI Analytics' },
-            { id: 'radar', icon: Target, label: 'Radar' },
+            { id: 'radar', icon: Target, label: 'Radar System' },
             { id: 'scanner', icon: Scan, label: 'X-Ray Scanner' },
             { id: 'drone', icon: Video, label: 'Drone Recon' },
-            { id: 'crew', icon: Users, label: 'Crew Bio' },
-            { id: 'comms', icon: Radio, label: 'Dark Comms' },
-            { id: 'vessels', icon: Anchor, label: 'Vessels' },
+            { id: 'crew', icon: Users, label: 'Crew Manifest' },
+            { id: 'comms', icon: Radio, label: 'Comms Link' },
+            { id: 'vessels', icon: Anchor, label: 'Vessel Registry' },
             { id: 'reports', icon: FileText, label: 'Reports' },
-            { id: 'register', icon: Plus, label: 'Register Ship', action: 'modal' },
-
-            // Access Control: Only Admins can see the Command/Settings panel
             { id: 'settings', icon: Settings, label: 'Settings' },
-            userRole === 'admin' ? { id: 'admin', icon: Lock, label: 'Command' } : null
-          ].filter(Boolean).map((item) => (
+          ].map((item) => (
             <button
               key={item.id}
               onClick={() => {
-                if (item.action === 'modal') {
-                  if (item.id === 'register') setIsAddVesselModalOpen(true);
-                  return;
-                }
                 if (activeTab !== item.id) {
                   soundManager.playNav();
                   setIsTransitioning(true);
+                  setIsMobileMenuOpen(false); // Close drawer on selection
                   setTimeout(() => {
                     setActiveTab(item.id);
                     setIsTransitioning(false);
                   }, 150);
                 }
               }}
-              onMouseEnter={() => soundManager.playHover()}
-              className={`sidebar-item p-2 md:p-3 rounded-lg flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-4 ${activeTab === item.id ? 'active' : ''}`}
-              title={item.label}
+              className={`sidebar-item p-3 md:p-2 rounded-md flex items-center ${isSidebarExpanded ? 'justify-start' : 'md:justify-center justify-start'} gap-3 flex-shrink-0 relative group transition-all ${activeTab === item.id ? 'active bg-cyan-900/30 text-cyan-400' : 'text-slate-400 hover:text-cyan-300 hover:bg-cyan-900/10'}`}
+              title={isSidebarExpanded ? '' : item.label}
             >
-              <item.icon className={`w-5 h-5 md:w-6 md:h-6 ${activeTab === item.id ? 'text-cyan-400 drop-shadow-[0_0_5px_rgba(0,243,255,0.5)]' : ''}`} />
-              {/* Label hidden on mobile mostly, except special cases, but let's hide all for "Thumb Zone" cleanliness */}
-              {isMobileMenuOpen && <span className="hidden md:inline font-rajdhani font-semibold tracking-wider text-sm whitespace-nowrap">{item.label}</span>}
+              <item.icon className={`w-5 h-5 flex-shrink-0 transition-all ${activeTab === item.id ? 'scale-110 drop-shadow-[0_0_5px_rgba(0,243,255,0.5)]' : 'group-hover:scale-110'}`} />
+
+              {/* Label - Always visible on Mobile, conditional on Desktop */}
+              <span className={`${isSidebarExpanded ? 'block' : 'block md:hidden'} font-rajdhani font-semibold tracking-wider text-sm whitespace-nowrap overflow-hidden animate-fade-in text-left flex-1`}>
+                {item.label}
+              </span>
+
+              {/* Desktop Tooltip (Collapsed) */}
+              {!isSidebarExpanded && (
+                <span className="hidden md:group-hover:block absolute left-full ml-2 bg-slate-900 border border-cyan-500/50 text-cyan-400 text-xs px-2 py-1 rounded z-50 whitespace-nowrap pointer-events-none fade-in">
+                  {item.label}
+                </span>
+              )}
             </button>
           ))}
+
+          {/* Admin / Extra Tools */}
+          {userRole === 'admin' && (
+            <button
+              onClick={() => {
+                setActiveTab('admin');
+                setIsMobileMenuOpen(false);
+              }}
+              className={`sidebar-item p-3 md:p-2 rounded-md flex items-center ${isSidebarExpanded ? 'justify-start' : 'md:justify-center justify-start'} gap-3 flex-shrink-0 ${activeTab === 'admin' ? 'active bg-red-900/30 text-red-400' : 'text-slate-400 hover:text-red-300'}`}
+            >
+              <Lock className="w-5 h-5 flex-shrink-0" />
+              <span className={`${isSidebarExpanded ? 'block' : 'block md:hidden'} font-rajdhani font-semibold tracking-wider text-sm whitespace-nowrap overflow-hidden animate-fade-in text-left flex-1`}>
+                Command
+              </span>
+            </button>
+          )}
         </div>
 
-        {/* User Info & Toggle */}
-        <div className="p-4 border-t border-cyan-500/20 flex flex-col items-center gap-4">
-          {isMobileMenuOpen && (
-            <div className="text-center w-full bg-cyan-900/20 p-2 rounded border border-cyan-500/10">
-              <div className="text-cyan-300 font-bold text-sm truncate">{userName}</div>
-              <div className="text-xs text-cyan-600 uppercase">{userRole}</div>
-            </div>
-          )}
-          <button onClick={handleLogout} className="p-2 hover:bg-red-500/20 rounded-full transition-colors group avatar-glow" title="Logout">
-            <User className="w-5 h-5 text-cyan-400 group-hover:text-red-400" />
-          </button>
-
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="absolute -right-3 top-1/2 -translate-y-1/2 bg-cyan-900 border border-cyan-500 text-cyan-400 rounded-full p-1 hover:scale-110 transition-transform hidden md:flex"
-            title="Toggle Sidebar"
-          >
-            {isMobileMenuOpen ? <X size={12} /> : <Menu size={12} />}
+        {/* User Info - Visible on Mobile too now */}
+        <div className={`flex p-4 md:p-2 border-t border-cyan-500/20 flex-col ${isSidebarExpanded ? 'items-start md:px-4' : 'md:items-center items-start'} gap-2 shrink-0 transition-all bg-slate-900/50 md:bg-transparent`}>
+          <div className={`${isSidebarExpanded ? 'block' : 'block md:hidden'} w-full mb-2`}>
+            <div className="text-sm font-bold text-cyan-300 truncate">{userName}</div>
+            <div className="text-xs text-slate-500 uppercase">{userRole}</div>
+          </div>
+          <button onClick={handleLogout} className={`p-2 hover:bg-red-500/20 rounded-full transition-colors group flex items-center gap-3 ${isSidebarExpanded ? 'w-full justify-start md:px-3' : 'w-full md:w-auto justify-start md:justify-center'}`} title="Logout">
+            <LogOut className="w-5 h-5 md:w-4 md:h-4 text-cyan-600 group-hover:text-red-400" />
+            <span className={`${isSidebarExpanded ? 'block' : 'block md:hidden'} text-sm md:text-xs font-bold text-slate-400 group-hover:text-red-400 uppercase tracking-widest`}>Logout</span>
           </button>
         </div>
       </div>
@@ -838,8 +894,8 @@ function App() {
         </header>
 
         {/* Scrollable Content - Reduced Padding for Mobile */}
-        <div className={`p-2 md:p-6 flex-1 h-full overflow-hidden flex flex-col ${isTransitioning ? 'opacity-50 blur-sm scale-95' : 'opacity-100 blur-0 scale-100'} transition-all duration-300 ease-in-out`}>
-          <main className="flex-1 overflow-y-auto overflow-x-hidden relative custom-scrollbar animate-slide-in">
+        <div className={`${activeTab === 'map' ? 'p-0' : 'p-2 md:p-6'} flex-1 overflow-hidden flex flex-col ${isTransitioning ? 'opacity-50 blur-sm scale-95' : 'opacity-100 blur-0 scale-100'} transition-all duration-300 ease-in-out`}>
+          <main className={`flex-1 overflow-y-auto overflow-x-hidden relative custom-scrollbar animate-slide-in ${activeTab === 'map' ? 'pb-[50px] md:pb-0' : 'pb-24 md:pb-0'}`}>
             {connectionStatus !== 'connected' && (
               <div className="mb-4 bg-red-900/20 border border-red-500/50 text-red-200 px-4 py-2 rounded flex items-center gap-2 animate-pulse">
                 <Activity className="w-4 h-4" />
@@ -1585,16 +1641,32 @@ function App() {
             {/* Settings Page */}
             {
               activeTab === 'settings' && (
-                <div className="flex-1 overflow-auto h-full pb-20 md:pb-0" style={{ height: 'calc(100vh - 100px)' }}>
-                  <SettingsScreen
-                    soundManager={soundManager}
-                    toggleTheme={(color) => setThemeColors({ ...themeColors, primary: color })}
-                    currentTheme={themeColors.primary === '#dc2626' ? 'red' : 'blue'}
-                    audioEnabled={audioEnabled}
-                    toggleAudio={() => setAudioEnabled(!audioEnabled)}
-                    notificationsEnabled={notificationsEnabled}
-                    toggleNotifications={() => setNotificationsEnabled(!notificationsEnabled)}
-                  />
+                <div className="flex-1 h-full flex flex-col">
+                  {activeTab === 'settings' && (
+                    <div className="flex-1 overflow-auto bg-slate-900/90 relative">
+                      <SettingsScreen
+                        onLogout={handleLogout}
+                        soundManager={soundManager}
+                        toggleTheme={(color) => setThemeColors(prev => ({ ...prev, primary: color }))}
+                        currentTheme={themeColors.primary === '#dc2626' ? 'red' : 'blue'}
+                        audioEnabled={audioEnabled}
+                        toggleAudio={() => setAudioEnabled(!audioEnabled)}
+                        notificationsEnabled={notificationsEnabled}
+                        toggleNotifications={() => setNotificationsEnabled(!notificationsEnabled)}
+                        // Enhanced Props
+                        simParams={simParams}
+                        setSimParams={setSimParams}
+                        refreshRate={refreshRate}
+                        setRefreshRate={setRefreshRate}
+                        uiScale={uiScale}
+                        setUiScale={setUiScale}
+                        mapStyle={mapStyle}
+                        setMapStyle={setMapStyle}
+                        themeMode={themeMode}
+                        setThemeMode={setThemeMode}
+                      />
+                    </div>
+                  )}
                 </div>
               )
             }
@@ -1602,7 +1674,7 @@ function App() {
             {/* Live Map - All roles */}
             {
               activeTab === 'map' && (
-                <div className="flex-1 flex flex-col h-full overflow-hidden relative" style={{ height: 'calc(100vh - 100px)' }}>
+                <div className="flex-1 flex flex-col h-full w-full overflow-hidden relative full-screen-map-view">
                   <LiveMap
                     vessels={vessels}
                     oilSpills={oilSpills}
