@@ -803,7 +803,7 @@ function App() {
             { id: 'scanner', icon: Scan, label: 'X-Ray Scanner' },
             { id: 'eco', icon: Leaf, label: 'Eco-Scanner' },
             { id: 'crew', icon: Users, label: 'Crew Manifest' },
-            { id: 'crew', icon: Users, label: 'Crew Manifest' },
+
             { id: 'vessels', icon: Anchor, label: 'Vessel Registry' },
             { id: 'reports', icon: FileText, label: 'Reports' },
             { id: 'settings', icon: Settings, label: 'Settings' },
