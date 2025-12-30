@@ -12,19 +12,20 @@ L.Icon.Default.mergeOptions({
     shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
-const LiveMap = ({
-    vessels,
-    oilSpills,
-    countryBoundaries,
-    predictionData,
-    simParams,
-    setSimParams,
-    runSimulation,
-    selectedSpillId,
-    predictionStats,
-    vesselMovementData,
-    marineStrikes = []
-}) => {
+const LiveMap = (props) => {
+    const {
+        vessels,
+        oilSpills,
+        countryBoundaries,
+        predictionData,
+        simParams,
+        setSimParams,
+        runSimulation,
+        selectedSpillId,
+        predictionStats,
+        vesselMovementData,
+        marineStrikes = []
+    } = props;
 
     // Custom Icon Logic
     const getIconColor = (type) => {
