@@ -1259,5 +1259,5 @@ def broadcast_realtime_analysis():
     socketio.emit('realtime_analysis_update', analysis_data, room='realtime_analysis')
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
+    port = int(os.environ.get('PORT', 10000))
     socketio.run(app, debug=False, port=port, host='0.0.0.0')
