@@ -14,7 +14,7 @@ import RadarPage from './components/RadarPage';
 import ScannerPage from './components/ScannerPage';
 import EcoScanner from './components/EcoScanner';
 import CrewPage from './components/CrewPage';
-import CommsPage from './components/CommsPage';
+// import CommsPage from './components/CommsPage'; // Removed
 import CyberDefense from './components/CyberDefense';
 import StormWatch from './components/StormWatch';
 import io from 'socket.io-client';
@@ -73,6 +73,7 @@ function App() {
   const [connectionStatus, setConnectionStatus] = useState('disconnected');
   const [reportLoading, setReportLoading] = useState(false);
   const [weatherData, setWeatherData] = useState(null);
+  const [marineStrikes, setMarineStrikes] = useState([]); // New state for marine strikes
   // Settings & Persistence
   const [audioEnabled, setAudioEnabled] = useState(() => JSON.parse(localStorage.getItem('seatrace_audio') ?? 'true'));
   const [notificationsEnabled, setNotificationsEnabled] = useState(() => JSON.parse(localStorage.getItem('seatrace_notifications') ?? 'true'));
@@ -406,6 +407,7 @@ function App() {
       if (user.role !== 'viewer') {
         fetchOilSpills(savedToken);
       }
+      fetchMarineStrikes(savedToken); // Fetch strikes
       initializeSocket(savedToken);
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -561,6 +563,18 @@ function App() {
     }
   }
 
+  // New: Fetch Marine Strike Data
+  const fetchMarineStrikes = async (authToken) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/marine-strikes`, {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      setMarineStrikes(response.data);
+    } catch (error) {
+      console.error('Error fetching marine strikes:', error);
+    }
+  };
+
   const handleAuthSuccess = (data) => {
     const { token: newToken, user } = data;
     localStorage.setItem('token', newToken);
@@ -576,6 +590,7 @@ function App() {
     if (user.role !== 'viewer') {
       fetchOilSpills(newToken);
     }
+    fetchMarineStrikes(newToken); // Fetch strikes
     initializeSocket(newToken);
   };
 
@@ -788,7 +803,7 @@ function App() {
             { id: 'scanner', icon: Scan, label: 'X-Ray Scanner' },
             { id: 'eco', icon: Leaf, label: 'Eco-Scanner' },
             { id: 'crew', icon: Users, label: 'Crew Manifest' },
-            { id: 'comms', icon: Radio, label: 'Comms Link' },
+            { id: 'crew', icon: Users, label: 'Crew Manifest' },
             { id: 'vessels', icon: Anchor, label: 'Vessel Registry' },
             { id: 'reports', icon: FileText, label: 'Reports' },
             { id: 'settings', icon: Settings, label: 'Settings' },
@@ -1165,6 +1180,7 @@ function App() {
                 selectedSpillId={selectedSpillId}
                 predictionStats={predictionStats}
                 vesselMovementData={vesselMovementData}
+                marineStrikes={marineStrikes} // Pass new data
               />
             )}
 
@@ -1258,12 +1274,6 @@ function App() {
               )
             }
 
-            {/* Comms Tab */}
-            {
-              activeTab === 'comms' && (
-                <CommsPage />
-              )
-            }
 
             {/* Users Page - Admin Only */}
             {

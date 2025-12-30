@@ -21,8 +21,10 @@ const LiveMap = ({
     setSimParams,
     runSimulation,
     selectedSpillId,
+    selectedSpillId,
     predictionStats,
-    vesselMovementData
+    vesselMovementData,
+    marineStrikes = [] // Default empty array
 }) => {
 
     // Custom Icon Logic
@@ -47,7 +49,8 @@ const LiveMap = ({
         tanker: true,
         navy: true,
         fishing: true,
-        spills: true
+        spills: true,
+        strikes: true
     });
 
     const toggleLayer = (layer) => {
@@ -115,6 +118,17 @@ const LiveMap = ({
                                 <span className="text-[11px] text-red-300">Hazards (Spills)</span>
                             </div>
                             <div className={`w-2 h-2 rounded-full ${visibleLayers.spills ? 'bg-red-500 shadow-[0_0_5px_red]' : 'bg-slate-600'}`}></div>
+                        </div>
+
+                        <div
+                            onClick={() => toggleLayer('strikes')}
+                            className={`flex items-center justify-between p-1.5 rounded cursor-pointer transition-all ${visibleLayers.strikes ? 'bg-pink-900/20 border border-pink-500/30' : 'opacity-50 hover:opacity-75'}`}
+                        >
+                            <div className="flex items-center gap-2">
+                                <span className="text-pink-500">🐋</span>
+                                <span className="text-[11px] text-pink-300">Marine Strikes</span>
+                            </div>
+                            <div className={`w-2 h-2 rounded-full ${visibleLayers.strikes ? 'bg-pink-500 shadow-[0_0_5px_pink]' : 'bg-slate-600'}`}></div>
                         </div>
                     </div>
                 </div>
@@ -260,6 +274,45 @@ const LiveMap = ({
                         </div>
                     );
                 })}
+
+                {/* Marine Strikes Layer */}
+                {visibleLayers.strikes && marineStrikes.map((strike, idx) => (
+                    <Marker
+                        key={`strike-${idx}`}
+                        position={[strike.lat, strike.lon]}
+                        icon={L.divIcon({
+                            className: 'custom-strike-icon',
+                            html: `<div style="font-size: 16px;">🐋</div>`,
+                            iconSize: [20, 20],
+                            iconAnchor: [10, 10]
+                        })}
+                    >
+                        <Popup className="cyber-popup p-0" maxWidth={280}>
+                            <div className="bg-slate-900 border border-pink-500/50 rounded overflow-hidden">
+                                <div className="p-3">
+                                    <h3 className="text-pink-400 font-bold flex items-center gap-2 text-sm uppercase">
+                                        <Activity className="w-3 h-3" /> Marine Strike Event
+                                    </h3>
+                                    <div className="text-[10px] text-slate-500 mb-2">{strike.date}</div>
+
+                                    <div className="grid grid-cols-2 gap-2 text-xs">
+                                        <div className="bg-slate-800 p-1.5 rounded">
+                                            <div className="text-[10px] text-slate-500">SPECIES</div>
+                                            <div className="text-white font-bold">{strike.species}</div>
+                                        </div>
+                                        <div className="bg-slate-800 p-1.5 rounded">
+                                            <div className="text-[10px] text-slate-500">TYPE</div>
+                                            <div className="text-white font-bold">{strike.vessel_type}</div>
+                                        </div>
+                                    </div>
+                                    <div className="mt-2 text-xs text-slate-300">
+                                        Outcome: <span className="text-white">{strike.outcome}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </Popup>
+                    </Marker>
+                ))}
 
                 {/* Consolidated Oil Spills Layer */}
                 {visibleLayers.spills && oilSpills.map(spill => (
