@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User, Lock, ArrowRight, Activity, Shield, Eye, EyeOff, Anchor, Mail, Phone, Info } from 'lucide-react';
-import BiometricAuth from './BiometricAuth';
+
 import { API_BASE_URL } from '../config';
 
 
@@ -371,16 +371,21 @@ const AuthPage = ({ onLogin, onAuthSuccess }) => {
             `}</style>
 
             {showBiometric && (
-                <BiometricAuth
-                    onComplete={async () => {
-                        try {
-                            await onLogin(email, password);
-                        } catch (err) {
-                            setShowBiometric(false);
-                            setError("Biometric Verified but Server Rejected: " + err.message);
-                        }
-                    }}
-                />
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-xl">
+                    <div className="text-center">
+                        <Activity className="w-16 h-16 text-cyan-400 animate-pulse mx-auto mb-4" />
+                        <h2 className="text-2xl font-bold text-white mb-2 font-orbitron">VERIFYING BIOMETRICS...</h2>
+                        <p className="text-cyan-400/70 font-mono text-sm">SCANNING RETINAL ID</p>
+
+                        {/* Simulating completion */}
+                        {setTimeout(() => {
+                            onLogin(email, password).catch(err => {
+                                setShowBiometric(false);
+                                setError("Verification Failed: " + err.message);
+                            });
+                        }, 2000) && null}
+                    </div>
+                </div>
             )}
         </div>
     );

@@ -21,10 +21,9 @@ const LiveMap = ({
     setSimParams,
     runSimulation,
     selectedSpillId,
-    selectedSpillId,
     predictionStats,
     vesselMovementData,
-    marineStrikes = [] // Default empty array
+    marineStrikes = []
 }) => {
 
     // Custom Icon Logic
