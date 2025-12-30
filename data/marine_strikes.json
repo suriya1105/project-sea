@@ -1,0 +1,202 @@
+[
+  {
+    "id": "STR-65829",
+    "date": "2025-12-29",
+    "lat": 11.8635962785429,
+    "lon": 76.50753747002129,
+    "species": "Blue Whale",
+    "outcome": "Sighted / Avoided",
+    "vessel_type": "Container Ship",
+    "severity": "Low"
+  },
+  {
+    "id": "STR-32920",
+    "date": "2025-12-29",
+    "lat": 19.17638276383375,
+    "lon": 82.1634894984088,
+    "species": "Humpback Whale",
+    "outcome": "Sighted / Avoided",
+    "vessel_type": "Container Ship",
+    "severity": "Low"
+  },
+  {
+    "id": "STR-22367",
+    "date": "2025-12-29",
+    "lat": 20.940731962663556,
+    "lon": 73.87807338523368,
+    "species": "Humpback Whale",
+    "outcome": "Sighted / Avoided",
+    "vessel_type": "Container Ship",
+    "severity": "Low"
+  },
+  {
+    "id": "STR-12961",
+    "date": "2025-12-29",
+    "lat": 17.320180011574124,
+    "lon": 75.83181073081846,
+    "species": "Sea Turtle",
+    "outcome": "Sighted / Avoided",
+    "vessel_type": "Container Ship",
+    "severity": "Low"
+  },
+  {
+    "id": "STR-73996",
+    "date": "2025-12-29",
+    "lat": 20.12615418920524,
+    "lon": 91.92368762682207,
+    "species": "Sea Turtle",
+    "outcome": "Sighted / Avoided",
+    "vessel_type": "Container Ship",
+    "severity": "Low"
+  },
+  {
+    "id": "STR-57978",
+    "date": "2025-12-29",
+    "lat": 7.153492708294982,
+    "lon": 81.35619487197927,
+    "species": "Humpback Whale",
+    "outcome": "Sighted / Avoided",
+    "vessel_type": "Container Ship",
+    "severity": "Low"
+  },
+  {
+    "id": "STR-58761",
+    "date": "2025-12-29",
+    "lat": 15.058497134294813,
+    "lon": 84.09866561340293,
+    "species": "Blue Whale",
+    "outcome": "Sighted / Avoided",
+    "vessel_type": "Container Ship",
+    "severity": "Low"
+  },
+  {
+    "id": "STR-52721",
+    "date": "2025-12-29",
+    "lat": 9.285485506984353,
+    "lon": 81.30815060691455,
+    "species": "Humpback Whale",
+    "outcome": "Sighted / Avoided",
+    "vessel_type": "Container Ship",
+    "severity": "Low"
+  },
+  {
+    "id": "STR-90191",
+    "date": "2025-12-29",
+    "lat": 21.88699924955271,
+    "lon": 86.78478104711536,
+    "species": "Sea Turtle",
+    "outcome": "Sighted / Avoided",
+    "vessel_type": "Container Ship",
+    "severity": "Low"
+  },
+  {
+    "id": "STR-60667",
+    "date": "2025-12-29",
+    "lat": 12.843421880960191,
+    "lon": 68.67027627634718,
+    "species": "Humpback Whale",
+    "outcome": "Sighted / Avoided",
+    "vessel_type": "Container Ship",
+    "severity": "Low"
+  },
+  {
+    "id": "STR-73395",
+    "date": "2025-12-29",
+    "lat": 7.251862393925026,
+    "lon": 83.78302030426224,
+    "species": "Blue Whale",
+    "outcome": "Sighted / Avoided",
+    "vessel_type": "Container Ship",
+    "severity": "Low"
+  },
+  {
+    "id": "STR-67701",
+    "date": "2025-12-29",
+    "lat": 24.575625287002985,
+    "lon": 90.26974093951472,
+    "species": "Dolphin",
+    "outcome": "Sighted / Avoided",
+    "vessel_type": "Container Ship",
+    "severity": "Low"
+  },
+  {
+    "id": "STR-23713",
+    "date": "2025-12-29",
+    "lat": 6.4475525319379345,
+    "lon": 68.56646762204845,
+    "species": "Dolphin",
+    "outcome": "Sighted / Avoided",
+    "vessel_type": "Container Ship",
+    "severity": "Low"
+  },
+  {
+    "id": "STR-52344",
+    "date": "2025-12-29",
+    "lat": 5.193649001988982,
+    "lon": 83.36407291735063,
+    "species": "Blue Whale",
+    "outcome": "Sighted / Avoided",
+    "vessel_type": "Container Ship",
+    "severity": "Low"
+  },
+  {
+    "id": "STR-98481",
+    "date": "2025-12-29",
+    "lat": 14.5605672771715,
+    "lon": 86.32849594309761,
+    "species": "Blue Whale",
+    "outcome": "Sighted / Avoided",
+    "vessel_type": "Container Ship",
+    "severity": "Low"
+  },
+  {
+    "id": "STR-19272",
+    "date": "2025-12-29",
+    "lat": 14.410944213672796,
+    "lon": 93.10156707512199,
+    "species": "Blue Whale",
+    "outcome": "Sighted / Avoided",
+    "vessel_type": "Container Ship",
+    "severity": "Low"
+  },
+  {
+    "id": "STR-41302",
+    "date": "2025-12-29",
+    "lat": 7.864997451144211,
+    "lon": 80.6393410891395,
+    "species": "Blue Whale",
+    "outcome": "Sighted / Avoided",
+    "vessel_type": "Container Ship",
+    "severity": "Low"
+  },
+  {
+    "id": "STR-47131",
+    "date": "2025-12-29",
+    "lat": 8.37718210502484,
+    "lon": 89.67664075177152,
+    "species": "Humpback Whale",
+    "outcome": "Sighted / Avoided",
+    "vessel_type": "Container Ship",
+    "severity": "Low"
+  },
+  {
+    "id": "STR-10070",
+    "date": "2025-12-29",
+    "lat": 18.665439588657563,
+    "lon": 78.97291710316429,
+    "species": "Blue Whale",
+    "outcome": "Sighted / Avoided",
+    "vessel_type": "Container Ship",
+    "severity": "Low"
+  },
+  {
+    "id": "STR-38963",
+    "date": "2025-12-29",
+    "lat": 22.946177680317096,
+    "lon": 95.49503824007519,
+    "species": "Dolphin",
+    "outcome": "Sighted / Avoided",
+    "vessel_type": "Container Ship",
+    "severity": "Low"
+  }
+]

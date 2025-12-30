@@ -107,5 +107,35 @@
     "action": "VIEW",
     "resource": "vessels_list",
     "details": {}
+  },
+  {
+    "timestamp": "2025-12-29T06:20:18.514614",
+    "user_email": "admin@seatrace.com",
+    "action": "LOGIN",
+    "resource": "authentication",
+    "details": {
+      "success": true
+    }
+  },
+  {
+    "timestamp": "2025-12-29T06:20:19.322976",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-29T06:22:21.279445",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
+  },
+  {
+    "timestamp": "2025-12-29T06:25:23.553726",
+    "user_email": "admin@seatrace.com",
+    "action": "VIEW",
+    "resource": "vessels_list",
+    "details": {}
   }
 ]

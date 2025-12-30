@@ -18,6 +18,7 @@ class DataManager:
         # Data file paths
         self.vessels_file = self.data_dir / "vessels.json"
         self.oil_spills_file = self.data_dir / "oil_spills.json"
+        self.marine_strikes_file = self.data_dir / "marine_strikes.json"
         self.users_file = self.data_dir / "users.json"
         self.credentials_file = self.data_dir / "credentials.json"
         self.audit_logs_file = self.data_dir / "audit_logs.json"
@@ -281,8 +282,12 @@ class DataManager:
 
             self._save_json_file(self.audit_logs_file, self.audit_logs)
 
-    def get_audit_logs(self, limit=100):
-        """Get audit logs"""
+    def get_audit_logs(self):
+        return self.data.get("audit_logs", [])
+
+    def get_marine_strikes(self):
+        """Get list of marine strikes"""
+        return self.data.get("marine_strikes", [])
         with self.lock:
             return self.audit_logs[-limit:].copy()
 

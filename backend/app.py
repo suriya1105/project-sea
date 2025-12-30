@@ -600,6 +600,13 @@ def get_oil_spill(spill_id):
     log_access(request.user['email'], 'VIEW', 'oil_spill_details', {'spill_id': spill_id})
     return jsonify(spill), 200
 
+@app.route('/api/marine-strikes', methods=['GET'])
+@token_required
+def get_marine_strikes():
+    """Get marine mammal strike data"""
+    strikes = data_manager.get_marine_strikes()
+    return jsonify(strikes), 200
+
 # New endpoint to simulate oil spill detection and trigger secure alert
 @app.route('/api/simulate-oil-spill', methods=['POST'])
 @token_required

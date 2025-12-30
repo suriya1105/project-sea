@@ -29,10 +29,14 @@ def main():
         print("3. Save kaggle.json to ~/.kaggle/kaggle.json")
         print("4. Run: chmod 600 ~/.kaggle/kaggle.json")
         print("\nAlternatively, you can manually download AIS data and place CSV files in kaggle_data/")
-        return
+        # return # Proceed to allow mock generation
+    
+    # Determine backend directory (where this script is)
+    backend_dir = Path(__file__).parent
+    data_dir = backend_dir / "data"
     
     # Initialize processor
-    processor = KaggleAISProcessor(data_dir="data")
+    processor = KaggleAISProcessor(data_dir=data_dir)
     
     # Get dataset name
     dataset_name = KAGGLE_DATASETS.get('default')
@@ -42,23 +46,20 @@ def main():
         print("Please update KAGGLE_DATASETS with a valid Kaggle dataset name")
         return
     
-    print(f"\n📦 Dataset: {dataset_name}")
-    print(f"🌍 Region Filter: {REGION_FILTER}")
-    print("\n🔄 Starting sync...")
+    # Process and save AIS
+    print(f"\n📦 Dataset (AIS): {dataset_name}")
+    processor.process_and_save(dataset_name=dataset_name, output_file="vessels.json", region_filter=REGION_FILTER)
+
+    # Process and save Marine Strikes
+    from marine_strike_processor import MarineStrikeProcessor
+    strike_processor = MarineStrikeProcessor(data_dir=data_dir)
+    strike_dataset = KAGGLE_DATASETS.get('marine_strike')
     
-    # Process and save
-    success = processor.process_and_save(
-        dataset_name=dataset_name,
-        output_file="vessels.json",
-        region_filter=REGION_FILTER
-    )
+    if strike_dataset:
+        print(f"\n📦 Dataset (Strikes): {strike_dataset}")
+        strike_processor.process_and_save(dataset_name=strike_dataset, output_file="marine_strikes.json")
     
-    if success:
-        print("\n✅ Successfully synced Kaggle AIS data!")
-        print("Vessel data has been updated in data/vessels.json")
-    else:
-        print("\n❌ Failed to sync Kaggle data")
-        print("Check the error messages above for details")
+    print("\n✅ Sync complete! Data updated in data/ directory.")
 
 if __name__ == "__main__":
     main()

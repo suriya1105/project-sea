@@ -7,7 +7,8 @@ Configure which Kaggle datasets to use for AIS data
 KAGGLE_DATASETS = {
     # Example: AIS vessel tracking dataset
     # Format: 'username/dataset-name'
-    'default': 'cwwang/ais-data',  # Example - replace with actual dataset
+    'default': 'cwwang/ais-data',  # AIS Data
+    'marine_strike': 'noaa/marine-mammal-strike-assessments', # Marine mammal strikes
     
     # Alternative datasets (uncomment to use):
     # 'maritime': 'username/maritime-ais-data',
