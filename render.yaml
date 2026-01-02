@@ -1,17 +1,44 @@
 services:
+  # Backend Service
   - type: web
     name: seatrace-backend
-    env: docker
-    dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
+    env: python
+    region: singapore
+    plan: free
+    rootDir: backend
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app"
     envVars:
-      - key: PORT
-        value: 5000
-      - key: FLASK_ENV
-        value: production
+      - key: PYTHON_VERSION
+        value: 3.9.18
       - key: SECRET_KEY
         generateValue: true
       - key: CORS_ORIGINS
-        value: "*"
-      - key: PYTHONUNBUFFERED
-        value: "1"
+        value: "*" 
+      # In production, this should be the frontend URL
+
+  # Frontend Service
+  - type: web
+    name: seatrace-frontend
+    env: node
+    region: singapore
+    plan: free
+    rootDir: seatrace-frontend
+    buildCommand: "npm install && npm run build"
+    startCommand: "npx serve -s build"
+    envVars:
+      - key: NODE_VERSION
+        value: 20.10.0
+      - key: REACT_APP_API_BASE_URL
+        fromService:
+          type: web
+          name: seatrace-backend
+          property: url
+      - key: REACT_APP_SOCKET_URL
+        fromService:
+          type: web
+          name: seatrace-backend
+          property: url
+
+# Ensure we keep the data files if possible (though on free tier they are ephemeral)
+# For persistence, a Disk would be needed.

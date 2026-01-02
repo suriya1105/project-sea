@@ -68,7 +68,7 @@ function App() {
   const [vessels, setVessels] = useState([]);
   const [oilSpills, setOilSpills] = useState([]);
   const [dashboardData, setDashboardData] = useState(null);
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('map');
   const [isTransitioning, setIsTransitioning] = useState(false); // Transition state
   const [socket, setSocket] = useState(null);
   const [connectionStatus, setConnectionStatus] = useState('disconnected');

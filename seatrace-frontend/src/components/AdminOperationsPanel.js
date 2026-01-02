@@ -15,14 +15,12 @@ const AdminOperationsPanel = ({
     auditLogs
 }) => {
     return (
-        <div className="space-y-6 animate-fade-in relative z-10 p-4 lg:p-6 pb-20 pointer-events-none">
-            {/* Holographic Scanline Overlay */}
+        <div className="space-y-6 animate-fade-in relative z-20 p-4 lg:p-6 pb-20 pointer-events-none">
+            {/* Holographic Scanline Overlay - Pure Visual */}
             <div className="absolute inset-0 z-0 pointer-events-none opacity-10 bg-[url('https://media.giphy.com/media/26tn33aiTi1jkl6H6/giphy.gif')] bg-cover mix-blend-screen"></div>
 
-            {/* Pointer events are set to none for the container to let clicks pass through to map if needed, 
-          but we need to re-enable them for the actual panels */}
-
-            <div className="flex items-center justify-between mb-4 pointer-events-auto bg-slate-900/80 backdrop-blur p-3 rounded-lg border border-cyan-500/20">
+            {/* Header Section - Interactive */}
+            <div className="flex items-center justify-between mb-4 pointer-events-auto bg-slate-900/90 backdrop-blur-xl p-4 rounded-lg border border-cyan-500/40 shadow-lg shadow-cyan-500/10 relative z-30">
                 <h2 className="text-2xl font-bold font-orbitron text-white flex items-center gap-2">
                     <Shield className="w-6 h-6 text-red-500" />
                     COMMAND CENTER STATUS: <span className="text-green-400">ONLINE</span>
@@ -37,12 +35,12 @@ const AdminOperationsPanel = ({
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pointer-events-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pointer-events-auto relative z-30">
 
                 {/* User Access Management (Left Col) */}
                 <div className="lg:col-span-7 space-y-6">
                     {/* Create User Panel */}
-                    <div className="cyber-panel p-6 border-l-4 border-l-cyan-500 relative overflow-hidden group bg-slate-900/90 backdrop-blur-md">
+                    <div className="cyber-panel p-4 lg:p-6 border-l-4 border-l-cyan-500 relative overflow-hidden group bg-slate-900/90 backdrop-blur-md">
                         <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                             <UserPlus className="w-24 h-24 text-cyan-500" />
                         </div>
@@ -51,7 +49,7 @@ const AdminOperationsPanel = ({
                         </h3>
 
                         <form onSubmit={handleCreateUser} className="space-y-4 relative z-10">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-1">
                                     <label className="text-xs text-cyan-400 uppercase font-mono">Full Name</label>
                                     <input
@@ -76,7 +74,7 @@ const AdminOperationsPanel = ({
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-1">
                                     <label className="text-xs text-cyan-400 uppercase font-mono">Access Key (Password)</label>
                                     <input
@@ -101,7 +99,7 @@ const AdminOperationsPanel = ({
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4 items-end">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
                                 <div className="space-y-1">
                                     <label className="text-xs text-cyan-400 uppercase font-mono">Clearance Level</label>
                                     <select
@@ -126,7 +124,7 @@ const AdminOperationsPanel = ({
                     </div>
 
                     {/* Users List */}
-                    <div className="cyber-panel p-0 overflow-hidden flex flex-col h-[400px] bg-slate-900/90 backdrop-blur-md">
+                    <div className="cyber-panel p-0 overflow-hidden flex flex-col h-[300px] lg:h-[400px] bg-slate-900/90 backdrop-blur-md">
                         <div className="p-4 bg-slate-800/80 border-b border-slate-700 flex justify-between items-center backdrop-blur">
                             <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
                                 <Users className="w-4 h-4 text-purple-400" /> Active Personnel Registry
@@ -144,20 +142,21 @@ const AdminOperationsPanel = ({
                             <table className="w-full text-sm text-left">
                                 <thead className="text-xs text-slate-400 uppercase bg-slate-900/50 sticky top-0 backdrop-blur z-10">
                                     <tr>
-                                        <th className="px-6 py-3 font-mono">Personnel</th>
-                                        <th className="px-6 py-3 font-mono">Role</th>
-                                        <th className="px-6 py-3 font-mono text-right">Actions</th>
+                                        <th className="px-4 lg:px-6 py-3 font-mono">Personnel</th>
+                                        <th className="px-4 lg:px-6 py-3 font-mono hidden sm:table-cell">Role</th>
+                                        <th className="px-4 lg:px-6 py-3 font-mono text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-800/50">
                                     {allUsers.map((user, idx) => (
                                         <tr key={idx} className="bg-transparent hover:bg-slate-800/40 transition-colors group">
-                                            <td className="px-6 py-3">
+                                            <td className="px-4 lg:px-6 py-3">
                                                 <div className="font-bold text-white group-hover:text-cyan-400 transition-colors">{user.name}</div>
                                                 <div className="text-xs text-slate-500 font-mono">{user.email}</div>
-                                                <div className="text-[10px] text-slate-600 uppercase tracking-wide">{user.company}</div>
+                                                {/* Mobile role indicator since column is hidden */}
+                                                <span className="sm:hidden mt-1 inline-block px-1.5 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400 border border-slate-700">{user.role}</span>
                                             </td>
-                                            <td className="px-6 py-3">
+                                            <td className="px-4 lg:px-6 py-3 hidden sm:table-cell">
                                                 <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${user.role === 'admin' ? 'bg-purple-900/20 text-purple-400 border-purple-500/30' :
                                                     user.role === 'operator' ? 'bg-blue-900/20 text-blue-400 border-blue-500/30' :
                                                         'bg-green-900/20 text-green-400 border-green-500/30'
@@ -165,7 +164,7 @@ const AdminOperationsPanel = ({
                                                     {user.role}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-3 text-right">
+                                            <td className="px-4 lg:px-6 py-3 text-right">
                                                 {user.email !== email && (
                                                     <button
                                                         onClick={() => handleDeleteUser(user.email)}
@@ -181,7 +180,7 @@ const AdminOperationsPanel = ({
                                     ))}
                                     {allUsers.length === 0 && (
                                         <tr>
-                                            <td colSpan="3" className="px-6 py-8 text-center text-slate-500 italic">No personnel records found in secure database.</td>
+                                            <td colSpan="3" className="px-6 py-8 text-center text-slate-500 italic">No personnel records found.</td>
                                         </tr>
                                     )}
                                 </tbody>
@@ -192,7 +191,7 @@ const AdminOperationsPanel = ({
 
                 {/* Audit Logs (Right Col) */}
                 <div className="lg:col-span-5 h-full">
-                    <div className="cyber-panel flex flex-col h-full border-t-4 border-t-yellow-500/50 bg-slate-900/90 backdrop-blur-md">
+                    <div className="cyber-panel flex flex-col h-[350px] lg:h-full border-t-4 border-t-yellow-500/50 bg-slate-900/90 backdrop-blur-md">
                         <div className="flex items-center justify-between p-4 border-b border-white/5 bg-slate-800/50">
                             <h3 className="text-sm font-bold text-yellow-400 flex items-center gap-2 uppercase tracking-wider">
                                 <Activity className="w-4 h-4" /> System Audit Stream
@@ -205,7 +204,7 @@ const AdminOperationsPanel = ({
                             </button>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1 bg-black/20 font-mono text-xs max-h-[600px]">
+                        <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1 bg-black/20 font-mono text-xs lg:max-h-[600px]">
                             {auditLogs.length > 0 ? (
                                 auditLogs.map((log, idx) => (
                                     <div key={idx} className="p-2.5 rounded border-l-2 border-slate-700 bg-slate-900/40 hover:bg-slate-800 hover:border-cyan-500 transition-all group">
@@ -234,5 +233,6 @@ const AdminOperationsPanel = ({
         </div>
     );
 };
+
 
 export default AdminOperationsPanel;
