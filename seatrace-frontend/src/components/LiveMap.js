@@ -134,22 +134,23 @@ const LiveMap = (props) => {
                 </div>
             </div>
 
-            <MapContainer center={[20, 80]} zoom={5} style={{ height: '100%', width: '100%' }} className="z-0 bg-slate-900" zoomControl={false}>
+            {/* Main Map Container */}
+            <MapContainer center={[10, 80]} zoom={3} style={{ height: '100%', width: '100%' }} className="z-0 bg-slate-900 animation-fade-in" zoomControl={false}>
                 <LayersControl position="topleft">
-                    <LayersControl.BaseLayer checked name="Deep Ocean (Dark)">
-                        <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" attribution="&copy; OpenStreetMap & CARTO" />
+                    <LayersControl.BaseLayer name="Deep Ocean (Dark)">
+                        <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" attribution="&copy; CARTO" />
                     </LayersControl.BaseLayer>
-                    <LayersControl.BaseLayer name="Satellite Mode">
+                    <LayersControl.BaseLayer checked name="Satellite Mode">
                         <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" attribution="Tiles &copy; Esri" />
                     </LayersControl.BaseLayer>
                 </LayersControl>
 
                 {/* GeoJSON Boundaries */}
                 {Object.values(countryBoundaries).map((country, index) => (
-                    <GeoJSON key={index} data={country} style={{ color: '#00f3ff', weight: 1, fillColor: '#00f3ff', fillOpacity: 0.05, dashArray: '5, 5' }} />
+                    <GeoJSON key={index} data={country} style={{ color: '#00f3ff', weight: 0.5, fillColor: '#00f3ff', fillOpacity: 0.02, dashArray: '5, 5' }} />
                 ))}
 
-                {/* Vessels with Unique Geometric Neon Icons and New Popups */}
+                {/* High Density Vessel Rendering */}
                 {vessels.filter(v => {
                     if (v.type.includes('Tanker') && !visibleLayers.tanker) return false;
                     if ((v.type.includes('Container') || v.type.includes('Cargo')) && !visibleLayers.cargo) return false;
@@ -158,17 +159,20 @@ const LiveMap = (props) => {
                     return true;
                 }).map(vessel => {
                     const routeStyle = getRouteStyle(vessel.type);
-                    const vesselClass = getVesselClass(vessel.type);
-
+                    // Use simpler icons for high density
                     const customIcon = L.divIcon({
-                        className: 'custom-vessel-icon',
-                        html: `<div class="${vesselClass}" style="transform: rotate(${vessel.course}deg);"></div>`,
-                        iconSize: [30, 30],
-                        iconAnchor: [15, 15]
+                        className: 'vessel-marker-group',
+                        html: `<div class="vessel-dot" style="background-color: ${routeStyle.color}; box-shadow: 0 0 4px ${routeStyle.color};"></div>`,
+                        iconSize: [8, 8],
+                        iconAnchor: [4, 4]
                     });
 
-                    // Trail logic...
-                    const trail = vesselMovementData && vesselMovementData[vessel.imo] ? vesselMovementData[vessel.imo].map(p => [p.lat, p.lon]) : [];
+                    // Priority Trails: Use pre-calculated history if available (from seed), else realtime movement
+                    let trailData = vessel.history || [];
+                    if (vesselMovementData && vesselMovementData[vessel.imo]) {
+                        trailData = vesselMovementData[vessel.imo]; // Prefer live movement if active simulation running
+                    }
+                    const trailPositions = trailData.map(p => [p.lat, p.lon]);
 
                     return (
                         <div key={vessel.imo}>
@@ -213,63 +217,17 @@ const LiveMap = (props) => {
                                                         <div className="text-[10px] text-slate-500 uppercase">Voyage</div>
                                                         <div className="text-cyan-300 font-bold">{vessel.destination || 'Open Sea'}</div>
                                                     </div>
-                                                    <div className="text-[10px] text-slate-500">ETA: --:--</div>
+                                                    <div className="text-[10px] text-slate-500">ETA: {vessel.eta || '--:--'}</div>
                                                 </div>
-                                            </div>
-
-                                            <div className="flex gap-2">
-                                                <button className="flex-1 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold rounded transition-colors uppercase">
-                                                    Track
-                                                </button>
-                                                <button className="flex-1 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold rounded transition-colors uppercase border border-slate-600">
-                                                    Details
-                                                </button>
                                             </div>
                                         </div>
                                     </div>
                                 </Popup>
                             </Marker>
 
-                            {/* Existing Trail Logic */}
-                            {trail.length > 1 && visibleLayers[vessel.type.toLowerCase().split(' ')[0]] && (
-                                <Polyline positions={trail} pathOptions={{ color: routeStyle.color, weight: routeStyle.weight, opacity: 0.6, dashArray: routeStyle.dashArray, className: 'animate-pulse-slow' }} />
-                            )}
-
-                            {/* Predictive AI Pathing (Ghost Path) */}
-                            {visibleLayers[vessel.type.toLowerCase().split(' ')[0]] && (
-                                <Polyline
-                                    positions={[
-                                        [vessel.lat, vessel.lon],
-                                        // Simple projection: 0.1 degree per 10 knots approx
-                                        [
-                                            vessel.lat + (Math.cos(vessel.course * Math.PI / 180) * vessel.speed * 0.005),
-                                            vessel.lon + (Math.sin(vessel.course * Math.PI / 180) * vessel.speed * 0.005)
-                                        ]
-                                    ]}
-                                    pathOptions={{
-                                        color: routeStyle.color,
-                                        weight: 1,
-                                        opacity: 0.4,
-                                        dashArray: '2, 5'
-                                    }}
-                                />
-                            )}
-                            {/* Predicted Destination Marker */}
-                            {visibleLayers[vessel.type.toLowerCase().split(' ')[0]] && (
-                                <Circle
-                                    center={[
-                                        vessel.lat + (Math.cos(vessel.course * Math.PI / 180) * vessel.speed * 0.005),
-                                        vessel.lon + (Math.sin(vessel.course * Math.PI / 180) * vessel.speed * 0.005)
-                                    ]}
-                                    radius={5000}
-                                    pathOptions={{
-                                        color: routeStyle.color,
-                                        fillColor: routeStyle.color,
-                                        fillOpacity: 0.1,
-                                        weight: 1,
-                                        dashArray: '2, 2'
-                                    }}
-                                />
+                            {/* Render Dense Trails for "Satellite Dataset" Look */}
+                            {trailPositions.length > 1 && (
+                                <Polyline positions={trailPositions} pathOptions={{ color: routeStyle.color, weight: 1, opacity: 0.3, className: 'vessel-trail' }} />
                             )}
                         </div>
                     );

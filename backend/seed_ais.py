@@ -75,10 +75,23 @@ def generate_vessels(count=60):
         is_fmcg = random.random() < 0.3 and v_type == "Container Ship"
         
         imo = f"9{random.randint(100000, 999999)}"
-        name = f"{random.choice(COMPANIES).upper()} {random.choice(['EAGLE', 'HOPE', 'STAR', 'TITAN', 'OCEAN', 'WAVE', 'PEARL'])}"
+        name_prefix = random.choice(COMPANIES)
+        name_suffix = random.choice(['EAGLE', 'HOPE', 'STAR', 'TITAN', 'OCEAN', 'WAVE', 'PEARL', 'SPIRIT', 'VOYAGER', 'PIONEER'])
+        name = f"{name_prefix.upper()} {name_suffix}"
         
-        lat = random.uniform(5.0, 25.0)
-        lon = random.uniform(65.0, 95.0)
+        # Wider distribution for global feel
+        lat = random.uniform(-40.0, 60.0) 
+        lon = random.uniform(-180.0, 180.0)
+        
+        # Generate simple history for trails immediately
+        history = []
+        hist_lat = lat
+        hist_lon = lon
+        course_rad = random.uniform(0, 360) * (3.14159 / 180)
+        for _ in range(20): # 20 points of history
+             hist_lat -= 0.1 * random.uniform(0.5, 1.5) * (1 if random.random() > 0.5 else -1) # Random walk backwards
+             hist_lon -= 0.1 * random.uniform(0.5, 1.5) * (1 if random.random() > 0.5 else -1)
+             history.insert(0, {'lat': round(hist_lat, 4), 'lon': round(hist_lon, 4)})
         
         vessels[imo] = {
             "imo": imo,
@@ -94,7 +107,7 @@ def generate_vessels(count=60):
             "width": random.randint(20, 50),
             "dwt": random.randint(10000, 150000),
             "company_name": name.split()[0],
-            "destination": random.choice(["Colombo", "Mumbai", "Chennai", "Singapore", "Dubai", "Aarhus", "Skagen"]),
+            "destination": random.choice(["Colombo", "Mumbai", "Chennai", "Singapore", "Dubai", "Aarhus", "Skagen", "New York", "Shanghai"]),
             "eta": (datetime.now() + timedelta(days=random.randint(1, 10))).strftime("%Y-%m-%d %H:%M"),
              "risk_level": "Low" if random.random() > 0.1 else "Medium",
              "cargo_manifest": {
@@ -103,6 +116,7 @@ def generate_vessels(count=60):
                 "weight_tons": random.randint(5000, 50000),
                 "value_est_usd": f"${random.randint(5, 50)} Million"
             },
+            "history": history, # Pre-populating history for trails
             "image": f"https://source.unsplash.com/400x300/?ship,{v_type.replace(' ', '')}"
         }
 
@@ -112,7 +126,8 @@ if __name__ == "__main__":
     data_dir = Path("backend/data")
     data_dir.mkdir(exist_ok=True)
     
-    vessels_data = generate_vessels(50)
+    # generate 1500 vessels for 'Satellite Dataset' look
+    vessels_data = generate_vessels(1500)
     
     with open(data_dir / "vessels.json", "w") as f:
         json.dump(vessels_data, f, indent=2)
