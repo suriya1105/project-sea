@@ -13,5 +13,5 @@ if __name__ == '__main__':
     print("=" * 60)
     print("\nCopy this value and use it in Render environment variables:")
     print(f"SECRET_KEY={secret_key}")
-    print("\n⚠️  Keep this secret! Don't commit it to Git!")
+    print("\n Keep this secret! Don't commit it to Git!")
 
