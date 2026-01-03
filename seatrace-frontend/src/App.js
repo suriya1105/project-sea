@@ -779,11 +779,28 @@ function App() {
       <div className="absolute inset-0 bg-slate-900/90 backdrop-blur-sm z-0"></div>
       <div className="grid-overlay"></div>
 
+      {/* Persistent Live Map Background */}
+      <div className="absolute inset-0 z-0">
+        <LiveMap
+          vessels={vessels}
+          oilSpills={oilSpills}
+          countryBoundaries={countryBoundaries}
+          predictionData={predictionData}
+          simParams={simParams}
+          setSimParams={setSimParams}
+          runSimulation={runSimulation}
+          selectedSpillId={selectedSpillId}
+          predictionStats={predictionStats}
+          vesselMovementData={vesselMovementData}
+          marineStrikes={marineStrikes}
+        />
+      </div>
+
       {/* Cyber Sidebar (Desktop) / Mobile Side Drawer (Off-Canvas) */}
-      <div className={`cyber-sidebar flex flex-col fixed md:relative inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} w-64 ${isSidebarExpanded ? 'md:w-64' : 'md:w-16'} bg-slate-900/95 md:bg-transparent border-r border-cyan-500/30 overflow-hidden`}>
+      <div className={`cyber-sidebar flex flex-col fixed md:relative inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out ${isSidebarExpanded ? 'md:w-64' : 'md:w-16'} bg-slate-900/95 md:bg-transparent border-r border-cyan-500/30 overflow-hidden`}>
 
         {/* Mobile Header with Close Button */}
-        <div className="flex md:hidden items-center justify-between p-4 border-b border-cyan-500/20">
+        <div className="flex md:hidden items-center justify-between p-4 border-b border-cyan-500/20 bg-slate-900">
           <div className="flex items-center gap-2">
             <img src="/logo.png" alt="Logo" className="w-6 h-6" />
             <span className="font-orbitron font-bold text-cyan-400">SEATRACE</span>
@@ -836,7 +853,9 @@ function App() {
                 if (activeTab !== item.id) {
                   soundManager.playNav();
                   setIsTransitioning(true);
-                  setIsMobileMenuOpen(false); // Close drawer on selection
+                  if (window.innerWidth >= 768) {
+                    setIsMobileMenuOpen(false);
+                  }
                   setTimeout(() => {
                     setActiveTab(item.id);
                     setIsTransitioning(false);
@@ -901,10 +920,10 @@ function App() {
       )}
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col relative z-10 overflow-hidden">
+      <div className="flex-1 flex flex-col relative z-10 overflow-hidden pointer-events-none">
 
         {/* Top Status Bar */}
-        <header className="h-16 flex items-center justify-between px-6 border-b border-cyan-500/20 bg-slate-900/50 backdrop-blur-md">
+        <header className="h-16 flex items-center justify-between px-6 border-b border-cyan-500/20 bg-slate-900/50 backdrop-blur-md pointer-events-auto">
           <div className="flex items-center gap-4">
             {/* Mobile Menu Trigger */}
             <button
@@ -933,7 +952,7 @@ function App() {
 
         {/* Scrollable Content - Reduced Padding for Mobile */}
         <div className={`${activeTab === 'map' ? 'p-0' : 'p-2 md:p-6'} flex-1 overflow-hidden flex flex-col ${isTransitioning ? 'opacity-50 blur-sm scale-95' : 'opacity-100 blur-0 scale-100'} transition-all duration-300 ease-in-out`}>
-          <main className={`flex-1 ${activeTab === 'map' ? 'overflow-hidden' : 'overflow-y-auto'} overflow-x-hidden relative custom-scrollbar animate-slide-in`}>
+          <main className={`flex-1 ${activeTab === 'map' ? 'overflow-hidden' : 'overflow-y-auto'} overflow-x-hidden relative custom-scrollbar animate-slide-in ${activeTab === 'map' ? '' : 'pointer-events-auto'}`}>
             {connectionStatus !== 'connected' && (
               <div className="mb-4 bg-red-900/20 border border-red-500/50 text-red-200 px-4 py-2 rounded flex items-center gap-2 animate-pulse">
                 <Activity className="w-4 h-4" />
@@ -1191,19 +1210,7 @@ function App() {
 
             {/* Map - All roles */}
             {activeTab === 'map' && (
-              <LiveMap
-                vessels={vessels}
-                oilSpills={oilSpills}
-                countryBoundaries={countryBoundaries}
-                predictionData={predictionData}
-                simParams={simParams}
-                setSimParams={setSimParams}
-                runSimulation={runSimulation}
-                selectedSpillId={selectedSpillId}
-                predictionStats={predictionStats}
-                vesselMovementData={vesselMovementData}
-                marineStrikes={marineStrikes} // Pass new data
-              />
+              <div className="h-full w-full" /> // Placeholder to keep tab logic valid but empty
             )}
 
             {
@@ -1306,21 +1313,9 @@ function App() {
 
             {activeTab === 'admin' && userRole === 'admin' && (
               <div className="relative h-full flex flex-col overflow-hidden">
-                {/* Background Live Map for Admin Command Center */}
-                <div className="absolute inset-0 z-0 opacity-50">
-                  <LiveMap
-                    vessels={vessels}
-                    oilSpills={oilSpills}
-                    countryBoundaries={countryBoundaries}
-                    predictionData={predictionData}
-                    simParams={simParams}
-                    setSimParams={setSimParams}
-                    runSimulation={runSimulation}
-                    selectedSpillId={selectedSpillId}
-                    predictionStats={predictionStats}
-                    vesselMovementData={vesselMovementData}
-                    marineStrikes={marineStrikes}
-                  />
+                {/* Background Live Map for Admin Command Center - REMOVED (Global map used) */}
+                <div className="absolute inset-0 z-0 opacity-50 bg-slate-900/50">
+                  {/* Background dimming only */}
                 </div>
 
                 {/* Overlay Admin Interface */}

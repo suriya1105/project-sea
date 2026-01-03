@@ -42,6 +42,7 @@ const LiveMap = (props) => {
         return { color: '#f59e0b', dashArray: '5, 10', weight: 2 };
     };
 
+    // --- State Management ---
     const [isLegendOpen, setIsLegendOpen] = React.useState(window.innerWidth > 768);
 
     const [visibleLayers, setVisibleLayers] = React.useState({
@@ -53,9 +54,52 @@ const LiveMap = (props) => {
         strikes: true
     });
 
+    // Local state for vessels to allow real-time updates without waiting for parent prop
+    const [liveVessels, setLiveVessels] = React.useState(vessels || []);
+
+    // Sync props to local state when initial load happens or parent updates (but don't overwrite animation progress unnecessarily)
+    React.useEffect(() => {
+        if (vessels && vessels.length > 0) {
+            setLiveVessels(vessels);
+        }
+    }, [vessels]);
+
     const toggleLayer = (layer) => {
         setVisibleLayers(prev => ({ ...prev, [layer]: !prev[layer] }));
     };
+
+    // --- Vessel Movement Animation Logic ---
+    React.useEffect(() => {
+        if (!window.socket) return;
+
+        // Listen for Optimized BATCH updates from backend
+        window.socket.on('vessel_movement_batch', (batchData) => {
+            setLiveVessels(prevVessels => {
+                // Create a map for faster lookup if list is large
+                const vesselMap = new Map(prevVessels.map(v => [v.imo, v]));
+
+                // Update only the vessels in the batch
+                batchData.forEach(update => {
+                    if (vesselMap.has(update.imo)) {
+                        const v = vesselMap.get(update.imo);
+                        vesselMap.set(update.imo, {
+                            ...v,
+                            lat: update.lat,
+                            lon: update.lon,
+                            course: update.course,
+                            speed: update.speed
+                        });
+                    }
+                });
+
+                return Array.from(vesselMap.values());
+            });
+        });
+
+        return () => {
+            window.socket.off('vessel_movement_batch');
+        };
+    }, []);
 
     const getVesselClass = (type) => {
         if (type.includes('Tanker')) return 'marker-shape-tanker';
@@ -72,7 +116,7 @@ const LiveMap = (props) => {
             <div className="absolute top-4 right-4 z-[500] flex flex-col gap-2">
                 <div className="bg-slate-900/80 backdrop-blur border border-cyan-500/30 p-2 rounded text-cyan-400 text-xs font-mono shadow-lg">
                     <div className="flex items-center gap-2 mb-1"><span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span> LIVE SAT FEED</div>
-                    <div className="text-[10px] text-slate-400">LAT: {vessels[0]?.lat.toFixed(4) || '00.00'}<br />LON: {vessels[0]?.lon.toFixed(4) || '00.00'}</div>
+                    <div className="text-[10px] text-slate-400">LAT: {liveVessels[0]?.lat.toFixed(4) || '00.00'}<br />LON: {liveVessels[0]?.lon.toFixed(4) || '00.00'}</div>
                 </div>
             </div>
 
@@ -151,7 +195,7 @@ const LiveMap = (props) => {
                 ))}
 
                 {/* High Density Vessel Rendering */}
-                {vessels.filter(v => {
+                {liveVessels.filter(v => {
                     if (v.type.includes('Tanker') && !visibleLayers.tanker) return false;
                     if ((v.type.includes('Container') || v.type.includes('Cargo')) && !visibleLayers.cargo) return false;
                     if ((v.type.includes('Navy') || v.type.includes('Military')) && !visibleLayers.navy) return false;

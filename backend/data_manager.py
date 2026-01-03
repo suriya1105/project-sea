@@ -73,6 +73,49 @@ class DataManager:
             self._save_json_file(self.company_users_file, self.company_users)
             self._save_json_file(self.marine_strikes_file, self.marine_strikes)
 
+    # User operations
+    def get_users(self):
+        """Get all users"""
+        with self.lock:
+            return self.users
+
+    def get_user(self, email):
+        """Get user by email"""
+        with self.lock:
+            return self.users.get(email)
+
+    def add_user(self, email, user_data):
+        """Add new user"""
+        with self.lock:
+            self.users[email] = user_data
+            self._save_json_file(self.users_file, self.users)
+
+    def update_user(self, email, updates):
+        """Update existing user"""
+        with self.lock:
+            if email in self.users:
+                self.users[email].update(updates)
+                self._save_json_file(self.users_file, self.users)
+                return self.users[email]
+            return None
+
+    def delete_user(self, email):
+        """Delete user"""
+        with self.lock:
+            if email in self.users:
+                del self.users[email]
+                self._save_json_file(self.users_file, self.users)
+                return True
+            return False
+
+    def get_next_user_id(self):
+        """Generate next user ID"""
+        with self.lock:
+            if not self.users:
+                return 1
+            ids = [user.get('id', 0) for user in self.users.values()]
+            return max(ids) + 1
+
     # ... (Keep existing methods)
 
     # Audit log operations

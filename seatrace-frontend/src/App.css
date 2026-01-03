@@ -385,200 +385,94 @@ body.light-mode .ocean-bg {
 }
 
 /* TOUCH TARGET OPTIMIZATION */
+/* Mobile Optimization & Touch Targets */
 @media (max-width: 768px) {
 
-  /* Touch Target Size Increase */
-  button,
-  .cyber-btn,
-  .sidebar-item,
-  input,
-  select {
-    min-height: 48px !important;
-    /* Minimum touch target size */
-    touch-action: manipulation;
-    /* Improves tap delay */
-  }
-
-  /* Input Readability */
-  .cyber-input {
-    font-size: 16px !important;
-    /* Prevents iOS zoom */
-    padding: 12px 16px !important;
-  }
-
-  /* Grid Overlay Performance */
-  .grid-overlay {
-    animation: none !important;
-    /* Disable heavy animation on mobile */
-    opacity: 0.3 !important;
-    background-size: 30px 30px !important;
-  }
-
-  /* Panel Density */
-  .cyber-dashboard-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding: 16px;
-    padding-bottom: 100px;
-    /* Space for larger bottom nav */
-  }
-
-  /* Font Scaling */
-  html {
-    font-size: 14px;
-    /* Slightly smaller base for density */
-  }
-
-  /* Full Reset for Layout */
+  /* Layout Reset */
   .app {
     height: 100vh;
-    /* Use vh instead of dvh for better compatibility initially, verify later */
-    overflow-y: auto !important;
-    /* Allow scroll on body/app wrapper */
-    overflow-x: hidden;
+    /* Fallback */
+    height: 100dvh;
+    overflow: hidden;
+    flex-direction: column;
   }
 
-  /* Sidebar as Bottom Nav */
+  /* Sidebar as Bottom Navigation */
   .cyber-sidebar {
-    height: auto !important;
+    position: fixed !important;
     bottom: 0 !important;
     top: auto !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    flex-direction: row !important;
+    border-right: none;
     border-top: 1px solid var(--border-color);
     background: var(--bg-sidebar);
     padding-bottom: env(safe-area-inset-bottom);
-    min-height: 50px;
-    /* Reduced from default */
+    z-index: 1000;
   }
-}
 
-.cyber-panel::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
-  opacity: 0.5;
-}
+  /* Sidebar Items Horizontal */
+  .cyber-sidebar>div.flex-1 {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0;
+  }
 
-/* Map specific styles */
-.map-container-cyber {
-  border: 1px solid var(--neon-blue);
-  box-shadow: 0 0 20px rgba(0, 243, 255, 0.15);
-  border-radius: 8px;
-  overflow: hidden;
-  position: relative;
-}
+  .sidebar-item {
+    flex: 1;
+    min-width: 60px;
+    justify-content: center;
+    padding: 12px 0;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 60px !important;
+  }
 
-.map-radar-overlay {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100%;
-  height: 100%;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(circle, transparent 50%, rgba(0, 243, 255, 0.05) 100%);
-  pointer-events: none;
-  z-index: 400;
-  /* Above map tiles */
-}
+  .sidebar-item.active {
+    border-bottom-color: var(--neon-blue);
+    background: linear-gradient(0deg, rgba(0, 243, 255, 0.1), transparent);
+  }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
+  /* Hide Desktop specific elements in sidebar */
+  .cyber-sidebar>button,
+  /* Toggle button */
+  .cyber-sidebar .logo-area,
+  .cyber-sidebar .user-info {
+    display: none !important;
+  }
 
-::-webkit-scrollbar-track {
-  background: var(--bg-primary);
-}
+  /* Adjust Main Content to sit above bottom nav */
+  .flex-1.relative.z-10 {
+    padding-bottom: 70px;
+    /* Space for bottom nav */
+  }
 
-::-webkit-scrollbar-thumb {
-  background: var(--text-muted);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-accent);
-}
-
-/* Recharts overrides */
-.recharts-cartesian-grid-horizontal line,
-.recharts-cartesian-grid-vertical line {
-  stroke: rgba(0, 243, 255, 0.1) !important;
-}
-
-.recharts-tooltip-cursor {
-  fill: rgba(0, 243, 255, 0.05) !important;
-}
-
-/* Mobile Optimization */
-@media (max-width: 768px) {
+  /* Dashboard Grid */
   .cyber-dashboard-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  /* Touch Targets */
+  button,
+  .cyber-btn,
+  input,
+  select {
+    min-height: 48px;
+    touch-action: manipulation;
   }
 
   .cyber-input {
-    font-size: 16px;
-  }
-
-  /* Removed conflicting full-height sidebar rule for mobile */
-
-  .leaflet-container {
-    height: 60vh;
-    /* Default for dashboard widgets */
-  }
-
-  .full-screen-map-view .leaflet-container {
-    height: 100% !important;
-    /* Force full height for single page view */
-  }
-
-  .auth-container {
-    flex-direction: column;
-  }
-}
-
-/* GLOBAL RESET & SPACE REMOVAL */
-html,
-body,
-#root {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-}
-
-/* Hide any accidental Footers */
-footer,
-.footer {
-  display: none !important;
-}
-
-/* Ensure Main Content fills space without extra gaps */
-.app {
-  padding-bottom: 0 !important;
-}
-
-main {
-  padding-bottom: 0 !important;
-  margin-bottom: 0 !important;
-}
-
-/* Mobile Tweaks */
-@media (max-width: 768px) {
-  .cyber-sidebar {
-    border-right: none;
-  }
-
-  .leaflet-container {
-    width: 100% !important;
-    height: 100% !important;
-    min-height: 60vh;
-    border-radius: 0 !important;
+    font-size: 16px !important;
+    /* Prevent iOS Zoom */
   }
 }
 
