@@ -29,9 +29,9 @@ SHIPPING_LANES = [
     {"name": "Cape Route", "start": (51.0, 1.0), "end": (5.0, 95.0), "bends": [(0.0, -10.0), (-35.0, 18.0), (-30.0, 60.0)]}
 ]
 
-TYPES = ["Container Ship", "Tanker", "Bulk Carrier", "Cargo", "Fishing"]
-FLAGS = ["Panama", "Liberia", "Marshall Islands", "Singapore", "China", "Malta", "Bahamas"]
-COMPANIES = ["MAERSK", "MSC", "COSCO", "CMA CGM", "HAPAG-LLOYD", "ONE", "EVERGREEN", "HMM", "YANG MING", "ZIM"]
+TYPES = ["Container Ship", "Tanker", "Bulk Carrier", "Cargo", "Fishing", "Research Vessel", "Submarine", "Unmanned Drone"]
+FLAGS = ["Panama", "Liberia", "Marshall Islands", "Singapore", "China", "Malta", "Bahamas", "USA", "Norway", "Japan"]
+COMPANIES = ["MAERSK", "MSC", "COSCO", "CMA CGM", "HAPAG-LLOYD", "ONE", "EVERGREEN", "HMM", "YANG MING", "ZIM", "OCEANX", "NAVAL GROUP"]
 
 def interpolate_points(p1, p2, f):
     """Linear interpolation between two points"""
@@ -70,7 +70,7 @@ def generate_vessels(count=TOTAL_VESSELS):
         lon = base_lon + random.uniform(-0.5, 0.5)
         
         # 4. Generate Vessel Identity
-        v_type = random.choices(TYPES, weights=[30, 25, 25, 10, 10])[0]
+        v_type = random.choices(TYPES, weights=[25, 20, 20, 10, 10, 5, 5, 5])[0]
         imo = f"9{random.randint(100000, 999999)}"
         
         company = random.choice(COMPANIES)
@@ -128,7 +128,7 @@ def generate_vessels(count=TOTAL_VESSELS):
     return vessels
 
 if __name__ == "__main__":
-    data_dir = Path("backend/data")
+    data_dir = Path(__file__).parent / "data"
     data_dir.mkdir(exist_ok=True)
     
     vessels_data = generate_vessels(TOTAL_VESSELS)

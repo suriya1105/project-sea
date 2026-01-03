@@ -482,13 +482,19 @@ function App() {
     } catch (error) {
       console.error('Error fetching vessels - Using Fallback Mock Data:', error);
       // Fallback Mock Data
-      const mockVessels = [
-        { imo: '9876543', name: 'COSMIC WIND', type: 'Cargo', lat: 10.5, lon: 85.0, speed: 18.2, course: 45, destination: 'Chennai', status: 'Active', risk_level: 'Low' },
-        { imo: '1234567', name: 'OCEAN GUARDIAN', type: 'Navy', lat: 12.0, lon: 82.0, speed: 25.0, course: 135, destination: 'Patrol', status: 'Active', risk_level: 'Low' },
-        { imo: '8765432', name: 'PACIFIC TITAN', type: 'Tanker', lat: 8.5, lon: 88.0, speed: 14.5, course: 270, destination: 'Mumbai', status: 'Active', risk_level: 'High' },
-        { imo: '5678901', name: 'DEEP BLUE', type: 'Fishing', lat: 11.2, lon: 80.5, speed: 8.0, course: 90, destination: 'Port Blair', status: 'Active', risk_level: 'Medium' },
-        { imo: '2345678', name: 'STELLAR VOYAGER', type: 'Cargo', lat: 7.0, lon: 90.0, speed: 20.0, course: 315, destination: 'Singapore', status: 'Active', risk_level: 'Low' },
-      ];
+      // Fallback Mock Data - Expanded for "Alive" feel
+      const mockVessels = Array.from({ length: 50 }, (_, i) => ({
+        imo: (9000000 + i).toString(),
+        name: ['COSMIC', 'OCEAN', 'TITAN', 'STAR', 'WAVE', 'DEEP', 'BLUE', 'RED', 'GALAXY'][i % 9] + ' ' + ['VOYAGER', 'GUARDIAN', 'SPIRIT', 'PIONEER', 'RANGER', 'SCOUT'][i % 6] + ' ' + (i + 1),
+        type: ['Cargo', 'Tanker', 'Fishing', 'Navy', 'Research', 'Submarine'][i % 6],
+        lat: 5.0 + (Math.random() * 20),
+        lon: 80.0 + (Math.random() * 20),
+        speed: 5 + Math.random() * 25,
+        course: Math.floor(Math.random() * 360),
+        destination: ['Singapore', 'Chennai', 'Colombo', 'Mumbai', 'Suez', 'Rotterdam'][Math.floor(Math.random() * 6)],
+        status: 'Active',
+        risk_level: Math.random() > 0.8 ? 'High' : (Math.random() > 0.5 ? 'Medium' : 'Low')
+      }));
       setVessels(mockVessels);
       setTimeout(() => updateMovementData(), 100);
     }
@@ -779,22 +785,28 @@ function App() {
       <div className="absolute inset-0 bg-slate-900/90 backdrop-blur-sm z-0"></div>
       <div className="grid-overlay"></div>
 
-      {/* Persistent Live Map Background */}
-      <div className="absolute inset-0 z-0">
-        <LiveMap
-          vessels={vessels}
-          oilSpills={oilSpills}
-          countryBoundaries={countryBoundaries}
-          predictionData={predictionData}
-          simParams={simParams}
-          setSimParams={setSimParams}
-          runSimulation={runSimulation}
-          selectedSpillId={selectedSpillId}
-          predictionStats={predictionStats}
-          vesselMovementData={vesselMovementData}
-          marineStrikes={marineStrikes}
-        />
-      </div>
+      {/* Cyber Background (Static) */}
+      <div className="ocean-bg"></div>
+      <div className="grid-overlay"></div>
+
+      {/* Map is now ONLY rendered when tab is active for performance and theme */}
+      {activeTab === 'map' && (
+        <div className="absolute inset-0 z-0 animation-fade-in">
+          <LiveMap
+            vessels={vessels}
+            oilSpills={oilSpills}
+            countryBoundaries={countryBoundaries}
+            predictionData={predictionData}
+            simParams={simParams}
+            setSimParams={setSimParams}
+            runSimulation={runSimulation}
+            selectedSpillId={selectedSpillId}
+            predictionStats={predictionStats}
+            vesselMovementData={vesselMovementData}
+            marineStrikes={marineStrikes}
+          />
+        </div>
+      )}
 
       {/* Cyber Sidebar (Desktop) / Mobile Side Drawer (Off-Canvas) */}
       <div className={`cyber-sidebar flex flex-col fixed md:relative inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out ${isSidebarExpanded ? 'md:w-64' : 'md:w-16'} bg-slate-900/95 md:bg-transparent border-r border-cyan-500/30 overflow-hidden`}>
