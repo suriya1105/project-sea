@@ -271,7 +271,7 @@ const LiveMap = (props) => {
 
                             {/* Render Dense Trails for "Satellite Dataset" Look */}
                             {trailPositions.length > 1 && (
-                                <Polyline positions={trailPositions} pathOptions={{ color: routeStyle.color, weight: 1, opacity: 0.3, className: 'vessel-trail' }} />
+                                <Polyline positions={trailPositions} pathOptions={{ color: routeStyle.color, weight: 2, opacity: 0.8, className: 'vessel-trail shadow-[0_0_10px_currentColor]' }} />
                             )}
                         </div>
                     );

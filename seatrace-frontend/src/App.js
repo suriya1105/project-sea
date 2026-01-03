@@ -483,18 +483,35 @@ function App() {
       console.error('Error fetching vessels - Using Fallback Mock Data:', error);
       // Fallback Mock Data
       // Fallback Mock Data - Expanded for "Alive" feel
-      const mockVessels = Array.from({ length: 50 }, (_, i) => ({
-        imo: (9000000 + i).toString(),
-        name: ['COSMIC', 'OCEAN', 'TITAN', 'STAR', 'WAVE', 'DEEP', 'BLUE', 'RED', 'GALAXY'][i % 9] + ' ' + ['VOYAGER', 'GUARDIAN', 'SPIRIT', 'PIONEER', 'RANGER', 'SCOUT'][i % 6] + ' ' + (i + 1),
-        type: ['Cargo', 'Tanker', 'Fishing', 'Navy', 'Research', 'Submarine'][i % 6],
-        lat: 5.0 + (Math.random() * 20),
-        lon: 80.0 + (Math.random() * 20),
-        speed: 5 + Math.random() * 25,
-        course: Math.floor(Math.random() * 360),
-        destination: ['Singapore', 'Chennai', 'Colombo', 'Mumbai', 'Suez', 'Rotterdam'][Math.floor(Math.random() * 6)],
-        status: 'Active',
-        risk_level: Math.random() > 0.8 ? 'High' : (Math.random() > 0.5 ? 'Medium' : 'Low')
-      }));
+      const mockVessels = Array.from({ length: 50 }, (_, i) => {
+        const lat = 5.0 + (Math.random() * 20);
+        const lon = 80.0 + (Math.random() * 20);
+        const course = Math.floor(Math.random() * 360);
+
+        // Generate mock history (trail) behind the vessel
+        const history = [];
+        let hLat = lat;
+        let hLon = lon;
+        for (let j = 0; j < 10; j++) {
+          hLat -= 0.05 * Math.cos(course * Math.PI / 180);
+          hLon -= 0.05 * Math.sin(course * Math.PI / 180);
+          history.push({ lat: hLat, lon: hLon });
+        }
+
+        return {
+          imo: (9000000 + i).toString(),
+          name: ['COSMIC', 'OCEAN', 'TITAN', 'STAR', 'WAVE', 'DEEP', 'BLUE', 'RED', 'GALAXY'][i % 9] + ' ' + ['VOYAGER', 'GUARDIAN', 'SPIRIT', 'PIONEER', 'RANGER', 'SCOUT'][i % 6] + ' ' + (i + 1),
+          type: ['Cargo', 'Tanker', 'Fishing', 'Navy', 'Research', 'Submarine'][i % 6],
+          lat: lat,
+          lon: lon,
+          speed: 5 + Math.random() * 25,
+          course: course,
+          destination: ['Singapore', 'Chennai', 'Colombo', 'Mumbai', 'Suez', 'Rotterdam'][Math.floor(Math.random() * 6)],
+          status: 'Active',
+          risk_level: Math.random() > 0.8 ? 'High' : (Math.random() > 0.5 ? 'Medium' : 'Low'),
+          history: history // Added mock history
+        };
+      });
       setVessels(mockVessels);
       setTimeout(() => updateMovementData(), 100);
     }
