@@ -265,10 +265,10 @@ def login():
             return jsonify({
                 'token': token,
                 'user': {
-                    'id': user['id'],
-                    'name': user['name'],
-                    'email': user['email'],
-                    'role': user['role'],
+                    'id': user.get('id'),
+                    'name': user.get('name'),
+                    'email': user.get('email'),
+                    'role': user.get('role', 'viewer'),
                     'company': user.get('company', 'Unknown Company')
                 }
             }), 200
@@ -290,7 +290,7 @@ def get_profile():
         'id': user['id'],
         'name': user['name'],
         'email': user['email'],
-        'role': user['role'],
+        'role': user.get('role', 'viewer'),
         'company': user.get('company', 'Unknown Company')
     }), 200
 
@@ -472,7 +472,7 @@ def get_all_users():
             'id': user['id'],
             'email': email,
             'name': user['name'],
-            'role': user['role'],
+            'role': user.get('role', 'viewer'),
             'company': user.get('company', 'Unknown Company')
         })
     
@@ -1115,7 +1115,7 @@ def predict_spread():
 def get_secure_history():
     """View sent confidential alerts (Admin/Operator only)"""
     current_user = request.user
-    if current_user['role'] == 'viewer':
+    if current_user.get('role', 'viewer') == 'viewer':
          return jsonify({'error': 'Unauthorized access to confidential logs'}), 403
     return jsonify(secure_alerts), 200
 
