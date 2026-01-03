@@ -968,33 +968,35 @@ function App() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col relative z-10 overflow-hidden pointer-events-none">
 
-        {/* Top Status Bar */}
-        <header className="h-16 flex items-center justify-between px-6 border-b border-cyan-500/20 bg-slate-900/50 backdrop-blur-md pointer-events-auto">
-          <div className="flex items-center gap-4">
-            {/* Mobile Menu Trigger */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden text-cyan-400 hover:text-white transition-colors"
-            >
-              <Menu className="w-6 h-6" />
-            </button>
+        {/* Top Status Bar - HIDDEN ON MAP */}
+        {activeTab !== 'map' && (
+          <header className="h-16 flex items-center justify-between px-6 border-b border-cyan-500/20 bg-slate-900/50 backdrop-blur-md pointer-events-auto">
+            <div className="flex items-center gap-4">
+              {/* Mobile Menu Trigger */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="md:hidden text-cyan-400 hover:text-white transition-colors"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
 
-            <h1 className="text-xl md:text-2xl font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 font-bold uppercase tracking-widest shadow-cyan-500/50 drop-shadow-sm truncate max-w-[200px] md:max-w-none">
-              {activeTab === 'dashboard' ? 'Real-Time Ops' : activeTab.toUpperCase()}
-            </h1>
-            {activeTab === 'dashboard' && <span className="hidden md:flex items-center gap-2 text-xs font-mono text-cyan-500/70 border border-cyan-500/20 px-2 py-0.5 rounded bg-cyan-900/10"><span className="animate-ping w-1.5 h-1.5 bg-cyan-400 rounded-full"></span> LIVE FEED</span>}
-          </div>
+              <h1 className="text-xl md:text-2xl font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 font-bold uppercase tracking-widest shadow-cyan-500/50 drop-shadow-sm truncate max-w-[200px] md:max-w-none">
+                {activeTab === 'dashboard' ? 'Real-Time Ops' : activeTab.toUpperCase()}
+              </h1>
+              {activeTab === 'dashboard' && <span className="hidden md:flex items-center gap-2 text-xs font-mono text-cyan-500/70 border border-cyan-500/20 px-2 py-0.5 rounded bg-cyan-900/10"><span className="animate-ping w-1.5 h-1.5 bg-cyan-400 rounded-full"></span> LIVE FEED</span>}
+            </div>
 
-          <div className="flex items-center gap-6">
-            <div className="hidden md:flex items-center gap-2 text-sm font-rajdhani text-cyan-300/80">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse box-shadow-[0_0_10px_#22c55e]"></span>
-              ONLINE
+            <div className="flex items-center gap-6">
+              <div className="hidden md:flex items-center gap-2 text-sm font-rajdhani text-cyan-300/80">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse box-shadow-[0_0_10px_#22c55e]"></span>
+                ONLINE
+              </div>
+              <div className="text-xs font-mono text-cyan-600 hidden md:block">
+                {new Date().toLocaleTimeString()}
+              </div>
             </div>
-            <div className="text-xs font-mono text-cyan-600 hidden md:block">
-              {new Date().toLocaleTimeString()}
-            </div>
-          </div>
-        </header>
+          </header>
+        )}
 
         {/* Scrollable Content - Reduced Padding for Mobile */}
         <div className={`${activeTab === 'map' ? 'p-0' : 'p-2 md:p-6'} flex-1 overflow-hidden flex flex-col ${isTransitioning ? 'opacity-50 blur-sm scale-95' : 'opacity-100 blur-0 scale-100'} transition-all duration-300 ease-in-out`}>
@@ -1254,10 +1256,7 @@ function App() {
               <AnalyticsPanel token={token} userRole={userRole} />
             )}
 
-            {/* Map - All roles */}
-            {activeTab === 'map' && (
-              <div className="h-full w-full" /> // Placeholder to keep tab logic valid but empty
-            )}
+
 
             {
               activeTab === 'vessels' && (
@@ -1552,34 +1551,18 @@ function App() {
               )
             }
 
-            {/* Live Map - All roles */}
-            {
-              activeTab === 'map' && (
-                <div className="flex-1 flex flex-col h-full w-full overflow-hidden relative full-screen-map-view">
-                  <LiveMap
-                    vessels={vessels}
-                    oilSpills={oilSpills}
-                    countryBoundaries={countryBoundaries}
-                    predictionData={predictionData}
-                    simParams={simParams} // Ensure this state exists or pass mock
-                    setSimParams={setSimParams} // Ensure exists
-                    runSimulation={runSimulation} // Ensure exists
-                    selectedSpillId={selectedSpillId}
-                    predictionStats={predictionStats}
-                    vesselMovementData={vesselMovementData}
-                  />
-                </div>
-              )
-            }
+
             {/* Legacy Map Analysis removed in favor of Live Map */}
 
-            {/* Footer */}
-            <footer className="app-footer">
-              <div className="footer-content">
-                <p>&copy; 2025 SeaTrace Maritime Intelligence System. Developed by <strong>Suriya</strong>. All rights reserved.</p>
-                <p style={{ fontSize: '12px', color: 'rgba(100,100,100,0.7)', marginTop: '4px' }}>Advanced Ocean Monitoring | Environmental Protection | Real-Time Analytics</p>
-              </div>
-            </footer>
+            {/* Footer - HIDDEN ON MAP */}
+            {activeTab !== 'map' && (
+              <footer className="app-footer">
+                <div className="footer-content">
+                  <p>&copy; 2025 SeaTrace Maritime Intelligence System. Developed by <strong>Suriya</strong>. All rights reserved.</p>
+                  <p style={{ fontSize: '12px', color: 'rgba(100,100,100,0.7)', marginTop: '4px' }}>Advanced Ocean Monitoring | Environmental Protection | Real-Time Analytics</p>
+                </div>
+              </footer>
+            )}
           </main >
         </div >
         {/* Avatar Assistant - Unified AI Interface */}
