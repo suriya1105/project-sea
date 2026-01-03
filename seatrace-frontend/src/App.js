@@ -812,120 +812,133 @@ function App() {
         </div>
       )}
 
-      {/* Cyber Sidebar (Desktop) / Mobile Side Drawer (Off-Canvas) */}
-      <div className={`cyber-sidebar flex flex-col fixed md:relative inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out ${isSidebarExpanded ? 'md:w-64' : 'md:w-16'} bg-slate-900/95 md:bg-transparent border-r border-cyan-500/30 overflow-hidden`}>
+      {/* Cyber Sidebar - HIDDEN ON MAP VIEW */}
+      {activeTab !== 'map' && (
+        <div className={`cyber-sidebar flex flex-col fixed md:relative inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out ${isSidebarExpanded ? 'md:w-64' : 'md:w-16'} bg-slate-900/95 md:bg-transparent border-r border-cyan-500/30 overflow-hidden`}>
 
-        {/* Mobile Header with Close Button */}
-        <div className="flex md:hidden items-center justify-between p-4 border-b border-cyan-500/20 bg-slate-900">
-          <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="Logo" className="w-6 h-6" />
-            <span className="font-orbitron font-bold text-cyan-400">SEATRACE</span>
-          </div>
-          <button onClick={() => setIsMobileMenuOpen(false)} className="text-slate-400 hover:text-white">
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        {/* Toggle Handle (Desktop Only) */}
-        <button
-          onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
-          className="hidden md:flex absolute -right-3 top-10 bg-cyan-900 border border-cyan-500 text-cyan-400 rounded-full p-1 hover:scale-110 transition-transform z-50 shadow-[0_0_10px_rgba(6,182,212,0.5)]"
-          title={isSidebarExpanded ? "Collapse" : "Expand"}
-        >
-          {isSidebarExpanded ? <ChevronDown className="w-4 h-4 rotate-90" /> : <ChevronRight className="w-4 h-4" />}
-        </button>
-
-        {/* Desktop Logo Area */}
-        <div className={`hidden md:flex h-16 items-center ${isSidebarExpanded ? 'justify-start px-4' : 'justify-center'} border-b border-cyan-500/20 shrink-0 mb-2 transition-all`}>
-          <div className="relative group shrink-0">
-            <div className="absolute inset-0 bg-cyan-500/30 blur-sm rounded-lg animate-pulse group-hover:bg-cyan-400/50 transition-all"></div>
-            <img src="/logo.png" alt="SeaTrace" className={`relative z-10 w-8 h-8 rounded-lg object-contain shadow-[0_0_10px_rgba(6,182,212,0.5)] transition-transform group-hover:scale-110`} />
-          </div>
-          {isSidebarExpanded && (
-            <div className="ml-3 font-orbitron font-bold text-cyan-400 tracking-wider whitespace-nowrap overflow-hidden animate-fade-in">
-              SEATRACE
+          {/* Mobile Header with Close Button */}
+          <div className="flex md:hidden items-center justify-between p-4 border-b border-cyan-500/20 bg-slate-900">
+            <div className="flex items-center gap-2">
+              <img src="/logo.png" alt="Logo" className="w-6 h-6" />
+              <span className="font-orbitron font-bold text-cyan-400">SEATRACE</span>
             </div>
-          )}
-        </div>
+            <button onClick={() => setIsMobileMenuOpen(false)} className="text-slate-400 hover:text-white">
+              <X className="w-6 h-6" />
+            </button>
+          </div>
 
-        {/* Navigation Items - Vertical Scroll */}
-        <div className="flex-1 py-2 flex flex-col gap-1 px-2 overflow-y-auto custom-scrollbar">
-          {[
-            { id: 'dashboard', icon: Activity, label: 'Ops Dashboard' },
-            { id: 'map', icon: Globe, label: 'Live Map' },
-            { id: 'analytics', icon: BarChart2, label: 'AI Analytics' },
-            { id: 'radar', icon: Target, label: 'Radar System' },
-            { id: 'scanner', icon: Scan, label: 'X-Ray Scanner' },
-            { id: 'eco', icon: Leaf, label: 'Eco-Scanner' },
-            { id: 'crew', icon: Users, label: 'Crew Manifest' },
+          {/* Toggle Handle (Desktop Only) */}
+          <button
+            onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
+            className="hidden md:flex absolute -right-3 top-10 bg-cyan-900 border border-cyan-500 text-cyan-400 rounded-full p-1 hover:scale-110 transition-transform z-50 shadow-[0_0_10px_rgba(6,182,212,0.5)]"
+            title={isSidebarExpanded ? "Collapse" : "Expand"}
+          >
+            {isSidebarExpanded ? <ChevronDown className="w-4 h-4 rotate-90" /> : <ChevronRight className="w-4 h-4" />}
+          </button>
 
-            { id: 'vessels', icon: Anchor, label: 'Vessel Registry' },
-            { id: 'reports', icon: FileText, label: 'Reports' },
-            { id: 'settings', icon: Settings, label: 'Settings' },
-          ].map((item) => (
-            <button
-              key={item.id}
-              onClick={() => {
-                if (activeTab !== item.id) {
-                  soundManager.playNav();
-                  setIsTransitioning(true);
-                  if (window.innerWidth >= 768) {
-                    setIsMobileMenuOpen(false);
+          {/* Desktop Logo Area */}
+          <div className={`hidden md:flex h-16 items-center ${isSidebarExpanded ? 'justify-start px-4' : 'justify-center'} border-b border-cyan-500/20 shrink-0 mb-2 transition-all`}>
+            <div className="relative group shrink-0">
+              <div className="absolute inset-0 bg-cyan-500/30 blur-sm rounded-lg animate-pulse group-hover:bg-cyan-400/50 transition-all"></div>
+              <img src="/logo.png" alt="SeaTrace" className={`relative z-10 w-8 h-8 rounded-lg object-contain shadow-[0_0_10px_rgba(6,182,212,0.5)] transition-transform group-hover:scale-110`} />
+            </div>
+            {isSidebarExpanded && (
+              <div className="ml-3 font-orbitron font-bold text-cyan-400 tracking-wider whitespace-nowrap overflow-hidden animate-fade-in">
+                SEATRACE
+              </div>
+            )}
+          </div>
+
+          {/* Navigation Items - Vertical Scroll */}
+          <div className="flex-1 py-2 flex flex-col gap-1 px-2 overflow-y-auto custom-scrollbar">
+            {[
+              { id: 'dashboard', icon: Activity, label: 'Ops Dashboard' },
+              { id: 'map', icon: Globe, label: 'Live Map' },
+              { id: 'analytics', icon: BarChart2, label: 'AI Analytics' },
+              { id: 'radar', icon: Target, label: 'Radar System' },
+              { id: 'scanner', icon: Scan, label: 'X-Ray Scanner' },
+              { id: 'eco', icon: Leaf, label: 'Eco-Scanner' },
+              { id: 'crew', icon: Users, label: 'Crew Manifest' },
+
+              { id: 'vessels', icon: Anchor, label: 'Vessel Registry' },
+              { id: 'reports', icon: FileText, label: 'Reports' },
+              { id: 'settings', icon: Settings, label: 'Settings' },
+            ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  if (activeTab !== item.id) {
+                    soundManager.playNav();
+                    setIsTransitioning(true);
+                    if (window.innerWidth >= 768) {
+                      setIsMobileMenuOpen(false);
+                    }
+                    setTimeout(() => {
+                      setActiveTab(item.id);
+                      setIsTransitioning(false);
+                    }, 150);
                   }
-                  setTimeout(() => {
-                    setActiveTab(item.id);
-                    setIsTransitioning(false);
-                  }, 150);
-                }
-              }}
-              className={`sidebar-item p-3 md:p-2 rounded-md flex items-center ${isSidebarExpanded ? 'justify-start' : 'md:justify-center justify-start'} gap-3 flex-shrink-0 relative group transition-all ${activeTab === item.id ? 'active bg-cyan-900/30 text-cyan-400' : 'text-slate-400 hover:text-cyan-300 hover:bg-cyan-900/10'}`}
-              title={isSidebarExpanded ? '' : item.label}
-            >
-              <item.icon className={`w-5 h-5 flex-shrink-0 transition-all ${activeTab === item.id ? 'scale-110 drop-shadow-[0_0_5px_rgba(0,243,255,0.5)]' : 'group-hover:scale-110'}`} />
+                }}
+                className={`sidebar-item p-3 md:p-2 rounded-md flex items-center ${isSidebarExpanded ? 'justify-start' : 'md:justify-center justify-start'} gap-3 flex-shrink-0 relative group transition-all ${activeTab === item.id ? 'active bg-cyan-900/30 text-cyan-400' : 'text-slate-400 hover:text-cyan-300 hover:bg-cyan-900/10'}`}
+                title={isSidebarExpanded ? '' : item.label}
+              >
+                <item.icon className={`w-5 h-5 flex-shrink-0 transition-all ${activeTab === item.id ? 'scale-110 drop-shadow-[0_0_5px_rgba(0,243,255,0.5)]' : 'group-hover:scale-110'}`} />
 
-              {/* Label - Always visible on Mobile, conditional on Desktop */}
-              <span className={`${isSidebarExpanded ? 'block' : 'block md:hidden'} font-rajdhani font-semibold tracking-wider text-sm whitespace-nowrap overflow-hidden animate-fade-in text-left flex-1`}>
-                {item.label}
-              </span>
-
-              {/* Desktop Tooltip (Collapsed) */}
-              {!isSidebarExpanded && (
-                <span className="hidden md:group-hover:block absolute left-full ml-2 bg-slate-900 border border-cyan-500/50 text-cyan-400 text-xs px-2 py-1 rounded z-50 whitespace-nowrap pointer-events-none fade-in">
+                {/* Label - Always visible on Mobile, conditional on Desktop */}
+                <span className={`${isSidebarExpanded ? 'block' : 'block md:hidden'} font-rajdhani font-semibold tracking-wider text-sm whitespace-nowrap overflow-hidden animate-fade-in text-left flex-1`}>
                   {item.label}
                 </span>
-              )}
-            </button>
-          ))}
 
-          {/* Admin / Extra Tools */}
-          {userRole === 'admin' && (
-            <button
-              onClick={() => {
-                setActiveTab('admin');
-                setIsMobileMenuOpen(false);
-              }}
-              className={`sidebar-item p-3 md:p-2 rounded-md flex items-center ${isSidebarExpanded ? 'justify-start' : 'md:justify-center justify-start'} gap-3 flex-shrink-0 ${activeTab === 'admin' ? 'active bg-red-900/30 text-red-400' : 'text-slate-400 hover:text-red-300'}`}
-            >
-              <Lock className="w-5 h-5 flex-shrink-0" />
-              <span className={`${isSidebarExpanded ? 'block' : 'block md:hidden'} font-rajdhani font-semibold tracking-wider text-sm whitespace-nowrap overflow-hidden animate-fade-in text-left flex-1`}>
-                Command
-              </span>
-            </button>
-          )}
-        </div>
+                {/* Desktop Tooltip (Collapsed) */}
+                {!isSidebarExpanded && (
+                  <span className="hidden md:group-hover:block absolute left-full ml-2 bg-slate-900 border border-cyan-500/50 text-cyan-400 text-xs px-2 py-1 rounded z-50 whitespace-nowrap pointer-events-none fade-in">
+                    {item.label}
+                  </span>
+                )}
+              </button>
+            ))}
 
-        {/* User Info - Visible on Mobile too now */}
-        <div className={`flex p-4 md:p-2 border-t border-cyan-500/20 flex-col ${isSidebarExpanded ? 'items-start md:px-4' : 'md:items-center items-start'} gap-2 shrink-0 transition-all bg-slate-900/50 md:bg-transparent`}>
-          <div className={`${isSidebarExpanded ? 'block' : 'block md:hidden'} w-full mb-2`}>
-            <div className="text-sm font-bold text-cyan-300 truncate">{userName}</div>
-            <div className="text-xs text-slate-500 uppercase">{userRole}</div>
+            {/* Admin / Extra Tools */}
+            {userRole === 'admin' && (
+              <button
+                onClick={() => {
+                  setActiveTab('admin');
+                  setIsMobileMenuOpen(false);
+                }}
+                className={`sidebar-item p-3 md:p-2 rounded-md flex items-center ${isSidebarExpanded ? 'justify-start' : 'md:justify-center justify-start'} gap-3 flex-shrink-0 ${activeTab === 'admin' ? 'active bg-red-900/30 text-red-400' : 'text-slate-400 hover:text-red-300'}`}
+              >
+                <Lock className="w-5 h-5 flex-shrink-0" />
+                <span className={`${isSidebarExpanded ? 'block' : 'block md:hidden'} font-rajdhani font-semibold tracking-wider text-sm whitespace-nowrap overflow-hidden animate-fade-in text-left flex-1`}>
+                  Command
+                </span>
+              </button>
+            )}
           </div>
-          <button onClick={handleLogout} className={`p-2 hover:bg-red-500/20 rounded-full transition-colors group flex items-center gap-3 ${isSidebarExpanded ? 'w-full justify-start md:px-3' : 'w-full md:w-auto justify-start md:justify-center'}`} title="Logout">
-            <LogOut className="w-5 h-5 md:w-4 md:h-4 text-cyan-600 group-hover:text-red-400" />
-            <span className={`${isSidebarExpanded ? 'block' : 'block md:hidden'} text-sm md:text-xs font-bold text-slate-400 group-hover:text-red-400 uppercase tracking-widest`}>Logout</span>
-          </button>
+
+          {/* User Info - Visible on Mobile too now */}
+          <div className={`flex p-4 md:p-2 border-t border-cyan-500/20 flex-col ${isSidebarExpanded ? 'items-start md:px-4' : 'md:items-center items-start'} gap-2 shrink-0 transition-all bg-slate-900/50 md:bg-transparent`}>
+            <div className={`${isSidebarExpanded ? 'block' : 'block md:hidden'} w-full mb-2`}>
+              <div className="text-sm font-bold text-cyan-300 truncate">{userName}</div>
+              <div className="text-xs text-slate-500 uppercase">{userRole}</div>
+            </div>
+            <button onClick={handleLogout} className={`p-2 hover:bg-red-500/20 rounded-full transition-colors group flex items-center gap-3 ${isSidebarExpanded ? 'w-full justify-start md:px-3' : 'w-full md:w-auto justify-start md:justify-center'}`} title="Logout">
+              <LogOut className="w-5 h-5 md:w-4 md:h-4 text-cyan-600 group-hover:text-red-400" />
+              <span className={`${isSidebarExpanded ? 'block' : 'block md:hidden'} text-sm md:text-xs font-bold text-slate-400 group-hover:text-red-400 uppercase tracking-widest`}>Logout</span>
+            </button>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* FLOATING EXIT MAP BUTTON - Visible ONLY on Map */}
+      {activeTab === 'map' && (
+        <button
+          onClick={() => setActiveTab('dashboard')}
+          className="fixed top-4 left-4 z-[100] bg-slate-900/80 backdrop-blur border border-cyan-500 text-cyan-400 px-4 py-2 rounded-lg hover:bg-cyan-500/20 flex items-center gap-2 font-bold shadow-[0_0_15px_rgba(0,243,255,0.3)] pointer-events-auto"
+        >
+          <span className="text-lg">←</span> EXIT MAP
+        </button>
+      )
+      }
 
       {/* Mobile Sidebar Overlay */}
       {isMobileMenuOpen && (
