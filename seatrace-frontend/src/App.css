@@ -527,6 +527,110 @@ body.light-mode .ocean-bg {
   animation: fadeIn 0.5s ease-out forwards;
 }
 
+/* Realtime Dashboard Polish */
+.realtime-analysis-container {
+  padding: 20px;
+  padding-bottom: 100px;
+}
+
+.realtime-status-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.realtime-status-card.connected {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.realtime-status-card .status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #ef4444;
+  box-shadow: 0 0 10px #ef4444;
+}
+
+.realtime-status-card.connected .status-indicator {
+  background-color: #10b981;
+  box-shadow: 0 0 10px #10b981;
+  animation: pulse 2s infinite;
+}
+
+.realtime-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .realtime-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tracking-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+}
+
+.tracking-item:hover {
+  transform: translateX(5px);
+  border-color: var(--neon-blue);
+  box-shadow: -5px 0 15px rgba(0, 243, 255, 0.1);
+}
+
+/* Marine Wave Animation */
+.marine-waves {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  overflow: hidden;
+  z-index: -1;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%230099ff' fill-opacity='0.2' d='M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+  background-size: 50% 100%;
+  animation: wave 10s linear infinite;
+}
+
+.wave:nth-of-type(2) {
+  bottom: 10px;
+  opacity: 0.5;
+  animation: wave 15s linear infinite reverse;
+}
+
+@keyframes wave {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
 /* Mobile Vessel Card Adjustments */
 @media (max-width: 640px) {
   .vessel-card-mobile {

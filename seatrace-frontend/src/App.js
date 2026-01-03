@@ -788,6 +788,10 @@ function App() {
       {/* Cyber Background (Static) */}
       <div className="ocean-bg"></div>
       <div className="grid-overlay"></div>
+      <div className="marine-waves">
+        <div className="wave"></div>
+        <div className="wave"></div>
+      </div>
 
       {/* Map is now ONLY rendered when tab is active for performance and theme */}
       {activeTab === 'map' && (
@@ -1357,27 +1361,12 @@ function App() {
                   <h2>📡 Real-Time Marine Monitoring Analysis</h2>
 
                   {/* Real-time Status */}
-                  <div style={{
-                    backgroundColor: connectionStatus === 'connected' ? '#d1fae5' : '#fecaca',
-                    border: `2px solid ${connectionStatus === 'connected' ? '#10b981' : '#ef4444'}`,
-                    padding: '16px',
-                    borderRadius: '8px',
-                    marginBottom: '24px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px'
-                  }}>
-                    <div style={{
-                      width: '12px',
-                      height: '12px',
-                      borderRadius: '50%',
-                      backgroundColor: connectionStatus === 'connected' ? '#10b981' : '#ef4444',
-                      animation: 'pulse 2s infinite'
-                    }}></div>
+                  <div className={`realtime-status-card ${connectionStatus}`}>
+                    <div className="status-indicator"></div>
                     <div>
-                      <strong>{connectionStatus === 'connected' ? 'Connected' : 'Disconnected'}</strong>
-                      <p style={{ margin: '4px 0', fontSize: '14px', color: '#666' }}>
-                        {connectionStatus === 'connected' ? 'Receiving live updates' : 'Attempting to reconnect...'}
+                      <strong>{connectionStatus === 'connected' ? 'Systems Online' : 'Network Offline'}</strong>
+                      <p>
+                        {connectionStatus === 'connected' ? 'Receiving live satellite telemetry' : 'Attempting to re-establish link...'}
                       </p>
                     </div>
                   </div>
