@@ -73,12 +73,13 @@ const VesselsPage = ({ vessels, onVesselSelect, onAddClick }) => {
             </div>
 
             {/* Vessels Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 animate-fade-in pb-20 md:pb-0">
                 {filteredVessels.map((vessel, index) => (
                     <div
                         key={vessel.imo || index}
                         onClick={() => typeof onVesselSelect === 'function' && onVesselSelect(vessel)}
-                        className="bg-slate-800/80 rounded-xl overflow-hidden border border-slate-700 hover:border-cyan-500/50 transition-all hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] group relative cursor-pointer"
+                        className="bg-slate-800/60 backdrop-blur-md rounded-xl overflow-hidden border border-slate-700/50 hover:border-cyan-500 hover:shadow-[0_0_20px_rgba(0,243,255,0.2)] group relative cursor-pointer transform hover:-translate-y-1 transition-all duration-300"
+                        style={{ animationDelay: `${index * 50}ms` }}
                     >
                         {/* Image Section */}
                         <div className="h-40 w-full relative overflow-hidden bg-slate-800">
