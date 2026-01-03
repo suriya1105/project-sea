@@ -507,3 +507,30 @@ body.light-mode .ocean-bg {
   stroke-linejoin: round;
   stroke-linecap: round;
 }
+
+/* =========================================
+   ANIMATIONS & MOBILE POLISH
+   ========================================= */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Mobile Vessel Card Adjustments */
+@media (max-width: 640px) {
+  .vessel-card-mobile {
+    flex-direction: row;
+    height: auto;
+  }
+}
