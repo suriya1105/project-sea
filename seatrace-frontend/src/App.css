@@ -631,6 +631,35 @@ body.light-mode .ocean-bg {
   }
 }
 
+/* 3D Map View */
+.perspective-container {
+  perspective: 1200px;
+  background: #020617;
+  /* Dark background for depth */
+  overflow: hidden;
+}
+
+.map-3d-active {
+  transform: rotateX(40deg) scale(1.2) translateY(-10%);
+  transform-style: preserve-3d;
+  box-shadow: 0 50px 100px rgba(0, 0, 0, 0.8);
+  filter: contrast(1.2) brightness(1.1);
+  border-bottom: 2px solid cyan;
+}
+
+/* Make standard markers 'stand up' in 3D mode (optional/experimental - can disrupt positioning) */
+.map-3d-active .leaflet-marker-icon,
+.map-3d-active .leaflet-tooltip {
+  /* transform: rotateX(-40deg); Cancel out parent tilt? - visual complexity */
+}
+
+/* Enhancing Responsive Mobile Controls */
+@media (max-width: 768px) {
+  .cyber-panel {
+    padding: 10px;
+  }
+}
+
 /* Mobile Vessel Card Adjustments */
 @media (max-width: 640px) {
   .vessel-card-mobile {
