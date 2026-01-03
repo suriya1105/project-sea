@@ -113,7 +113,7 @@ class DataManager:
         with self.lock:
             if not self.users:
                 return 1
-            ids = [user.get('id', 0) for user in self.users.values()]
+            ids = [int(user.get('id', 0)) for user in self.users.values()]
             return max(ids) + 1
 
     # ... (Keep existing methods)
