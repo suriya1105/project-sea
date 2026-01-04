@@ -99,41 +99,46 @@ const ScannerPage = ({ vessels = [] }) => {
                                 }}
                             ></div>
 
-                            {/* Main Wireframe Container */}
-                            <div className={`relative w-full h-full border-2 border-cyan-500/30 rounded-lg p-8 flex items-center justify-center bg-slate-900/20 backdrop-blur-sm transition-all duration-1000 ${scanning ? 'shadow-[0_0_50px_rgba(6,182,212,0.2)]' : ''}`}>
+                            {/* Digital Twin Container Grid */}
+                            <div className={`relative w-full h-full border-2 border-cyan-500/30 rounded-lg p-8 flex flex-col items-center justify-center bg-slate-900/20 backdrop-blur-sm transition-all duration-1000 ${scanning ? 'shadow-[0_0_50px_rgba(6,182,212,0.2)]' : ''}`}>
 
-                                {/* Placeholder for complex SVG Wireframe - Using simulated CSS shapes for demo */}
-                                <div className="relative w-96 h-32 border-b-4 border-cyan-500 rounded-[0_0_40px_40px] flex items-center justify-center">
-                                    <div className="absolute top-[-40px] left-10 w-20 h-40 bg-cyan-500/10 border border-cyan-400/30 transform skew-x-[-10deg]"></div>
-                                    <div className="absolute top-[-20px] left-40 w-10 h-20 bg-cyan-500/10 border border-cyan-400/30"></div>
-                                    <div className="absolute inset-0 bg-cyan-400/5 animate-pulse"></div>
-
-                                    {/* Layer Specific Overlays */}
-                                    {activeLayer === 'engine' && (
-                                        <div className="absolute bottom-4 right-20 w-16 h-16 rounded-full border-2 border-orange-500/50 bg-orange-500/10 animate-spin-slow flex items-center justify-center shadow-[0_0_20px_rgba(249,115,22,0.3)]">
-                                            <Cpu className="w-8 h-8 text-orange-400" />
-                                        </div>
-                                    )}
-                                    {activeLayer === 'cargo' && (
-                                        <div className="absolute top-0 w-60 h-20 flex gap-1 justify-center opacity-60">
-                                            {[1, 2, 3, 4, 5].map(i => (
-                                                <div key={i} className="w-8 h-10 bg-green-500/20 border border-green-400/40 transform skew-x-[-10deg]"></div>
-                                            ))}
-                                        </div>
-                                    )}
-
-                                    {/* Annotations */}
-                                    <div className="absolute -top-10 -right-20 flex flex-col items-start">
-                                        <div className="h-[1px] w-20 bg-cyan-500/50 mb-1"></div>
-                                        <div className="text-[10px] font-mono text-cyan-400 bg-slate-900 p-1 border border-cyan-500/30">
-                                            CLASS A STRUCTURAL INTEGRITY
-                                        </div>
-                                    </div>
+                                <div className="absolute top-2 left-4 text-xs font-mono text-cyan-500 opacity-70">
+                                    DIGITAL TWIN: {selectedVessel.name.toUpperCase()}
                                 </div>
 
-                                {/* Scanning Grid Overlay */}
-                                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
-                                <div className="absolute inset-0 bg-gradient-to-t from-cyan-900/20 via-transparent to-transparent"></div>
+                                {/* Interactive Cargo Grid */}
+                                <div className="grid grid-cols-6 gap-2 transform rotate-x-12 perspective-deep">
+                                    {Array.from({ length: 24 }).map((_, i) => {
+                                        const isHazard = i === 7 || i === 15;
+                                        const isHighValue = i === 3 || i === 20;
+                                        return (
+                                            <button
+                                                key={i}
+                                                // Simplified "Blockchain Manifest" interaction
+                                                onClick={() => {
+                                                    // In a real app, this would fetch specific container ID data
+                                                    // Here we mock it by updating the 'activeLayer' context or showing alert
+                                                    alert(`BLOCKCHAIN MANIFEST\nContainer ID: SEA-${10000 + i}\nOrigin: Singapore\nContents: ${isHazard ? 'CLASS 4 FLAMMABLE' : isHighValue ? 'MICROCHIPS' : 'General Goods'}\nRisk Score: ${isHazard ? 'CRITICAL' : 'LOW'}`);
+                                                }}
+                                                className={`w-12 h-12 border border-slate-600/50 rounded hover:scale-110 transition-transform relative group ${isHazard ? 'bg-red-900/40 hover:bg-red-500/60 hover:shadow-[0_0_15px_red]' :
+                                                        isHighValue ? 'bg-yellow-900/40 hover:bg-yellow-500/60 hover:shadow-[0_0_15px_yellow]' :
+                                                            'bg-cyan-900/20 hover:bg-cyan-500/40 hover:shadow-[0_0_15px_cyan]'
+                                                    }`}
+                                            >
+                                                <div className="text-[8px] text-white/50 absolute top-1 left-1">{100 + i}</div>
+                                                {isHazard && <AlertCircle className="w-4 h-4 text-red-500 absolute bottom-1 right-1" />}
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+
+                                {/* Annotations */}
+                                <div className="absolute -top-10 -right-20 flex flex-col items-start">
+                                    <div className="h-[1px] w-20 bg-cyan-500/50 mb-1"></div>
+                                    <div className="text-[10px] font-mono text-cyan-400 bg-slate-900 p-1 border border-cyan-500/30">
+                                        BLOCKCHAIN VERIFIED
+                                    </div>
+                                </div>
                             </div>
 
                         </div>
