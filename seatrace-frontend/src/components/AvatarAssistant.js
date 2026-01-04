@@ -4,7 +4,7 @@ import '../App.css'; // Ensure we use the global styles
 
 import { processAIQuery } from './services/AIEngine';
 
-const AvatarAssistant = ({ isOpen, onClose, context }) => {
+const AvatarAssistant = ({ isOpen, onClose, context, token }) => {
     const [messages, setMessages] = useState([
         { id: 1, text: "Systems Online. I am your SeaTrace AI Co-Pilot. How can I assist with the current marine situation?", sender: 'ai' }
     ]);
@@ -29,8 +29,8 @@ const AvatarAssistant = ({ isOpen, onClose, context }) => {
         setIsTyping(true);
 
         // Process with AI Engine
-        setTimeout(() => {
-            const response = processAIQuery(userMsg.text, context);
+        setTimeout(async () => {
+            const response = await processAIQuery(userMsg.text, context, token);
 
             setMessages(prev => [...prev, { id: Date.now() + 1, text: response.text, sender: 'ai' }]);
             setIsTyping(false);

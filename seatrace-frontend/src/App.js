@@ -1570,6 +1570,7 @@ function App() {
           isOpen={isAvatarOpen}
           onClose={() => setIsAvatarOpen(false)}
           context={{ vessels, oilSpills, setActiveTab }}
+          token={token}
         />
 
         {/* Avatar Toggle Button (FAB) */}
