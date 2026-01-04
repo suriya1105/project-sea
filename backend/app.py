@@ -1260,6 +1260,39 @@ def broadcast_realtime_analysis():
     }
     socketio.emit('realtime_analysis_update', analysis_data, room='realtime_analysis')
 
+@app.route('/api/chat', methods=['POST'])
+@token_required
+def chat_endpoint():
+    """Handle chat requests for the AI Assistant"""
+    try:
+        data = request.json
+        user_query = data.get('query')
+        
+        if not user_query:
+            return jsonify({'error': 'Query required'}), 400
+            
+        # Build System Context from Live Data
+        # We can fetch fresh data here to ensure AI is up-to-date
+        context = {
+            'vessels': data_manager.get_vessels(),
+            'spills': data_manager.get_oil_spills(),
+            'user': request.user
+        }
+        
+        # specific frontend context (like what tab is open) can be passed in 'data'
+        # but for now we rely on backend data
+        
+        response_text = llm_service.generate_response(user_query, context)
+        
+        return jsonify({
+            'response': response_text,
+            'timestamp': datetime.utcnow().isoformat()
+        }), 200
+        
+    except Exception as e:
+        print(f"Chat Error: {e}")
+        return jsonify({'error': 'AI Service Unavailable'}), 500
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
     socketio.run(app, debug=False, port=port, host='0.0.0.0')
