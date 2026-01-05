@@ -51,7 +51,8 @@ const LiveMap = (props) => {
         navy: true,
         fishing: true,
         spills: true,
-        strikes: true
+        strikes: true,
+        pollution: true
     });
 
     // Local state for vessels to allow real-time updates without waiting for parent prop
@@ -191,6 +192,16 @@ const LiveMap = (props) => {
                             </div>
                             <div className={`w-2 h-2 rounded-full ${visibleLayers.strikes ? 'bg-pink-500 shadow-[0_0_5px_pink]' : 'bg-slate-600'}`}></div>
                         </div>
+                        <div
+                            onClick={() => toggleLayer('pollution')}
+                            className={`flex items-center justify-between p-1.5 rounded cursor-pointer transition-all ${visibleLayers.pollution ? 'bg-orange-900/20 border border-orange-500/30' : 'opacity-50 hover:opacity-75'}`}
+                        >
+                            <div className="flex items-center gap-2">
+                                <span className="text-orange-500">☢️</span>
+                                <span className="text-[11px] text-orange-300">Pollution Risk</span>
+                            </div>
+                            <div className={`w-2 h-2 rounded-full ${visibleLayers.pollution ? 'bg-orange-500 shadow-[0_0_5px_orange]' : 'bg-slate-600'}`}></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -221,10 +232,14 @@ const LiveMap = (props) => {
                         return true;
                     }).map(vessel => {
                         const routeStyle = getRouteStyle(vessel.type);
+
+                        // Check for pollution risk (mock logic if not in data yet)
+                        const isPollutionRisk = visibleLayers.pollution && (vessel.risk_level === 'High' || vessel.speed < 1.0);
+
                         // Use simpler icons for high density
                         const customIcon = L.divIcon({
                             className: 'vessel-marker-group',
-                            html: `<div class="vessel-dot" style="background-color: ${routeStyle.color}; box-shadow: 0 0 4px ${routeStyle.color};"></div>`,
+                            html: `<div class="vessel-dot ${isPollutionRisk ? 'pollution-risk-pulse' : ''}" style="background-color: ${isPollutionRisk ? '#f97316' : routeStyle.color}; box-shadow: 0 0 ${isPollutionRisk ? '10px #f97316' : '4px ' + routeStyle.color};"></div>`,
                             iconSize: [8, 8],
                             iconAnchor: [4, 4]
                         });
@@ -265,6 +280,15 @@ const LiveMap = (props) => {
                                                     </div>
                                                 </div>
 
+                                                {isPollutionRisk && (
+                                                    <div className="mb-2 bg-orange-900/30 border border-orange-500/40 p-1.5 rounded flex items-center gap-2">
+                                                        <span className="text-orange-500 text-lg">☢️</span>
+                                                        <div className="text-[10px] text-orange-200 leading-tight">
+                                                            <strong>POLLUTION ALERT:</strong> Loitering detected. Potential illegal discharge.
+                                                        </div>
+                                                    </div>
+                                                )}
+
                                                 <div className="grid grid-cols-2 gap-2 text-xs mb-3">
                                                     <div className="bg-slate-800/50 p-1.5 rounded">
                                                         <div className="text-[10px] text-slate-500 uppercase">Speed</div>
@@ -289,7 +313,7 @@ const LiveMap = (props) => {
 
                                 {/* Render Dense Trails for "Satellite Dataset" Look */}
                                 {trailPositions.length > 1 && (
-                                    <Polyline positions={trailPositions} pathOptions={{ color: routeStyle.color, weight: 2, opacity: 0.8, className: 'vessel-trail shadow-[0_0_10px_currentColor]' }} />
+                                    <Polyline positions={trailPositions} pathOptions={{ color: isPollutionRisk ? '#f97316' : routeStyle.color, weight: 2, opacity: 0.8, className: 'vessel-trail shadow-[0_0_10px_currentColor]' }} />
                                 )}
                             </div>
                         );
@@ -486,7 +510,7 @@ const LiveMap = (props) => {
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

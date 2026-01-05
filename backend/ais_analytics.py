@@ -47,6 +47,23 @@ class AISAnalytics:
         # 2. Stationary but drift (potential engine failure or disabled)
         # Speed < 1.0 but course changing wildly (simulated logic)
         
+        # 3. Loitering Detection (Pollution/Smuggling Risk)
+        # Vessel moving very slowly for extended periods in open ocean
+        loitering_vessels = df[(df['speed'] < 3.0) & (df['speed'] > 0.1)]
+        for _, row in loitering_vessels.iterrows():
+            anomalies.append({
+                'type': 'LOITERING_RISK',
+                'severity': 'HIGH' if row.get('type', '').lower().endswith('tanker') else 'MEDIUM',
+                'vessel_imo': row.get('imo'),
+                'vessel_name': row.get('name'),
+                'details': f"Suspicious loitering detected at {row['speed']} kts. Risk of illegal discharge."
+            })
+
+        # 4. Potential Dumping / S-Turn Detection (Simulated)
+        # Speed changes + sharp course turns often indicate dumping
+        # We simulate this by checking for high variance if we had history, 
+        # but for single-frame we'll use a random probability for demonstration if metadata suggests
+        
         return anomalies
 
     def analyze_vessel_history(self, history_points):
@@ -56,8 +73,23 @@ class AISAnalytics:
         """
         if len(history_points) < 5:
             return None
+        
+        # Check for erratic maneuvers (zigzag)
+        zigzag_score = 0
+        for i in range(1, len(history_points) - 1):
+             prev = history_points[i-1]
+             curr = history_points[i]
+             # Simple lat/lon diff check
+             if abs(curr['lat'] - prev['lat']) > 0.05 or abs(curr['lon'] - prev['lon']) > 0.05:
+                 zigzag_score += 1
+                 
+        if zigzag_score > 3:
+            return {
+                'track_consistency': 'Erratic',
+                'alert': 'High maneuvering detected - Potential dumping pattern'
+            }
 
-        # Convert to DataFrame
+        # Convert to DataFrame (keep original logic)
         df = pd.DataFrame(history_points)
         return {
             'track_consistency': 'Normal', # Placeholder for real geospatial analysis

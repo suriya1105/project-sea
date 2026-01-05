@@ -148,6 +148,27 @@ def simulate_vessel_movement():
                 chunk = updated_vessels[i:i + chunk_size]
                 socketio.emit('vessel_movement_batch', chunk)
         
+        # Run AIS Analytics every 5 ticks (approx 10s)
+        if tick_count % 5 == 0:
+            try:
+                # Convert dict to list for analyzer
+                current_vessel_list = list(vessels.values())
+                anomalies = ais_analyzer.detect_anomalies(current_vessel_list)
+                
+                # Create a set of anomalous IMOs for quick lookup
+                high_risk_imos = {a['vessel_imo']: a for a in anomalies}
+                
+                for imo, v in vessels.items():
+                    if imo in high_risk_imos:
+                        v['risk_level'] = 'High'
+                        v['risk_details'] = high_risk_imos[imo]['details']
+                    elif v.get('risk_level') == 'High' and random.random() < 0.1:
+                        # Decay risk if no longer anomalous (10% chance to clear per check to avoid flickering)
+                        v['risk_level'] = 'Low'
+                        v.pop('risk_details', None)
+            except Exception as e:
+                print(f"Error in AIS Analytics Loop: {e}")
+
         socketio.sleep(2) # Run every 2 seconds
         tick_count += 1
         socketio.sleep(1) # 1Hz update rate
